@@ -72,6 +72,7 @@ export default {
               sessionStorage.setItem('store', JSON.stringify(this.$store.state.login))
               this.$router.addRoutes(this.addRoute)          
               location.replace("/zhengzhou");
+              
             } else {
               localStorage.removeItem("iAdminID");
               this.userStatus(undefined);
