@@ -84,8 +84,43 @@ export default {
   },
   mounted() {
     this.getData();
+    this.getEventManageAll();
   },
   methods: {
+    //查询全部事件
+    getEventManageAll(_startTime,_endTime){
+      _startTime = _startTime || "";
+      _endTime = _endTime || "";
+       EventManage.EventManageAll(
+        5000,
+        1,
+        _startTime,
+        _endTime,
+      ).then(res => {
+        console.log("使用这个值",res.data.Data.Result)
+        let Result = res.data.Data.Result;
+        let DataForPosition = [];
+        let trueResult = [];
+        _.map(Result, res => {
+          //DataForMap.push({"EventPosition":[res.EventX,res.EventY],"EventFromName":res.EventFromName})
+          if (Number(res.EventX) > 10 && Number(res.EventX) < 500) {
+            DataForPosition.push([res.EventX, res.EventY]);
+            trueResult.push(res);
+          }
+        });
+        this.$bus.emit("setBusinessLayerGroupVisible", false); //关闭业务图层
+                console.log(DataForPosition)
+        this.$bus.emit(
+          "setPointOnMap",
+          DataForPosition,
+          false,
+          () => {},
+          "DatailEvent",
+          trueResult
+        );
+
+      });
+    },
     charInitPie() {
       var chartPie = _.cloneDeep(ChartPieLight);
       chartPie.series[0].name = "事件类型";
@@ -140,7 +175,7 @@ export default {
     },
     getTaskData() {
       //本日任务统计
-      let current = utilData.getCurrentDate();
+      let current = utilData.getCurrentDate();    
       current = utilData.myformatStr(current);
       TaskManage.taskCount(current, current).then(res => {
         this.inspectionCardData[0].num = res.data.Data.Result[0].count;
@@ -154,6 +189,7 @@ export default {
       });
       //本月事件统计
       EventManage.EventManageCount(_startTime, _endTime).then(res => {
+        console.log(res.data.Data)
         this.inspectionCardData[2].num = res.data.Data.Result[0].count;
       });
     }

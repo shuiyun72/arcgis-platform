@@ -14,6 +14,8 @@ namespace GisPlateform.IDAL.InspectionPlan
         MessageEntity GetPlanListCount(DateTime startTime, DateTime endTime);
         MessageEntity AssignTask(string[] taskIds);
         MessageEntity Delete(string[] taskIds);
-     //   MessageEntity AssignPlan(ProraterDeptName);
+        //   MessageEntity AssignPlan(ProraterDeptName);
+        MessageEntity GetTaskPlanInfo(int taskId);
+        MessageEntity PostTaskEqument(L_Task_CompleteDetail task_CompleteDetail);
     }
 }

@@ -5,7 +5,12 @@
         <img class="app-logo" src="@assets/hedalogo.png" />
       </div>
       <el-row type="flex" justify="end" class="tag-wraper">
-        <el-row type="flex" class="menu-tag-wraper menuRow" ref="menuRow" :style="{opacity: menuShow ? 1 :0}">
+        <el-row
+          type="flex"
+          class="menu-tag-wraper menuRow"
+          ref="menuRow"
+          :style="{opacity: menuShow ? 1 :0}"
+        >
           <router-link
             :to="{name:item.cFunUrl}"
             class="header_tag"
@@ -23,10 +28,8 @@
           @visible-change="val => this.menuDropdownActive = val"
           v-show="menuMoreState"
           placement="bottom-start"
-          >
-          <span class="el-dropdown-link">
-            更多
-          </span>
+        >
+          <span class="el-dropdown-link">更多</span>
           <el-dropdown-menu slot="dropdown" class="more-menu-tag-wraper">
             <template v-for="item in tagData">
               <el-dropdown-item :key="item.cFunUrl">
@@ -161,7 +164,7 @@ export default {
   data() {
     return {
       elDropdownActive: false, //顶部登陆drap
-      menuMoreState: false, //顶部是否显示更多
+      menuMoreState: true, //顶部是否显示更多
       menuShow: true, //顶部menu是否展示
       menuDropdownActive: false, //顶部更多drap
       flexible: false, //是否左侧收缩
@@ -210,9 +213,11 @@ export default {
   },
   mounted() {
     this.menuMoreControl();
-    window.addEventListener("resize", () => {
-      this.menuMoreControl();
-    });
+    window.addEventListener("resize", _.debounce(() => {
+      this.$nextTick(() => {
+        this.menuMoreControl();
+      });
+    }))
   },
   beforeDestroy() {
     this.$bus.off("FullScren", this.fullScren); //是否全屏
@@ -277,12 +282,11 @@ export default {
         localStorage.clear();
         sessionStorage.clear();
         this.$store.dispatch("login/userStatus", undefined);
-        if(this.$store.state.system.hashMode){
+        if (this.$store.state.system.hashMode) {
           location.replace("/#/Login");
-        }else{
+        } else {
           location.replace("/Login");
         }
-        
       });
     },
     //是否全屏幕展示地图

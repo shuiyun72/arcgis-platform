@@ -66,7 +66,8 @@ function singleHdLogin(to, from, next) {
         loading.close()
         next()
     } else if (!iAdminID) {
-        loginError(next)
+        endLoading()
+        next({ name: 'Login' })
     } else {
         iAdminID = JSON.parse(iAdminID)
         let date = new Date()
@@ -83,7 +84,7 @@ function singleHdLogin(to, from, next) {
                     store.dispatch('login/UserAuthority', res.data.Data.Result)
                     router.addRoutes(store.getters['login/addRoute']);
                     sessionStorage.setItem('store', JSON.stringify(store.state.login))
-                    loginSuccessSet(next, true,to)
+                    loginSuccessSet(next, true, to)
                 })
             } else {
                 loginSuccessSet(next)
@@ -112,12 +113,12 @@ function singleHdLogin(to, from, next) {
 //     }
 // }
 // }
-function loginSuccessSet(next, first,to) {
-    if(first){
+function loginSuccessSet(next, first, to) {
+    if (first) {
         console.log(to)
-        next({path:to.path})
+        next({ path: to.path })
     }
-   
+
     let allowStamptime = new Date()
     allowStamptime.setMinutes(allowStamptime.getMinutes() + 5)
     let allowStamptimeDes = allowStamptime.getTime()

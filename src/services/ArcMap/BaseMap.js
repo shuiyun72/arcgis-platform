@@ -194,7 +194,7 @@ class BaseMap {
         //添加分组图层
         _.forEach(MapConfigure.FeatureLayerGroup, GroupValue => {
             //判断当前图层是否启用
-            if (GroupValue.isEnable) {
+            if (GroupValue) {
                 //特性图层添加
                 _.forEach(GroupValue.featureLayers, featureValue => {
                     let _FeatureURL = GroupValue.layerURL;

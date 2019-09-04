@@ -1,3 +1,3 @@
 //个人处理
-import MaSelfDispose from "./MaSelfDispose";
-export default MaSelfDispose;
+import Maself from "./Maself";
+export default Maself;

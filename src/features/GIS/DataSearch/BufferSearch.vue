@@ -258,36 +258,39 @@ export default {
       this.drawType = "设备";
       this.$bus.emit("clearGDataLayer"); //清除绘制过的图层数据信息
       this._GData = null
-      this.$bus.emit("pointSelect", { 
-        featureQueryCompleted:res=> {
-          this._GData = res.geometry;
-          this.$bus.emit('featureQueryTask',this._GData , res => {
-            let layerData = []
-             _.forEach(res, item => {
-               if(item.layerData.length){
-                 layerData.push(...item.layerData)
-               }
-             })
-            if( layerData.length == 0){
+      this.$bus.emit("getMapPoint", true, res => {
+        console.log(res)
+        this._GData = res;
+        this.$bus.emit(
+          "featureQueryTask",
+          this._GData,
+          res => {
+            let layerData = [];
+            _.forEach(res, item => {
+              if (item.layerData.length) {
+                layerData.push(...item.layerData);
+              }
+            });
+            if (layerData.length == 0) {
               this.$message({
-                type:'warning',
-                message:'请选择设备点进行分析',
-                showclose:true
-              })
-            }else if(layerData.length == res[0].layerData.length ){
-              this.drawType = '管线'
-              this._GData = res[0].layerData[0].geometry
-              this.$bus.emit('addMapLine', this._GData)
+                type: "warning",
+                message: "请选择设备点进行分析",
+                showclose: true
+              });
+            } else if (layerData.length == res[0].layerData.length) {
+              this.drawType = "管线";
+              this._GData = res[0].layerData[0].geometry;
+              this.$bus.emit("addMapLine", this._GData);
               //this.allBufferSearch();
-            }else{
-              this.drawType = '其他'
-              this.$bus.emit('addMapPoint', this._GData)
+            } else {
+              this.drawType = "其他";
+              this.$bus.emit("addMapPoint", this._GData);
               //this.allBufferSearch();
             }
-            
-          },0.3)
-          return
-        }
+          },
+          0.3
+        );
+        return;
       });
     },
     //地图框选统计

@@ -3,6 +3,7 @@ using GisPlateformV1_0.App_Authorize;
 using GisPlateformV1_0.AttributePack;
 using GisPlateform.IDAL.InspectionPlan;
 using GisPlateform.Model.BaseEntity;
+using GisPlateform.Model.PipeInspectionBase_Gis_OutSide;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -104,5 +105,47 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.InspectionP
             return _taskManageDAL.AssignTask(taskIds.Split(','));
         }
 
+
+        /// <summary>
+        /// 按照任务ID获取任务明细
+        /// </summary>
+        /// <param name="taskId">任务id</param>
+        /// <returns></returns>
+        [Route("TaskManage/GetTaskplanInfo")]
+        public MessageEntity GetTaskplanInfo(int taskId)
+        {
+            return _taskManageDAL.GetTaskPlanInfo(taskId);
+        }
+        /// <summary>
+        /// 巡检到位后调用
+        /// </summary>
+        /// <param name="taskId">任务id</param>
+        /// <param name="devicename">点位名称</param>
+        /// <param name="devicesmid">点位id</param>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="personId">当前app的用户id</param>
+        /// <param name="equType"> 不传的话代表任务关键点,有值代表设备对应图层的layerIndex</param>
+        /// <returns></returns>
+        [HttpPost]
+        [Route("TaskManage/PostTaskEqument")]
+        public MessageEntity PostTaskEqument(int taskId, string devicename, int devicesmid, string x, string y, string personId, int? equType = null)
+        {
+
+            return _taskManageDAL.PostTaskEqument(new L_Task_CompleteDetail
+            {
+                TaskId = taskId,
+                Devicename = devicename,
+                Devicesmid = devicesmid,
+                x = x,
+                y = y,
+                Uptime = DateTime.Now,
+                Peopleid = personId,
+                PointType = equType == null ? 1 : 0,
+                IsFeedback = 0,
+                IsHidden = 0,
+                EquType = equType
+            });
+        }
     }
 }

@@ -257,10 +257,11 @@ export default {
           GPPoint.push(_GData);
           if (GPPoint.length >= 2) {
             this._toolBar.drawDeactivate(); //取消绘制功能
+            this._toolBar.mapOperationInit(true ,true);
             allDoneCallback instanceof Function && allDoneCallback(GPPoint);
           }
         }
-      });
+      }); 
     },
     //缓冲区查询分析
     bufferAnalysis(_layerName, _GData, metersLength, allDoneCallback,clearAction = true) {

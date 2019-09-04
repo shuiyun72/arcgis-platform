@@ -35,8 +35,18 @@
         </el-col>
       </el-row>
       <el-row type="flex" justify="end">
-        <el-button class="my-search" size="mini" @click="GetData" v-if="$options.filters.btnTree('/api/EventManage/Get' ,$route.meta.iFunID)">查询</el-button>
-        <el-button class="my-export" @click="exportExcel" size="mini"  v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)">导出</el-button>
+        <el-button
+          class="my-search"
+          size="mini"
+          @click="GetData"
+          v-if="$options.filters.btnTree('/api/EventManage/Get' ,$route.meta.iFunID)"
+        >查询</el-button>
+        <el-button
+          class="my-export"
+          @click="exportExcel"
+          size="mini"
+          v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)"
+        >导出</el-button>
       </el-row>
     </el-form>
     <InsTable
@@ -51,62 +61,46 @@
       @GetData="GetData"
       @deltableItem="deltableItem"
       @detailBtn="detailBtn"
+      @tableDbClick="tableDbClick"
     ></InsTable>
     <el-dialog
       class="myDialog"
       :visible.sync="detailDialogVisible"
       :before-close="handleClose"
-      width="780px"
-      custom-class="order_detail_dialog"
+      width="50%"
+      custom-class="order_detail_dialog eventMapDetal"
       title="事件工单详情"
       center
     >
       <el-scrollbar class="dialog-scroll">
-        <div id="dialogPrint">
-          <!-- <el-row class="dialog-table" style="padding:0">
-            <el-col
-              v-for="(item,index) in detailDialogTwo"
-              :key="index"
-              :span="12"
-              class="wrapperCol"
-            >
-              <el-col :span="6" class="dialog-table-lable">{{index}}</el-col>
-              <el-col :span="18">{{item}}</el-col>
-            </el-col>
-            <el-col
-              :span="24"
+        <div id="dialogPrint" class="dialogPrint">
+          <table border="1" class="dialog-table" style="border-collapse: collapse;">
+            <tr v-for="(item,index) in detailDialogTwo" :key="index" class="wrapperCol">
+              <td class="dialog-table-lable">{{item[0]}}</td>
+              <td>{{item[1]}}</td>
+              <td class="dialog-table-lable">{{item[2]}}</td>
+              <td>{{item[3]}}</td>
+            </tr>
+            <tr
               v-for="(item,index) in detailDialogOne"
               :key="index"
               class="wrapperCol"
-              :class="{'dialog_img-wrapper': isarray(item)}"
+              :class="{'dialog_img-wrapper': isarray(item) && item.length}"
             >
-              <el-col :span="3" class="dialog-table-lable">{{index}}</el-col>
-              <el-col :span="21" class="dialog_img" v-if="isarray(item)">
-                <img :src="image" alt v-for="(image,index) in item" :key="index" />
-              </el-col>
-              <el-col :span="21" class="textalign_left" v-else>{{item}}</el-col>
-            </el-col>
-          </el-row> -->
-          <table border="1" class="dialog-table" style="border-collapse: collapse;">
-              <tr  v-for="(item,index) in detailDialogTwo" :key="index"  class="wrapperCol">
-                  <td class="dialog-table-lable">{{item[0]}}</td>
-                  <td>{{item[1]}}</td>
-                  <td class="dialog-table-lable">{{item[2]}}</td>
-                  <td>{{item[3]}}</td>
-              </tr>
-              <tr  v-for="(item,index) in detailDialogOne" :key="index" class="wrapperCol" 
-                :class="{'dialog_img-wrapper': isarray(item) && item.length}">
-                <td class="dialog-table-lable">{{index}}</td>
-                <td colspan="3" class="dialog_img" v-if="isarray(item)">
-                  <a :href="image"  target="_blank" v-for="(image,index) in item" :key="index" ><img :src="image" alt  /></a>
-                </td>
-                <td colspan="3" v-else>{{item}}</td>
-              </tr>
-            </table>
-          <div id="dialogDetailMap" class="dialogDetailMap"></div>
+              <td class="dialog-table-lable">{{index}}</td>
+              <td colspan="3" class="dialog_img" v-if="isarray(item)">
+                <!-- <a :href="image" target="_blank" v-for="(image,index) in item" :key="index">
+                  <img :src="image" alt />
+                </a>-->
+              </td>
+              <td colspan="3" v-else>{{item}}</td>
+            </tr>
+          </table>
+          <p v-show="mapHide" style="line-height:40px;">没有点数据，暂不展示地图</p>
+          <div v-show="!mapHide" id="dialogDetailMap" class="dialogDetailMap"></div>
         </div>
-        <el-row>
-          <el-button  @click="print">打印</el-button>
+        <el-row class="dialogPrintBtn" type="flex" justify="end">
+          <el-button size="mini" @click="print" class="my-print">打印</el-button>
         </el-row>
       </el-scrollbar>
     </el-dialog>
@@ -114,8 +108,8 @@
 </template>
 <script>
 import _ from "lodash";
-import config from '@config/config.js'
-import printJS from 'print-js'
+import config from "@config/config.js";
+import printJS from "print-js";
 import BaseMap from "@services/OpenLayers/BaseMap";
 import MapNavigate from "@services/OpenLayers/MapNavigate";
 import * as EasyTable from "@common/consts/inseasyui-table";
@@ -151,7 +145,8 @@ export default {
       detailDialogVisible: false, //弹框控制
       detailDialogTwo: null, //一列数据
       detailDialogOne: null, //两列数据
-      MapMethods: null //地图
+      MapMethods: null, //地图
+      mapHide: false //根据是否有点决定是否展示地图
     };
   },
   computed: {},
@@ -159,17 +154,25 @@ export default {
   created() {
     //初始化数据
     this.loadLayerData();
-    this.GetData()
+    this.GetData();
+    this.$bus.emit("setBusinessLayerGroupVisible", true);
+  },
+  beforeDestroy() {
+    this.$bus.emit("removeInteractions");
+    this.$bus.emit("CloseModifyInteraction");
+    this.$bus.emit("OffPointermoveControl");
+    this.$bus.emit("setBusinessLayerGroupVisible", false);
+    //this.$bus.emit("setBusinessLayerGroupVisible", false); //开启业务图层
   },
   methods: {
-    print(){
+    //打印
+    print() {
       printJS({
-        printable:'dialogPrint',
-        type: 'html',
+        printable: "dialogPrint",
+        type: "html",
         header: '<h3 class="custom-h3">智慧水务控管一体化平台</h3>',
-        CSS:''
-        
-      })
+        CSS: ""
+      });
     },
     isarray(val) {
       return _.isArray(val);
@@ -232,29 +235,115 @@ export default {
         _searchCondition
       ).then(res => {
         this.loading = false;
-          this.squareQueryRawTableData = res.data.Data.Result;
-          this.squareQueryTotal = res.data.Data.TotalRows;
+        this.squareQueryRawTableData = res.data.Data.Result;
+        this.squareQueryTotal = res.data.Data.TotalRows;
+        this.drawPoint(res.data.Data.Result);
       });
     },
+    //双击
+    tableDbClick(row) {
+      console.log(row);
+      this.drawPoint(row);
+    },
+    drawPoint(data) {
+      //点坐标的集合
+      let pointArrayData = [];
+      let objArray = [];
+      if (_.isArray(data)) {
+        _.map(data, res => {
+          if (res.EventX && res.EventY) {
+            pointArrayData.push([Number(res.EventX), Number(res.EventY)]);
+            let EventPictures = [];
+            if (res.EventPictures) {
+              EventPictures = res.EventPictures.split("|");
+              EventPictures = _.map(EventPictures, item => {
+                return config.apiPath.insURL + item;
+              });
+            }
+            objArray.push({
+              EventCode: res.EventCode,
+              DeptName: res.DeptName,
+              PName: res.PName,
+              ET1: res.ET1,
+              EventFromName: res.EventFromName,
+              HandlerLevelName: res.HandlerLevelName,
+              eventAddress: res.eventAddress,
+              eventDesc: res.eventDesc || "数据最后上传时间" + res.UpTime,
+              EventPictures: EventPictures
+            });
+          }
+        });
+      } else if (data.EventX && data.EventY) {
+        pointArrayData.push([Number(data.EventX), Number(data.EventY)]);
+        let EventPictures = [];
+        if (data.EventPictures) {
+          EventPictures = data.EventPictures.split("|");
+          EventPictures = _.map(EventPictures, item => {
+            return config.apiPath.insURL + item;
+          });
+        }
+        objArray.push({
+          EventCode: data.EventCode,
+          DeptName: data.DeptName,
+          PName: data.PName,
+          ET1: data.ET1,
+          EventFromName: data.EventFromName,
+          HandlerLevelName: data.HandlerLevelName,
+          eventAddress: data.eventAddress,
+          eventDesc: data.eventDesc || "数据最后上传时间" + data.UpTime,
+          EventPictures: EventPictures
+        });
+        this.$bus.emit("setCenter", ...pointArrayData);
+      }else{
+        this.$message({
+          type:'error',
+          message:'此事件未上传点位',
+          showClose:false,
+        })
+      }
+
+      //开启地图hover点
+      this.$bus.emit("onPointermoveControl");
+      //绘点
+      this.$bus.emit(
+        "setPointOnMap",
+        pointArrayData,
+        false,
+        () => {},
+        "EventPoint",
+        objArray
+      );
+    },
+    //详情
     detailBtn(row) {
+      console.log(row, row.EventX, row.EventY);
+      let point = [];
       this.detailDialogVisible = true;
       this.detailDialogTwo = [
-        ['事件编号',row.EventCode,'上报人',row.PName],
-        ['上报时间',row.UpTime,'所属部门',row.DeptName],
-        ['事件内容',,row.ET1,'事件类型',row.ET1],
-        ['紧急程度',row.HandlerLevelName,'事件来源',row.EventFromName],
-        ['处理级别',row.UrgencyName,'派单员',row.DispatchPerson]
+        ["事件编号", row.EventCode, "上报人", row.PName],
+        ["上报时间", row.UpTime, "所属部门", row.DeptName],
+        ["事件内容", , row.ET1, "事件类型", row.ET1],
+        ["紧急程度", row.HandlerLevelName, "事件来源", row.EventFromName],
+        ["处理级别", row.UrgencyName, "派单员", row.DispatchPerson]
       ];
-      let EventPictures = row.EventPictures.split('|')
+      let EventPictures = row.EventPictures.split("|");
       EventPictures = _.map(EventPictures, item => {
-        return config.apiPath.insURL + item
-      })
+        return config.apiPath.insURL + item;
+      });
       this.detailDialogOne = {
         事件地址: row.EventAddress,
         现场照片: EventPictures,
         // 缩略图预览: [],
         事件描述: row.EventDesc
       };
+      if (row.EventX && row.EventY) {
+        point = [Number(row.EventX), Number(row.EventY)];
+        this.mapHide = false;
+      } else {
+        point = [];
+        this.mapHide = true;
+        return;
+      }
       //声明地图对象
       this.$nextTick(() => {
         if (!this.MapMethods) {
@@ -262,13 +351,13 @@ export default {
           _mapController.createMap("dialogDetailMap").then(ResultObject => {
             this.MapMethods = new MapNavigate(ResultObject);
             this.MapMethods.setPointOnMap(
-              [[113.52334821796903, 34.77318724078378]],
+              [point],
               false,
               () => {},
               "RoutePoint",
               "desript"
             );
-            this.MapMethods.setCenter([113.52334821796903, 34.77318724078378]);
+            this.MapMethods.setCenter(point);
             // this.MapMethods.pointermoveControl(
             //   document.getElementById("popup"),
             //   (res, title) => {
@@ -282,19 +371,14 @@ export default {
           });
         } else {
           this.MapMethods.setPointOnMap(
-            [[113.52334821796903, 34.77318724078378]],
+            [point],
             false,
             () => {},
             "RoutePoint",
             "desript"
           );
-          this.MapMethods.setCenter([113.52334821796903, 34.77318724078378]);
+          this.MapMethods.setCenter(point);
         }
-      });
-    },
-    printMap() {
-      this.MapMethods.printMap(res => {
-        //console.log(res);
       });
     },
     handleClose() {
@@ -313,11 +397,13 @@ export default {
     exportExcel() {
       ExportExcel("div .exportTable", "事件管理");
     },
+    //日期选择
     dateBtn(startTime, endTime) {
       this.startTime = startTime;
       this.endTime = endTime;
       //this.GetData();
     },
+    //删除
     deltableItem(row) {
       this.$confirm("确认删除？")
         .then(_ => {

@@ -35,11 +35,16 @@
     // { name: "上报时间", value: "UpTime", field: 'UpTime' },
 	{ text: "上报类型", value: "EventFromName", field: 'EventFromName' },
 	{ text: "事件编号", value: "EventCode", width: 100, field: 'EventCode' },
-	{ text: "处理时间", value: "ExecTime", field: 'ExecTime' },
-	{ text: "紧急状态", value: "UrgencyId", field: 'UrgencyId' },
-	{ text: "事件状态", value: "OperId", field: 'OperId' },
+	{ text: "处理时间", value: "ExecTime", field: "ExecTime" },
+	// { text: "紧急状态", value: "UrgencyId", field: 'UrgencyId' },
+	{ text: "紧急状态", value: "UrgencyName", field: 'UrgencyName' },
+	// { text: "事件状态", value: "OperId", field: 'OperId' },
+	{ text: "事件状态", value: "IsValidName", field: 'IsValidName' },
 	{
-		text: "事件类型", value: "EventTypeName", field: '8', templet: function (row) {
+		// text: "事件类型", value: "EventTypeName", field: '8', templet: function (row) {
+		// 	return `<span class="el-tag">${row.EventTypeName}</span>`
+		// }
+		text: "事件类型", value: "EventTypeName", field: 'EventTypeName', templet: function (row) {
 			return `<span class="el-tag">${row.EventTypeName}</span>`
 		}
 	},

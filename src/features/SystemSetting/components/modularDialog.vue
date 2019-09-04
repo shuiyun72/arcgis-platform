@@ -47,7 +47,6 @@ export default {
         1: "B/S 显示",
         4: "C/S 显示"
       }, //系统状态过滤
-
       typeListArr: [
         {
           name: "手机app",

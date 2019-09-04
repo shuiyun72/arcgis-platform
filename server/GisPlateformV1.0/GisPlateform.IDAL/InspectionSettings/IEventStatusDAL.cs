@@ -10,6 +10,6 @@ namespace GisPlateform.IDAL.InspectionSettings
     public interface IEventStatusDAL : IDependency
     {
         MessageEntity GetStatusForInspection();
-        MessageEntity GetStatusForMantain();
+        MessageEntity GetStatusForMantain(DateTime? startTime, DateTime? endTime);
     }
 }

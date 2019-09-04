@@ -49,62 +49,60 @@
         </el-form-item>
       </el-row>
       <el-row type="flex" justify="end" class="btn-div">
-        <el-col :span="11">
-          <span @click="play"  v-if="$options.filters.btnTree('play' ,$route.meta.iFunID)">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-bofang" />
+        <span
+          v-if="$options.filters.btnTree('play' ,$route.meta.iFunID) && $options.filters.btnTree('suspend' ,$route.meta.iFunID)"
+        >
+          <span @click=" ()=> palying ? pause() : play()">
+            <svg class="icon" aria-hidden="true" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="17" fill="#2fb8ee" opacity="0.56"/>
+              <circle cx="18" cy="18" r="14" fill="#2f3239" />
+              <path :class="{pause :palying}" />
+
+              <!-- <use :xlink:href="palying ? '#icon-zanting' : '#icon-bofang'" /> -->
             </svg>
-            播放
+            {{palying ? '暂停' : '播放' }}
           </span>
-          <span @click="pause"  v-if="$options.filters.btnTree('suspend' ,$route.meta.iFunID)">
-            <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-zanting" />
-            </svg>
-            暂停
-          </span>
-          <!-- <el-button size="small" type="primary" @click="play">播放</el-button>
-          <el-button size="small" type="warning" @click="pause">暂停</el-button>-->
-        </el-col>
+        </span>
       </el-row>
     </el-form>
     <el-row class="ins-collapse">
       <el-scrollbar>
-      <el-collapse accordion v-model="activeNames">
-        <el-collapse-item
-          :name="item.DepName"
-          v-for="item in  userList"
-          :key="item.DepName"
-          class="avatList"
-        >
-          <template slot="title">
-            <div>
-              <i class="iconfont icon-bumen"></i>
-              {{item.DepName}}(
-              <span class="blue-text">{{item.OnLineCount}}</span>
-              /{{item.Persons.length}})
-            </div>
-          </template>
-          <div class="uesr-info-warpper">
-            <div
-              v-for="uesrInfo in item.Persons"
-              :key="uesrInfo.iAdminID"
-              v-show="stateValue?uesrInfo.IsOnline == stateValue:true"
-              class="avatListItem"
-              :class="{active:uesrInfo.iAdminID == userlistValue,online:uesrInfo.IsOnline == 'Y'}"
-              @click="typeChoose(uesrInfo.iAdminID,'userlistValue')"
-            >
-              <!-- <div class="img-wraper">
+        <el-collapse accordion v-model="activeNames">
+          <el-collapse-item
+            :name="item.DepName"
+            v-for="item in  userList"
+            :key="item.DepName"
+            class="avatList"
+          >
+            <template slot="title">
+              <div>
+                <i class="iconfont icon-bumen"></i>
+                {{item.DepName}}(
+                <span class="blue-text">{{item.OnLineCount}}</span>
+                /{{item.Persons.length}})
+              </div>
+            </template>
+            <div class="uesr-info-warpper">
+              <div
+                v-for="uesrInfo in item.Persons"
+                :key="uesrInfo.iAdminID"
+                v-show="stateValue?uesrInfo.IsOnline == stateValue:true"
+                class="avatListItem"
+                :class="{active:uesrInfo.iAdminID == userlistValue,online:uesrInfo.IsOnline == 'Y'}"
+                @click="getRoute(uesrInfo)"
+              >
+                <!-- <div class="img-wraper">
                 <i class="img-shadow" v-show="uesrInfo.IsOnline == 'N'"></i>
                 <img
                 src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1555167380380&di=347b5f13b120723a41ca6cfa3edc3d03&imgtype=0&src=http%3A%2F%2Fuserimg.yingyonghui.com%2Fhead%2F56%2F1431005490560%2F2210156.png-thumb"
               >
-              </div>-->
+                </div>-->
 
-              <span style="padding-left:30px;font-size: 14px;">{{uesrInfo.cAdminName}}</span>
+                <span style="padding-left:30px;font-size: 14px;">{{uesrInfo.cAdminName}}</span>
+              </div>
             </div>
-          </div>
-        </el-collapse-item>
-      </el-collapse>
+          </el-collapse-item>
+        </el-collapse>
       </el-scrollbar>
     </el-row>
     <el-row class="stateChoose">
@@ -167,7 +165,8 @@ export default {
       speedValue: "", //播放速度
       pointList: [], //需要播放的点数组
       sameCondition: false, //是否是相同的条件
-      oldAdminID: "" //上次选中的人员id
+      oldAdminID: "", //上次选中的人员id
+      palying: false //是否正在运行动画
     };
   },
   created() {
@@ -177,7 +176,12 @@ export default {
     this.$bus.emit("flexibleControl", true); //控制左侧样式
   },
   beforeDestroy() {
-    this.$bus.emit("plotAnimateControl", null, null, "clear");
+    this.$bus.emit(
+      "plotAnimateControl",
+      this.pointList,
+      this.speedValue,
+      "clear"
+    );
     this.$bus.emit("flexibleControl", false); //控制左侧样式
   },
   methods: {
@@ -189,15 +193,10 @@ export default {
       this.dateValue = utilData.myformatStr(current);
       this.timeValue = ["08:00:00", "17:00:00"];
     },
-    play() {
-      // this.$bus.emit("plotAnimateControl", null ,null,'clear');
-      if (!this.userlistValue) {
-        this.$message({
-          type: "error",
-          message: "请选择人员"
-        });
-        return;
-      } else if (!this.dateValue) {
+    getRoute(item) {
+      this.palying = false;
+      this.userlistValue = item.iAdminID;
+      if (!this.dateValue) {
         this.$message({
           type: "error",
           message: "请选择执行日期"
@@ -214,17 +213,11 @@ export default {
       let _endTime = this.dateValue + " " + this.timeValue[1];
       let _iAdminID = this.userlistValue;
       let _speedValue = this.speedValue;
-
       if (
         this.sameCondition &&
         (_iAdminID == this.oldAdminID || !this.oldAdminID)
       ) {
-        this.$bus.emit(
-          "plotAnimateControl",
-          this.pointList,
-          _speedValue,
-          "start"
-        );
+        return;
       } else {
         User.UserRoute(_startTime, _endTime, _iAdminID).then(res => {
           let _point = [];
@@ -244,21 +237,46 @@ export default {
               return [item.PositionX, item.PositionY];
             });
           }
-          console.log(_point)
+          console.log(_point);
           this.pointList = _point;
           this.$bus.emit(
             "plotAnimateControl",
             this.pointList,
             _speedValue,
-            "reStart"
+            "showRoute"
           );
         });
       }
       this.sameCondition = true;
       this.oldAdminID = _iAdminID;
     },
+    play() {
+      if (!this.userlistValue) {
+        this.$message({
+          type: "error",
+          message: "请选择人员"
+        });
+        return;
+      }
+      this.palying = true;
+      this.$bus.emit(
+        "plotAnimateControl",
+        this.pointList,
+        this.speedValue,
+        "start",
+        () => {
+          this.palying = false;
+        }
+      );
+    },
     pause() {
-      this.$bus.emit("plotAnimateControl", null, null, "pause");
+      this.palying = false;
+      this.$bus.emit(
+        "plotAnimateControl",
+        this.pointList,
+        this.speedValue,
+        "pause"
+      );
     },
     GetData() {
       User.UserInfo().then(res => {
@@ -269,10 +287,6 @@ export default {
     },
 
     typeChoose(item, type) {
-      if (type == "userlistValue") {
-        console.log(this[type]);
-        console.log(this.oldAdminID);
-      }
       this[type] = item;
     },
     //初始化相关数据

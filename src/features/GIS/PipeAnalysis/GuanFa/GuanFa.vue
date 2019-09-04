@@ -408,7 +408,6 @@ export default {
            *顺时针排列方法
            */
           let a = _.cloneDeep(coordinateList);
-          console.log(a);
           let coordinatelen = coordinateList.length;
           coordinateList = _.orderBy(coordinateList, function(o) {
             return o[0];

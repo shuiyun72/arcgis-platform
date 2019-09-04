@@ -72,7 +72,7 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <param name="OperId">步骤ID 0:无效 1: 待处理 2:待接受  3:待处置 4 5:处置中  5:延期确认  6:待审核  7:审核完成  11:待处理  12:回复完成  null:待分派</param>
         /// <param name="DispatchPersonID">指派人ID</param>
         /// <returns></returns>
-        public MessageEntity WorkorderInvalid(string EventID , string OrderId = "0", string OperId = "", string DispatchPersonID = "")
+        public MessageEntity WorkorderInvalid(string EventID , string OrderId, string OperId = "", string DispatchPersonID = "")
         {
             return _eventManage.WorkorderInvalid(EventID, OrderId, OperId, DispatchPersonID);
         }
@@ -83,36 +83,41 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <param name="OrderId">工单编号</param>
         /// <param name="StepNum">步骤id(7)</param>
         /// <param name="iAdminID">登陆ID</param>
+        ///  <param name="iDetpID">登陆人员部门ID</param>
         /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListAudit(string EventID, string OrderId = "0", string StepNum = "7", string iAdminID = "", string OperRemarks="")
+        public MessageEntity WorkListAudit(string EventID, string OrderId, string iDetpID, string StepNum = "7", string iAdminID = "", string OperRemarks="")
         {
-            return _eventManage.WorkListAudit(EventID, OrderId,  StepNum, iAdminID, OperRemarks);
+            return _eventManage.WorkListAudit(EventID, OrderId, iDetpID, StepNum, iAdminID, OperRemarks);
         }
         /// <summary>
         /// 事件工单流转操作（接单)
         /// </summary>
         /// <param name="EventID">事件ID</param>
+       /// <param name="ExecPersonId">处理人id</param>
+        /// <param name="ExecDetpID">处理人部门id</param>
         /// <param name="OrderId">工单编号</param>
         /// <param name="StepNum">步骤id(3)</param>
         /// <param name="DispatchPersonID">指派人ID</param>
         /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListReceipt(string EventID, string OrderId = "0", string StepNum = "3", string DispatchPersonID = "", string OperRemarks = "")
+        public MessageEntity WorkListReceipt(string EventID, string ExecPersonId, string ExecDetpID, string OrderId, string StepNum = "3", string DispatchPersonID = "", string OperRemarks = "")
         {
-            return _eventManage.WorkListReceipt(EventID, OrderId, StepNum, DispatchPersonID, OperRemarks);
+            return _eventManage.WorkListReceipt(EventID, ExecPersonId,ExecDetpID, OrderId, StepNum, DispatchPersonID, OperRemarks);
         }
         /// <summary>
         /// 事件工单流转操作（到场)
         /// </summary>
         /// <param name="EventID">事件ID</param>
         /// <param name="base64Image">上传照片</param>
+        /// <param name="ExecPersonId">处理人id</param>
+        /// <param name="ExecDetpID">处理人部门id</param>
         /// <param name="OrderId">工单编号</param>
         /// <param name="StepNum">步骤id(4)</param>
         /// <param name="DispatchPersonID">指派人ID</param>
         /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListPresent(string EventID, [FromBody]string[] base64Image, string OrderId = "0", string StepNum = "4", string DispatchPersonID = "", string OperRemarks = "")
+        public MessageEntity WorkListPresent(string EventID, [FromBody]string[] base64Image, string ExecPersonId, string ExecDetpID, string OrderId , string StepNum = "4", string DispatchPersonID = "", string OperRemarks = "")
         {
             string eventPictures = string.Empty;
             ImageFactory imageFactory = new ImageFactory();
@@ -122,19 +127,21 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
             {
                 return MessageEntityTool.GetMessage(ErrorType.SystemError, eventPictures);
             }
-            return _eventManage.WorkListPresent(EventID, OrderId, StepNum, DispatchPersonID, OperRemarks, eventPictures);
+            return _eventManage.WorkListPresent(EventID, ExecPersonId, ExecDetpID, OrderId, StepNum, DispatchPersonID, OperRemarks, eventPictures);
         }
         /// <summary>
         /// 事件工单流转操作（处置)
         /// </summary>
         /// <param name="EventID">事件ID</param>
         /// <param name="base64Image">上传照片</param>
+        /// <param name="ExecPersonId">处理人id</param>
+        /// <param name="ExecDetpID">处理人部门id</param>
         /// <param name="OrderId">工单编号</param>
         /// <param name="StepNum">步骤id(5)</param>
         /// <param name="DispatchPersonID">指派人ID</param>
         /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListChuZhi(string EventID, [FromBody]string[] base64Image, string OrderId = "0", string StepNum = "5", string DispatchPersonID = "", string OperRemarks = "")
+        public MessageEntity WorkListChuZhi(string EventID, [FromBody]string[] base64Image, string ExecPersonId, string ExecDetpID, string OrderId, string StepNum = "5", string DispatchPersonID = "", string OperRemarks = "")
         {
             string eventPictures = string.Empty;
             ImageFactory imageFactory = new ImageFactory();
@@ -144,7 +151,7 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
             {
                 return MessageEntityTool.GetMessage(ErrorType.SystemError, eventPictures);
             }
-            return _eventManage.WorkListChuZhi(EventID, OrderId, StepNum, DispatchPersonID, OperRemarks, eventPictures);
+            return _eventManage.WorkListChuZhi(EventID, ExecPersonId, ExecDetpID, OrderId, StepNum, DispatchPersonID, OperRemarks, eventPictures);
         }
         /// <summary>
         /// 事件工单流转操作（完工)
@@ -156,7 +163,7 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <param name="iAdminID">登陆人员ID</param>
         /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListFinished(string EventID, [FromBody]string[] base64Image, string OrderId = "0", string StepNum = "6", string iAdminID = "", string OperRemarks = "")
+        public MessageEntity WorkListFinished(string EventID, [FromBody]string[] base64Image, string OrderId, string StepNum = "6", string iAdminID = "", string OperRemarks = "")
         {
             string eventPictures = string.Empty;
             ImageFactory imageFactory = new ImageFactory();
@@ -202,7 +209,6 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         {
             return _eventManage.WorkListAssign(EventID, ExecDetpID, ExecPersonId, DispatchPersonID, ExecTime);
         }
-        
         /// <summary>
         ///  事件工单流转操作（退回  热线退单)
         /// </summary>
@@ -236,13 +242,12 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <param name="OrderId">工单编号ID</param>
         /// <param name="OperRemarks">延期完成说明</param>
         /// <param name="complishTime">延期完成时间</param>
-        /// <param name="PersonId">事件上报人ID</param>
         /// <param name="DeptId">事件所属部门ID</param>
         /// <param name="iAdminID">登陆人员ID</param>
         /// <returns></returns>
-        public MessageEntity WordListDelay(string EventID, string OrderId, string OperRemarks, string complishTime, string PersonId, string DeptId,string iAdminID)
+        public MessageEntity WordListDelay(string EventID, string OrderId, string OperRemarks, string complishTime, string DeptId,string iAdminID)
         {
-            return _eventManage.WordListDelay(EventID, OrderId, OperRemarks, complishTime, PersonId, DeptId,iAdminID);
+            return _eventManage.WordListDelay(EventID, OrderId, OperRemarks, complishTime, DeptId,iAdminID);
         }
         /// <summary>
         /// 事件工单流转操作（延期确认)
@@ -265,7 +270,7 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <param name="DispatchPersonID">指派人ID</param>
         /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListEventReply(string EventID, string OrderId = "0",  string DispatchPersonID = "", string OperRemarks = "")
+        public MessageEntity WorkListEventReply(string EventID, string OrderId,  string DispatchPersonID = "", string OperRemarks = "")
         {
             return _eventManage.WorkListEventReply(EventID, OrderId, DispatchPersonID, OperRemarks);
 

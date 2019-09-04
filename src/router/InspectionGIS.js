@@ -9,6 +9,9 @@ export default {
       default: HomeDataMain,
       OpenLMap: (res) => require(['@features/InspectionGIS/InsQuery'], res)
     },
+    redirect: {
+      name: 'InsOverView'
+    },
     children: [
       {
         path: "InsAnalysis",

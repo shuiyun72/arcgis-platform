@@ -53,7 +53,9 @@
     <Compile Include="AttendanceRecordDAL.cs" />
     <Compile Include="BaseDAL.cs" />
     <Compile Include="CellphoneManageDAL.cs" />
+    <Compile Include="CurrentPositionDAL.cs" />
     <Compile Include="DepartmentDAL.cs" />
+    <Compile Include="EventOperation\EventFromDAL.cs" />
     <Compile Include="EventOperation\EventManageDAL.cs" />
     <Compile Include="EventOperation\EventStartForMaintainDAL.cs" />
     <Compile Include="InspectionMonitor\MonitorDAL.cs" />

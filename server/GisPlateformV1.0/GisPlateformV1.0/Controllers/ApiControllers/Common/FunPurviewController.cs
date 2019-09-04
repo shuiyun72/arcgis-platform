@@ -25,7 +25,6 @@ namespace GisPlateformV1_0.Controllers
         {
             _p_FunPurviewDAL = p_FunPurviewDAL;
         }
-       
 
         /// <summary>
         /// 更新权限
@@ -38,7 +37,7 @@ namespace GisPlateformV1_0.Controllers
         [System.Web.Mvc.HttpPost]
         public MessageEntity RefreshFunPurview(int[] functionIds, int iPurviewID, int iPurviewType)
         {
-            if (functionIds == null || functionIds.Length == 0)
+            if (functionIds==null||functionIds.Length == 0)
             {
                 return MessageEntityTool.GetMessage(ErrorType.FieldError, "functionIds参数有误");
             }

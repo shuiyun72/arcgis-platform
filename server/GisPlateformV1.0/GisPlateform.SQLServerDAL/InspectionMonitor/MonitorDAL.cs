@@ -46,7 +46,7 @@ namespace GisPlateform.SQLServerDAL.InspectionMonitor
                                 ON a.iDeptID = d.iDeptID
                             LEFT JOIN dbo.P_Role r
                                 ON r.iRoleID = a.iRoleID
-                        WHERE r.IsInspector = 1
+                        WHERE r.IsInspector = 1 AND d.iDeptID IS NOT NULL
                         GROUP BY d.iDeptID;";
 
 

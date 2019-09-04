@@ -338,64 +338,6 @@ export default {
       ], //顶部管网总数等统计结果集
       MainLayeValue: "StreetLayer", //选中图层值
       imgList: _.cloneDeep(MapConfigure.BaseLayers),
-      tuLiData: [
-        {
-          color: "#00ff00",
-          name: "<=DN100"
-        },
-        {
-          color: "#669933",
-          name: "DN100-200"
-        },
-        {
-          color: "#0000ff",
-          name: "DN200-300"
-        },
-        {
-          color: "#ff0000",
-          name: "DN300-400"
-        },
-        {
-          color: "#cc0000",
-          name: "DN400-500"
-        },
-        {
-          color: "#9900ff",
-          name: "DN500-600"
-        },
-        {
-          color: "#663399",
-          name: ">DN600"
-        },
-        {
-          iconName: "icon-famen",
-          name: "阀门"
-        },
-        {
-          iconName: "icon-famenjing",
-          name: "阀门井"
-        },
-        {
-          iconName: "icon-jianxiujing",
-          name: "检修井"
-        },
-        {
-          iconName: "icon-paiqifa",
-          name: "排气阀"
-        },
-        {
-          iconName: "icon-xiaofangshuan",
-          name: "消防栓"
-        },
-        {
-          iconName: "icon-shuibiao",
-          name: "水表"
-        },
-        {
-          iconName: "icon-shuibiaojing",
-          name: "水表井"
-        }
-      ],
       // layerData: _.cloneDeep(MapConfigure.LayerConfiguration), //初始化图层数据
       topSearchDataValue: "",
       remoteData: [], //远程数据集合
@@ -765,40 +707,41 @@ export default {
         return
       }
       this.$emit("layerSetOpacity", item.layerName, item.transValue / 100);
-      switch (item.layerName) {
-        case "StreetLayer":
-          // this.$emit("layer-click", "StreetLayer", true);
-          // this.$emit("layer-click", "SatellLayer", false);
-          // this.$emit("layer-click", "TerrainLayer", false);
-           this.oneLayerShow("StreetLayer")
-          // _.filter(this.imgList, function(objValue) {
-          //   return objValue.layerName === "StreetLayer";
-          // })[0].isActive = true;
-          // _.filter(this.imgList, function(objValue) {
-          //   return objValue.layerName === "SatellLayer";
-          // })[0].isActive = false;
-          break;
-        case "SatellLayer":
-          // this.$emit("layer-click", "SatellLayer", true);
-          // this.$emit("layer-click", "StreetLayer", false);
-          // this.$emit("layer-click", "TerrainLayer", false);
-           this.oneLayerShow("SatellLayer")
-          // _.filter(this.imgList, function(objValue) {
-          //   return objValue.layerName === "StreetLayer";
-          // })[0].isActive = false;
-          // _.filter(this.imgList, function(objValue) {
-          //   return objValue.layerName === "SatellLayer";
-          // })[0].isActive = true;
-          break;
-        case "TerrainLayer":
-          // this.$emit("layer-click", "TerrainLayer", true);
-          // this.$emit("layer-click", "SatellLayer", false);
-          // this.$emit("layer-click", "StreetLayer", false);
-          this.oneLayerShow("TerrainLayer")
-          // item.isActive = !item.isActive;
-          // this.$emit("layer-click", item.layerName, item.isActive);
-          break;
-      }
+      this.oneLayerShow(item.layerName)
+      // switch () {
+      //   case "StreetLayer":
+      //     // this.$emit("layer-click", "StreetLayer", true);
+      //     // this.$emit("layer-click", "SatellLayer", false);
+      //     // this.$emit("layer-click", "TerrainLayer", false);
+      //      this.oneLayerShow("StreetLayer")
+      //     // _.filter(this.imgList, function(objValue) {
+      //     //   return objValue.layerName === "StreetLayer";
+      //     // })[0].isActive = true;
+      //     // _.filter(this.imgList, function(objValue) {
+      //     //   return objValue.layerName === "SatellLayer";
+      //     // })[0].isActive = false;
+      //     break;
+      //   case "SatellLayer":
+      //     // this.$emit("layer-click", "SatellLayer", true);
+      //     // this.$emit("layer-click", "StreetLayer", false);
+      //     // this.$emit("layer-click", "TerrainLayer", false);
+      //      this.oneLayerShow("SatellLayer")
+      //     // _.filter(this.imgList, function(objValue) {
+      //     //   return objValue.layerName === "StreetLayer";
+      //     // })[0].isActive = false;
+      //     // _.filter(this.imgList, function(objValue) {
+      //     //   return objValue.layerName === "SatellLayer";
+      //     // })[0].isActive = true;
+      //     break;
+      //   case "TerrainLayer":
+      //     // this.$emit("layer-click", "TerrainLayer", true);
+      //     // this.$emit("layer-click", "SatellLayer", false);
+      //     // this.$emit("layer-click", "StreetLayer", false);
+      //     this.oneLayerShow("TerrainLayer")
+      //     // item.isActive = !item.isActive;
+      //     // this.$emit("layer-click", item.layerName, item.isActive);
+      //     break;
+      // }
     },
     //动态控制地图只有一个显示
     oneLayerShow(activeLayer){

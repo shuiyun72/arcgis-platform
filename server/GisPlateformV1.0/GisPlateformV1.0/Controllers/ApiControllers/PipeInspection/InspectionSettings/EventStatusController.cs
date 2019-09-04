@@ -39,9 +39,9 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.InspectionSettings
         /// 事件状态列表(维修养护)
         /// </summary>
         /// <returns></returns>
-        public MessageEntity GetStatusForMantain()
+        public MessageEntity GetStatusForMantain(DateTime? startTime = null, DateTime? endTime = null)
         {
-            return _eventStatusDAL.GetStatusForMantain();
+            return _eventStatusDAL.GetStatusForMantain(startTime, endTime);
         }
     }
 }

@@ -19,7 +19,7 @@ namespace GisPlateform.IDAL
         List<Model.P_Function> GetUserAuthority(string userId, int systemType, out string errorMsg);
         List<Model.P_Function> GetRoleAuthority(string roleId, int systemType, out string errorMsg);
         List<Model.P_Admin> GetUserInfoListByDeptId(string deptId, string roleId, out string errorMsg);
-
+        List<Model.P_Admin> GetUserInfoListByDeptIdNoDelete(string deptId, string roleId, out string errorMsg);
         MessageEntity AddUser(Model.P_Admin admin);
         MessageEntity UpdateUser(Model.P_Admin admin);
         bool UpdateUserPassword(Model.AdminPassword admin,out string errorMsg);

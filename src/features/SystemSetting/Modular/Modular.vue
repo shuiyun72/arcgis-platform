@@ -134,14 +134,14 @@ export default {
       dialogVisible: false, //弹窗是否展示
       dialogtype: 0, //弹窗标题0:新增1：修改
       typeList: {
-        3: "手机app",
+        0: "手机app",
         1: "B/S 显示",
         4: "C/S 显示"
       }, //系统状态过滤
       typeListArr: [
         {
           cFunName: "手机app",
-          iFunID: 3
+          iFunID: 0
         },
         {
           cFunName: "B/S 显示",

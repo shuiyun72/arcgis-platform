@@ -218,8 +218,58 @@ FROM
                 }
             }
         }
-
-
+        public List<P_Admin> GetUserInfoListByDeptIdNoDelete(string deptId, string roleId, out string errorMsg)
+        {
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                errorMsg = "";
+                string query = @"SELECT iAdminID
+                                      ,iDeptID
+                                      ,iRoleID
+                                      ,cAdminName
+                                      ,CJobNumber
+                                      ,cAdminSex
+                                      ,cAdminPassWord
+                                      ,cAdminTel
+                                      ,cAdminEmail
+                                      ,iIsLocked
+                                      ,dExpireDate
+                                      ,iIsAllowChangePWD
+                                      ,cLastLoginIP
+                                      ,dLastLoginTime
+                                      ,dLastLogoutTime
+                                      ,iLoginTimes
+                                      ,cTitlePic
+                                      ,iSkinID
+                                      ,LoginTicket
+                                      ,Smid
+                                      ,JueSeID
+                                      ,IsNumOne
+                                      ,Level
+                                      ,AllPinyin
+                                      ,IsDelete FROM dbo.P_Admin a WHERE 1=1 and IsDelete!=1 ";
+                string whereStr = "";
+                if (!string.IsNullOrEmpty(deptId))
+                {
+                    whereStr += "and  iDeptID = @iDeptID ";
+                }
+                if (!string.IsNullOrEmpty(roleId))
+                {
+                    whereStr += "and  iRoleID = @iRoleID ";
+                }
+                try
+                {
+                    var b = conn.Query<P_Admin>(query + whereStr, new { iDeptID = deptId, iRoleID = roleId }).ToList();
+                    return b;
+                }
+                catch (Exception e)
+                {
+                    errorMsg = e.Message;
+                    return null;
+                }
+            }
+        }
+        
         public MessageEntity GetUsers(string userName, int? roleId, int? deptId, string sort, string ordering, int num, int page)
         {
             string strWhere = " where IsDelete!=1 ";

@@ -19,7 +19,7 @@ namespace GisPlateformV1_0
                 .EnableSwagger(c =>
                     {
                         c.CustomProvider((defaultProvider) => new SwaggerControllerDescProvider(defaultProvider, GetXmlCommentsPath()));
-                        c.SingleApiVersion("v1", "Master");
+                        c.SingleApiVersion("v1", "GisPlateformV1-zhengzhougaoxinqu");
                         c.IncludeXmlComments(GetXmlCommentsPath());
                         c.OperationFilter<GlobalHttpHeaderFilter>();
                     })
@@ -32,7 +32,7 @@ namespace GisPlateformV1_0
 
         protected static string GetXmlCommentsPath()
         {
-            return System.String.Format(@"{0}\bin\GisPlateformV1.xml", System.AppDomain.CurrentDomain.BaseDirectory);
+            return System.String.Format(@"{0}\bin\GisPlateformV1-zhengzhougaoxinqu.xml", System.AppDomain.CurrentDomain.BaseDirectory);
         }
 
     }

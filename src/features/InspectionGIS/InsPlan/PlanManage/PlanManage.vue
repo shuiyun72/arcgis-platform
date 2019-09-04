@@ -347,7 +347,7 @@ export default {
       staffData: [], //人员数据
       fromAssignDept: "", //部门
       fromAssignStaff: "", //分派人员
-      fromAssignStaffId: 0, //分派人员ID
+    //  fromAssignStaffId: 0, //分派人员ID
       fromAssignPlan: {
         deptId: 0, //部门ID
         starTime: new Date(), //开始时间
@@ -436,6 +436,11 @@ export default {
       return (
         this.formLabelAlign.areaName + "_" + this.formLabelAlign.patrolType
       );
+    },
+    fromAssignStaffId(){
+      return  _.filter(this.staffData, item => {
+          return item.cAdminName == this.fromAssignStaff;
+        })[0].iAdminID; 
     }
   },
   methods: {
@@ -557,13 +562,14 @@ export default {
     },
     //查询人员信息
     AdminNameData(val) {
-      InsDepartmentUserCycle.AdminNameData(val).then(res => {
+      InsDepartmentUserCycle.GetUserComboboxListNoDelete(val).then(res => {
         this.staffData = res.data.Data.Result;
+        console.log("this.staffData",this.staffData)
         if (this.staffData.length > 0) {
           this.fromAssignStaff = this.staffData[0].cAdminName;
-          this.fromAssignStaffId = _.filter(this.staffData, item => {
-            return item.cAdminName == this.fromAssignStaff;
-          })[0].iAdminID;
+          // this.fromAssignStaffId = _.filter(this.staffData, item => {
+          //   return item.cAdminName == this.fromAssignStaff;
+          // })[0].iAdminID;
         } else {
           this.fromAssignStaff = "无";
           this.fromAssignStaffId = 0;
@@ -876,76 +882,90 @@ export default {
     },
     //获取巡检类型
     GetPlanTypeRoute(num) {
-      InsPlanType.PlanTypeLoad().then(res => {
-        this.patrolTypeData = res.data.Data.Result;
-        this.formLabelAlign.patrolType = this.patrolTypeData[
-          num - 1
-        ].PlanTypeName;
-        this.alignNameChangeValue = this.formLabelAlignName;
-      });
+      if(this.patrolTypeData.length < 1 ){
+        InsPlanType.PlanTypeLoad().then(res => {
+          this.patrolTypeData = res.data.Data.Result;
+          this.formLabelAlign.patrolType = this.patrolTypeData[
+            num - 1
+          ].PlanTypeName;
+          this.alignNameChangeValue = this.formLabelAlignName;
+        });
+      }
     },
 
     //获取计划类别
     GetPlanTypeClass(num) {
-      InsPlanType.PlanTypeSearch(20, 1, num).then(res => {
-        this.planTypeData = res.data.Data.Result;
-        //this.formLabelAlign.planType = this.planTypeData[0].PlanTypeName
-      });
+      if(this.planTypeData.length < 1){
+        InsPlanType.PlanTypeSearch(20, 1, num).then(res => {
+          this.planTypeData = res.data.Data.Result;
+          //this.formLabelAlign.planType = this.planTypeData[0].PlanTypeName
+        });
+      }
     },
 
     //获取区域名称
     GetRegionalData() {
-      InsPlanArea.RegionalData().then(res => {
-        this.areaNameData = res.data.Data.Result;
-        this.formLabelAlign.areaName = res.data.Data.Result[0].PlanAreaId;
-        this.alignNameChangeValue = this.formLabelAlignName;
-        //地图上显示区域
-        this.$bus.emit("setBusinessLayerGroupVisible", true); //开启业务图层
-        let GeoTextData = JSON.parse(res.data.Data.Result[0].GeoText);
-        let PlanAreaName = res.data.Data.Result[0].PlanAreaName;
-        this.$bus.emit(
-          "setPolygonOnMap",
-          [GeoTextData],
-          [PlanAreaName],
-          false,
-          res => {
-            this.FeatureData = res;
-          }
-        );
-        GeoTextCenter(res.data.Data.Result[0].GeoText, res => {
-          this.$bus.emit("setCenter", res);
+      if(this.areaNameData.length < 1){
+        InsPlanArea.RegionalData().then(res => {
+          this.areaNameData = res.data.Data.Result;
+          this.RegionalDataPosition();
         });
+      }else{
+        this.RegionalDataPosition();
+      }
+    },
+    //获取区域名称显示位置
+    RegionalDataPosition(){
+      this.formLabelAlign.areaName = this.areaNameData[0].PlanAreaId;
+      this.alignNameChangeValue = this.formLabelAlignName;
+      //地图上显示区域
+      this.$bus.emit("setBusinessLayerGroupVisible", true); //开启业务图层
+      let GeoTextData = JSON.parse(this.areaNameData[0].GeoText);
+      let PlanAreaName = this.areaNameData[0].PlanAreaName;
+      this.$bus.emit(
+        "setPolygonOnMap",
+        [GeoTextData],
+        [PlanAreaName],
+        false,
+        res => {
+          this.FeatureData = res;
+        }
+      );
+      GeoTextCenter(this.areaNameData[0].GeoText, res => {
+        this.$bus.emit("setCenter", res);
       });
     },
     //获取路线名称
     GetPlanLine() {
-      InsPlanLine.GetPlanLine().then(res => {
-        console.log(res.data.Data.Result);
-        this.$bus.emit("setBusinessLayerGroupVisible", true); //关闭业务图层
-        this.areaNameData = res.data.Data.Result;
-        console.log("//获取路线名称", res.data.Data.Result);
-        this.formLabelAlign.areaName = this.areaNameData[0];
-        this.formLabelAlign.areaName = res.data.Data.Result[0].PlanLineId;
-        this.alignNameChangeValue = this.formLabelAlignName;
-        //地图显示路线
-        let GeoTextDataLine = JSON.parse(res.data.Data.Result[0].GeoText);
-        let PlanAreaNameLine = res.data.Data.Result[0].PlanLineName;
-        let PatroGeoText = JSON.parse(res.data.Data.Result[0].PatroGeoText);
-        this.$bus.emit(
-          "setLineStringOnMap",
-          [GeoTextDataLine],
-          [PlanAreaNameLine],
-          false,
-          (res, func) => {
-            console.log(res);
-          },
-          [PatroGeoText]
-        );
+      if(this.areaNameData.length < 1){
+        InsPlanLine.GetPlanLine().then(res => {
+          console.log(res.data.Data.Result);
+          this.$bus.emit("setBusinessLayerGroupVisible", true); //关闭业务图层
+          this.areaNameData = res.data.Data.Result;
+          console.log("//获取路线名称", res.data.Data.Result);
+          this.formLabelAlign.areaName = this.areaNameData[0];
+          this.formLabelAlign.areaName = res.data.Data.Result[0].PlanLineId;
+          this.alignNameChangeValue = this.formLabelAlignName;
+          //地图显示路线
+          let GeoTextDataLine = JSON.parse(res.data.Data.Result[0].GeoText);
+          let PlanAreaNameLine = res.data.Data.Result[0].PlanLineName;
+          let PatroGeoText = JSON.parse(res.data.Data.Result[0].PatroGeoText);
+          this.$bus.emit(
+            "setLineStringOnMap",
+            [GeoTextDataLine],
+            [PlanAreaNameLine],
+            false,
+            (res, func) => {
+              console.log(res);
+            },
+            [PatroGeoText]
+          );
 
-        GeoTextCenter(res.data.Data.Result[0].GeoText, res => {
-          this.$bus.emit("setCenter", res);
+          GeoTextCenter(res.data.Data.Result[0].GeoText, res => {
+            this.$bus.emit("setCenter", res);
+          });
         });
-      });
+      }
     },
     //获取日期
     getMonthLastDay() {
@@ -981,9 +1001,11 @@ export default {
     },
     //查询计划周期
     GetPlanCycle() {
-      InsDepartmentUserCycle.GetPlanCycle().then(res => {
-        this.planCycleData = res.data.Data.Result;
-      });
+      if(this.planCycleData.length < 1){
+        InsDepartmentUserCycle.GetPlanCycle().then(res => {
+          this.planCycleData = res.data.Data.Result;
+        });
+      }   
     },
     //双击查询行信息
     tableDbClick(row) {

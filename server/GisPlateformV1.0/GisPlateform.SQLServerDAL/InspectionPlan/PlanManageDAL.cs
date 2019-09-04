@@ -92,7 +92,7 @@ namespace GisPlateform.SQLServerDAL.InspectionPlan
                 { sqlwhere += $" and lp.BoolNormalPlan ={isNomalPlan} "; }
             }
 
-            string sql = $@"( SELECT   lp.PlanId,lp.PlanName,lp.PlanTypeId,lpt.PlanTypeName,lp.PlanAreaId,lpa.PlanAreaName,lp.EquipmentList,lp.EquipmentListName as EquipmentName
+            string sql = $@"( SELECT   lpl.PlanLineId,lp.PlanId,lp.PlanName,lp.PlanTypeId,lpt.PlanTypeName,lp.PlanAreaId,lpa.PlanAreaName,lp.EquipmentList,lp.EquipmentListName as EquipmentName
                                                         ,lp.PlanPath,lp.PlanCycleId,lpc.PlanCycleName,'1' as PlanState,
                                                 		case lp.MoveType when 2 then '步行'  when 1 then '车巡' end as MoveType,
                                                 		case lp.BoolFeedBack when 1 then '需反馈' when 0 then '仅到位' end as BoolFeedBack,

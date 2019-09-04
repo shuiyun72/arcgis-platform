@@ -324,10 +324,12 @@ class MapDataOperation {
         //执行任务列表
         let taskList = []
         let FeaturequeryTask = new this.modules.QueryTask(layerURL); //构建图层查询任务
+        let handleQueryResultAll = [] //两端的管线
         //管线图加载
         _.forEach(featureCollection, objValue => {
             let queryTask = new Promise((resolve, reject) => {
                 //缓冲池
+                console.log(objValue.geometry)
                 let buffer = this.modules.geometryEngine.buffer([objValue.geometry], [1], "meters", true);
                 //空间查询条件
                 let query = this.modules.query();
@@ -339,20 +341,21 @@ class MapDataOperation {
                 FeaturequeryTask.execute(query, handleQueryResult => {
                     let ResultValue = [];
                     if (handleQueryResult.features.length > 0) {
+                        handleQueryResultAll.push(handleQueryResult.features[0])
                         let coordition = handleQueryResult.features[0].geometry.paths[0][0];
                         let coordition1 = handleQueryResult.features[0].geometry.paths[0][1];
 
-                        ResultValue.push(this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
-                            wkid: MapConfigure.MapExtent.SpatialReference
-                        })));
-
-                        ResultValue.push(this.modules.Point(coordition1[0], coordition1[1], new this.modules.SpatialReference({
-                            wkid: MapConfigure.MapExtent.SpatialReference
-                        })));
-
-                        // ResultValue = this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
+                        // ResultValue.push(this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
                         //     wkid: MapConfigure.MapExtent.SpatialReference
-                        // }));
+                        // })));
+
+                        // ResultValue.push(this.modules.Point(coordition1[0], coordition1[1], new this.modules.SpatialReference({
+                        //     wkid: MapConfigure.MapExtent.SpatialReference
+                        // })));
+
+                        ResultValue = this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
+                            wkid: MapConfigure.MapExtent.SpatialReference
+                        }));
                     }
                     resolve(ResultValue);
                 }, errorHandler => {
@@ -365,16 +368,16 @@ class MapDataOperation {
         Promise.all(taskList).then(result => {
             let features = [];
             _.forEach(result, objValue => {
-                if(_.isArray(objValue)){
+                if (_.isArray(objValue)) {
                     _.forEach(objValue, dOBJValue => {
                         let graphic = new this.modules.graphic(dOBJValue, pointSymbol);
                         features.push(graphic);
                     });
-                }else{
+                } else {
                     let graphic = new this.modules.graphic(objValue, pointSymbol);
                     features.push(graphic);
                 }
-                
+
             });
             let featureSet = new this.modules.FeatureSet();
             featureSet.features = features;
@@ -383,9 +386,15 @@ class MapDataOperation {
             };
             //连通分析执行
             GPServices.execute(params, resultValue => {
-                let distinctValue = _.map(resultValue, objvalue => {
-                    return objvalue.value.features;
+                // resultValue.push(...handleQueryResultAll)
+                let distinctValue = []
+                _.forEach(resultValue, objvalue => {
+                    distinctValue.push(...objvalue.value.features)
                 });
+                _.forEach(distinctValue, objvalue => {
+                    objvalue.attributes.OBJECTID = objvalue.attributes.equipment_number
+                });
+                distinctValue.push(...handleQueryResultAll)
                 allDoneCallback instanceof Function && allDoneCallback(distinctValue);
             }, err => {
                 allDoneCallback instanceof Function && allDoneCallback([]);

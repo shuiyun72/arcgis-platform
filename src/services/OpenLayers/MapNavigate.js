@@ -11,7 +11,7 @@ import {
 import Point from "ol/geom/Point.js";
 import {
     Circle as CircleStyle,
-    Fill, 
+    Fill,
     Stroke,
     Style
 } from 'ol/style';
@@ -30,7 +30,7 @@ import mapStyle from '@services/OpenLayers/mapStyle.js';
 import * as jsts from 'jsts/dist/jsts.js'
 
 // var drawTypeSelect;
-var bufferNumber = 40
+var bufferNumber = 0.001
 var plotAnimate = {}
 var lineStringSelect = undefined
 var lineStringModify = undefined
@@ -40,6 +40,7 @@ var pointSelect = undefined
 var pointModify = undefined
 var drawTypeSelect = undefined
 var isAllowPointerMove = true
+var trackPlay = {};
 class MapNavigate {
     /* DrawLayers()*/
 
@@ -78,7 +79,7 @@ class MapNavigate {
     addOverlayNavigate(coordinate, overlayContainerDOM) {
         //overlayContainerDOM.innerHTML = innerHTML
         //this.overlay.setElement(overlayContainerDOM)
-        console.log('addOverlayNavigate',coordinate)
+        console.log('addOverlayNavigate', coordinate)
         // this.overlay.setPosition(undefined)
         this.overlay.setPosition(coordinate)
     }
@@ -135,10 +136,10 @@ class MapNavigate {
      */
     setBusinessLayerGroupVisible(isVisible) {
         if (!isVisible)
-        this.groups.businessLayerGroup.getLayers().forEach(layer => {
-            layer.getSource() && layer.getSource().clear()
-        })
-        
+            this.groups.businessLayerGroup.getLayers().forEach(layer => {
+                layer.getSource() && layer.getSource().clear()
+            })
+
         //this.groups.businessLayerGroup.setVisible(isVisible)
     }
     /**设置临时绘制图层是否显示  完善点:要增加隐藏和清空的参数 
@@ -253,14 +254,14 @@ class MapNavigate {
      * @param {layer名称} layerName 
      * @param {查询的区域feature} feature 
      */
-    setSpatialSearchOnMap(isVisible, layerIndex, layerName, feature,callback) {
+    setSpatialSearchOnMap(isVisible, layerIndex, layerName, feature, callback) {
         let layer = this.mapInstance.spatialSearchLayers[layerName]
         this.setVectorLayerVisibleNavigate(false);
         if (isVisible) {
             this.baseMap.createSpatialSearchVectorSource(layerIndex, feature.getGeometry().getCoordinates(), feature.getGeometry().getExtent()).then(resultObject => {
                 let pointAll = [];
-                _.forEach(resultObject,res=>{
-                    pointAll.push({"SmID":res.values_.OBJECTID,"SmX":res.values_.geometry.flatCoordinates[0],"SmY":res.values_.geometry.flatCoordinates[1],"EquType":layerIndex[0]})
+                _.forEach(resultObject, res => {
+                    pointAll.push({ "SmID": res.values_.OBJECTID, "SmX": res.values_.geometry.flatCoordinates[0], "SmY": res.values_.geometry.flatCoordinates[1], "EquType": layerIndex[0] })
                 })
                 if (resultObject.length != 0) {
 
@@ -269,13 +270,13 @@ class MapNavigate {
                             features: resultObject
                         })
                     )
-                    callback instanceof Function && callback(layerIndex,pointAll)
+                    callback instanceof Function && callback(layerIndex, pointAll)
                 }
             })
 
         } else {
             layer.getSource() && layer.getSource().clear()
-            callback instanceof Function && callback(layerIndex,null)
+            callback instanceof Function && callback(layerIndex, null)
         }
     }
 
@@ -303,7 +304,7 @@ class MapNavigate {
                     properties: isInsertProperties ? featureProperties[index] : undefined
                 })
 
-                feature.setStyle(mapStyle.getStyle('businessLayers.pointLayer'))
+                feature.setStyle(mapStyle.getStyle('businessLayers.pointLayer',featureProperties[index].EventFromName))
                 features.push(feature)
             })
             pointLayer.setSource(new VectorSource({
@@ -319,9 +320,9 @@ class MapNavigate {
                     active: true
                 })
                 pointModify = new Modify({
-                        features: pointSelect.getFeatures(),
-                        active: true
-                    }),
+                    features: pointSelect.getFeatures(),
+                    active: true
+                }),
 
                     pointModify.on('modifyend', evt => { //图形完成显示数据
                         onModifyEndFunc instanceof Function && onModifyEndFunc(evt.features.array_[0].getGeometry().getCoordinates(), () => {
@@ -374,9 +375,9 @@ class MapNavigate {
                     active: true
                 })
                 polygonModify = new Modify({
-                        features: polygonSelect.getFeatures(),
-                        active: true
-                    }),
+                    features: polygonSelect.getFeatures(),
+                    active: true
+                }),
 
                     polygonModify.on('modifyend', evt => { //图形完成显示数据
                         onModifyEndFunc instanceof Function && onModifyEndFunc(evt.features.array_[0].getGeometry().getCoordinates(), () => {
@@ -446,9 +447,9 @@ class MapNavigate {
                     active: true
                 })
                 lineStringModify = new Modify({
-                        features: lineStringSelect.getFeatures(),
-                        active: true
-                    }),
+                    features: lineStringSelect.getFeatures(),
+                    active: true
+                }),
 
                     lineStringModify.on('modifyend', evt => { //图形完成显示数据
 
@@ -480,16 +481,21 @@ class MapNavigate {
 
 
     //点动画函数
-    plotAnimateControl(points, interValTime, action) {
+    plotAnimateControl(points, interValTime, action, callBack) {
         plotAnimate.index = plotAnimate.index || 0
+        trackPlay.animating//动画状态
+        trackPlay.routeLength = points.length
+        trackPlay.points = points
+        trackPlay.interValTime = interValTime
         //获取地图图层
         let layerMove = this.businessLayers.monitorLayer
         layerMove.setStyle(mapStyle.getStyle('businessLayers.monitorLayer'))
 
         //样式
-        let firstStyle = mapStyle.getStyle('businessLayers.monitorLayer.firstStyle');
-        let endStyle = mapStyle.getStyle('businessLayers.monitorLayer.endStyle');
-        let pointStyle = mapStyle.getStyle('businessLayers.monitorLayer.pointStyle');
+        trackPlay.firstStyle = mapStyle.getStyle('businessLayers.monitorLayer.firstStyle');
+        trackPlay.endStyle = mapStyle.getStyle('businessLayers.monitorLayer.endStyle');
+        trackPlay.pointStyle = mapStyle.getStyle('businessLayers.monitorLayer.pointStyle');
+        trackPlay.routeStyle = mapStyle.getStyle('businessLayers.monitorLayer.routeStyle');
         //绘点
         function AddPoint(style, lnglat, id) {
             let newFeature = new Feature({
@@ -513,51 +519,100 @@ class MapNavigate {
             layerMove.getSource().addFeature(lineFeature);
         }
         //动画
-        let trackPlay = {};
-        trackPlay.move = function () {}
-        //开始画线
-        trackPlay.start = function () {
-            if (plotAnimate.index == 0) {
-                layerMove.getSource().clear();
+        trackPlay.move = (event) => {
+            let vectorContext = event.vectorContext;
+            let frameState = event.frameState;
+
+            if (trackPlay.animating) {
+                trackPlay.elapsedTime = frameState.time - trackPlay.now;
+
+                // here the trick to increase speed is to jump some indexes
+                // on lineString coordinates
+                trackPlay.index = Math.floor(trackPlay.elapsedTime / trackPlay.interValTime * 100) / 100;
+                if (trackPlay.index >= trackPlay.routeLength - 1) {
+                    trackPlay.stop(true);
+                    callBack()
+                    return;
+                }
+                trackPlay.nowPoint = []
+                let parseIndex = parseInt(trackPlay.index)
+                trackPlay.nowPoint[0] = points[parseIndex][0] + (points[parseIndex + 1][0] - points[parseIndex][0]) * (trackPlay.index % 1)
+                trackPlay.nowPoint[1] = points[parseIndex][1] + (points[parseIndex + 1][1] - points[parseIndex][1]) * (trackPlay.index % 1)
+                let currentPoint = new Feature({
+                    geometry: new Point(trackPlay.nowPoint)
+                });
+                vectorContext.drawFeature(currentPoint, trackPlay.pointStyle);
             }
-            plotAnimate.interValId = setInterval(() => {
-                if (plotAnimate.index == 0) {
-                    AddPoint(firstStyle, points[plotAnimate.index], plotAnimate.index);
-                } else if (plotAnimate.index == points.length - 1) {
-                    AddPoint(endStyle, points[plotAnimate.index], plotAnimate.index);
-                } else {
-                    AddPoint(pointStyle, points[plotAnimate.index], plotAnimate.index);
-                }
-                AddLine(pointStyle, points.slice(0, plotAnimate.index + 1), plotAnimate.index)
-                plotAnimate.index = plotAnimate.index + 1;
-                if (plotAnimate.index >= points.length) {
-                    trackPlay.stop();
-                }
-            }, interValTime)
-            return plotAnimate.interValId
+            this.map.render();
+        };
+        //绘制路线
+        trackPlay.showRoute = () => {
+            if (trackPlay.animating) {
+                trackPlay.stop(true);
+            }
+            layerMove.getSource().clear();
+            AddPoint(trackPlay.pointStyle, points[0], -1);
+            AddPoint(trackPlay.firstStyle, points[0], 0);
+
+            AddPoint(trackPlay.endStyle, points[trackPlay.routeLength - 1], trackPlay.routeLength - 1);
+            AddLine(trackPlay.routeStyle, points, 'route')
         }
-        trackPlay.stop = function () {
-            plotAnimate.index = 0;
-            clearInterval(plotAnimate.interValId);
+        //开始画线
+        trackPlay.start = () => {
+            let feature = layerMove.getSource().getFeatureById('PlayPoints-1')
+            if (trackPlay.animating) {
+                trackPlay.stop(true);
+            } else if (trackPlay.index) {
+                feature.setStyle(null);
+                trackPlay.animating = true;
+                trackPlay.now = new Date().getTime() - trackPlay.index * trackPlay.interValTime;
+                this.map.on('postcompose', trackPlay.move);
+                this.map.render();
+            } else {
+                feature.setStyle(null);
+                trackPlay.animating = true;
+                trackPlay.now = new Date().getTime();
+                this.map.on('postcompose', trackPlay.move);
+                this.map.render();
+            }
+
+
         }
-        trackPlay.pause = function () {
-            clearInterval(plotAnimate.interValId);
+        trackPlay.stop = (ended) => {
+            trackPlay.animating = false;
+            // if animation cancelled set the marker at the beginning
+
+            let coord
+            if (ended) {
+                this.map.un('postcompose', trackPlay.move);
+                trackPlay.index = 0
+                coord = trackPlay.points[0]
+                trackPlay = {}
+            } else {
+                this.map.un('postcompose', trackPlay.move);
+                coord = trackPlay.nowPoint
+            }
+            let feature = layerMove.getSource().getFeatureById('PlayPoints-1')
+            feature.getGeometry().setCoordinates(coord);
+            feature.setStyle(trackPlay.pointStyle);
+            //remove listener
+
+
         }
         switch (action) {
+            case 'showRoute':
+                trackPlay.showRoute()
+                break;
             case 'start':
                 trackPlay.start()
                 break;
-            case 'reStart':
-                if(plotAnimate.interValId){
-                   trackPlay.pause()
-                }
-                plotAnimate.index = 0
-                trackPlay.start()
-                break;
             case 'pause':
-                trackPlay.pause();
+                trackPlay.stop(false)
                 break;
             case 'clear':
+                if (trackPlay.animating) {
+                    trackPlay.stop(true)
+                }
                 layerMove.getSource().clear();
         }
     }
@@ -580,48 +635,56 @@ class MapNavigate {
             let flag = false;
             let overlay = this.overlay
             overlay.setPosition(undefined)
-            this.map.forEachFeatureAtPixel(pixel, (feature) =>{
+            this.map.forEachFeatureAtPixel(pixel, (feature) => {
                 let properties = feature.getProperties();
                 let coodinate = feature.getGeometry().getCoordinates();
                 if (feature.getGeometry().getType() == 'Point') {
                     if (properties.name == 'RoutePoint') {
                         //overlay.setElement(overlayDOM)
-                        let innerHTML = `<div><strong>名称：</strong>${properties.properties.ImportPointName}</div><div><strong>上报时间：</strong>${properties.properties.AddTime}</div>`;
-                        callback(innerHTML,'路线巡检',true)
+                        let innerHTML = `<div><strong>名称：</strong>${properties.properties.ImportPointName}</div>
+                        <div><strong>上报时间：</strong>${properties.properties.AddTime}</div>`;
+                        callback(innerHTML, '路线巡检', true)
                         overlay.setPosition(coodinate)
                         //设置overlay的显示位置
                         // overlay.setPosition(e.coordinate);
 
                     }
-                    else if (properties.name == 'RegionalPoint'){
+                    else if (properties.name == 'EventPoint') {
                         //overlay.setElement(overlayDOM)
-                        let innerHTML = `<div><strong>名称：</strong>${properties.properties.PointName}</div>`;
-                        callback(innerHTML,'区域巡检')
+                        let innerHTML = `<div><strong>事件编号：</strong>${properties.properties.EventCode}</div>
+                        <div><strong>事件位置：</strong>${properties.properties.eventAddress}</div>
+                        <div><strong>上报部门：</strong>${properties.properties.DeptName}</div>
+                        <div><strong>上传人员：</strong>${properties.properties.PName}</div>
+                        <div><strong>事件类别：</strong>${properties.properties.PointName}</div>
+                        <div><strong>事件内容：</strong>${properties.properties.ET1}</div>
+                        <div><strong>事件来源：</strong>${properties.properties.EventFromName}</div>
+                        <div><strong>紧急级别：</strong>${properties.properties.HandlerLevelName}</div>
+                        <div><strong>事件描述：</strong>${properties.properties.eventDesc}</div>`
+                        if (properties.properties.EventPictures.length) {
+                            innerHTML += `<div><strong>图片：</strong>`;
+                            _.forEach(properties.properties.EventPictures, picture => {
+                                innerHTML += `<a href="${picture}"><image  src="${picture}"/></a>`
+                            })
+                            innerHTML += `</div>`;
+                        }
+
+                        callback(innerHTML, '事件')
+                        overlay.setPosition(coodinate)
+                    }else if(properties.name == 'DatailEvent'){  
+                        let innerHTML = 
+                            `<div><strong>事件编号：</strong>${properties.properties.EventCode}</div>
+                            <div><strong>时间：</strong>${properties.properties.EventUpdateTime.split("T")[0]} ${properties.properties.EventUpdateTime.split("T")[1]}</div>
+                            <div><strong>事件位置：</strong>${properties.properties.EventAddress}</div>
+                            <div><strong>部门：</strong>${properties.properties.cDepName || properties.properties.DeptName}</div>
+                            <div><strong>事件来源：</strong>${properties.properties.EventFromName}</div>
+                            <div><strong>事件描述：</strong>${properties.properties.EventDesc}</div>`;
+                        callback(innerHTML,'事件上报')
                         overlay.setPosition(coodinate)
                     }
                 }
 
             });
         });
-    }
-
-    /**
-     * 地图打印事件
-     */
-    printMap(callback){
-        this.map.once("postcompose", function(event) {
-            let canvas = event.context.canvas;
-          
-            callback(canvas.toDataURL('image/png'))
-            // if (navigator.msSaveBlob) {
-            //   navigator.msSaveBlob(canvas.msToBlob(), "map.png");
-            // } else {
-            //   canvas.toBlob(function(blob) {
-            //     FileSaverJS.saveAs(blob, "map.png");
-            //   });
-            // }
-          });
-          this.map.renderSync();
     }
 
 }

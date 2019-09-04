@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.96f151897187739ec9bd5eb33a9f02b0.js"
+  "/precache-manifest.511075af7f525c8f2d25ce71b28cc7aa.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "arcgis-platform"});

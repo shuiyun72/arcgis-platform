@@ -59,14 +59,21 @@
           </el-row>
           <el-row>
             <el-form-item label="值：">
-              <el-select
-                v-if="fatorObjSelect"
+             <el-select
+                v-if="fatorObj.dom === 'Select'"
                 v-model="fatorObj.detailDataValue"
                 placeholder
-                size="mini"
-              >
+                size="mini" >
                 <el-option v-for="item in attrValueList" :key="item" :label="item" :value="item"></el-option>
               </el-select>
+              <el-date-picker
+                style="width:95%;"
+                 v-else-if="fatorObj.dom === 'Date'"
+                v-model="fatorObj.detailDataValue"
+                type="date"
+                value-format="yyyy-MM-dd"
+                size="mini"
+              ></el-date-picker>
               <el-input v-else v-model="fatorObj.detailDataValue" style="width:95%;"></el-input>
             </el-form-item>
           </el-row>
@@ -151,26 +158,11 @@ export default {
       fatorObj: {
         detailDataValue: '',
         mathDataValue:'',
-        attRListValue:''
+        attRListValue:'',
+        type:'',//是字符还是数字
+        dom:'',//是下拉框还是时间选择，默认input
       }, //sql查询
       addIndex: 0, //sql第几条
-      selectOrInput:[
-        'material_science',
-        'caliber',
-        'Installation_address',
-        'construction_unit',
-        'management_unit',
-        'embedding_mode',
-        'Interface_form',
-        'switch_type',
-        'equipment_type',
-        'switchingstate',
-        'Interface_form',
-        'businessarea',
-        'specifications',
-        'manufacturer',
-      ] , //值的输入形式为下拉框的情况集合
-      fatorObjSelect:true,//值的输入形式为下拉框时为true
     };
   },
   created() {
@@ -318,13 +310,14 @@ export default {
     },
     //选中属性后控制输入框类型
     onAttRChange(item) {
-      let type = _.filter(this.attRList, ele => {
-        return ele.field == this.fatorObj.attRListValue;
-      })[0].type;
-      this.fatorObj.type = type;
+       let slectItem = _.filter(this.attRList, ele => {
+        return ele.field === this.fatorObj.attRListValue;
+      })[0];
+      this.fatorObj.type = slectItem.type;
+      this.fatorObj.dom = slectItem.dom
+      console.log(slectItem.dom)
       this.fatorObj.detailDataValue = "";
-      this.fatorObjSelect = _.indexOf(this.selectOrInput,this.fatorObj.attRListValue) < 0 ? false : true;
-      if(this.fatorObjSelect){
+      if(slectItem.dom === 'Select'){
         this.searchMethods();
       }
     },
@@ -389,8 +382,7 @@ export default {
       this.clearSql()
       //this.seniorSearch();
       this.layerAttrChange(this.layerDataValue);
-      this.fatorObjSelect = _.indexOf(this.selectOrInput,this.fatorObj.attRListValue) < 0 ? false : true;
-      if(this.fatorObjSelect){
+      if(this.attRList[0].dom === "Select"){
         this.searchMethods();
       }
     },

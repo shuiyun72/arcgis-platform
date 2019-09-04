@@ -6,7 +6,7 @@
         <el-option label="区域二" value="beijing"></el-option>
       </el-select>
     </el-form-item>
-    <el-row class="title" :style="{color:color }" >工单基本信息</el-row>
+    <el-row class="title" :style="{color:color }" >工单基本信息 </el-row>
     <!-- <el-row v-for="(item,index) in MaDialogReport" :key="index" class="dialog-table">
         <el-col :span="3" class="dialog-table-lable">{{item.name1}}</el-col>
         <el-col :span="9">{{item.val1}}</el-col>
@@ -22,7 +22,7 @@
       </tr>
       <tr class="wrapperCol" >
         <td class="dialog-table-lable">事件备注：</td>
-        <td colspan="3">{{MaDialogReportData.EventDesc}}</td>
+        <td colspan="3">{{currentRow.EventDesc}}</td>
       </tr>
     </table>
     <!-- <el-row class="dialog-table">
@@ -33,132 +33,95 @@
 </template>
 <script>
 import _ from "lodash";
+//事件查询
+import EventManageForMaintain from "@api/Maintain/EventManageForMaintain";
 
 export default {
   components: {},
   data() {
     return {
-      MaDialogReportData: {
-        EventID: 519,
-        上报: 0,
-        处理: 1,
-        分派: 0,
-        接受: 0,
-        到场: 0,
-        处置: 0,
-        完工: 0,
-        审核: 0,
-        回复: 1,
-        完成: 1,
-        EventID1: 519,
-        EventCode: "LS190000519",
-        EventAddress: "澳园",
-        UpTime: "2019-04-23T17:13:09",
-        DeptId: null,
-        PersonId: 383,
-        PersonName: "李婉莹",
-        cDepName: "测试中心",
-        cRoleName: "科员",
-        EventTypeId: 3,
-        EventTypeId2: 91,
-        EventTypeName: "表井内问题",
-        EventTypeName2: "其它",
-        EventFromId: 4,
-        EventFromName: "临时工作",
-        UrgencyId: 1,
-        UrgencyName: "一般",
-        DispatchPerson: null,
-        DispatchPersonName: null,
-        EventPictures: null,
-        EventDesc: "查看是否正常",
-        EventX: "109.783748428763",
-        EventY: "39.5682384568813",
-        EventUpdateTime: "2019-04-23T17:13:09",
-        IsValid: 3,
-        IsValidName: "完成",
-        Devicesmid: null,
-        DevicesType: null,
-        DeleteStatus: "0",
-        TaskId: -1,
-        Remark_Back: "流量计维护",
-        OtherSysEventId: null,
-        ExecTime: 36,
-        OperId: 12,
-        OperName: "回复",
-        OrderId: null,
-        IsFinish: 1,
-        LinkMan: "侯晓东",
-        LinkCall: "18947759998",
-        EventStatus: 0,
-        StatusName: "正常",
-        ExecPersonId: null,
-        ExecUpDateTime: "2019-04-23T17:15:09.843",
-        ExecDetpID: null,
-        ExecDetpName: null,
-        ExecPersonName: null,
-        DispatchPersonID: 361,
-        DispatchPersonName2: "测试侯",
-        DispatchPersonDeptName: "测试中心",
-        OperName2: "已完成",
-        OperRemarks: "流量计维护",
-        DispatchPersonTelePhone: null
-      }
+     
     };
   },
  props:{
     color:{
       default:'#7a7e80'
-    }
+    },
+
+    currentRow:'currentRow'
   },
   computed: {
     MaDialogReport() {
       return [
         [
            "事件编号：",
-          this.MaDialogReportData.EventCode,
+          this.currentRow.EventCode,
            "事件地址：",
-          this.MaDialogReportData.EventAddress
+          this.currentRow.EventAddress
         ],
         [
            "上报时间：",
-          this.MaDialogReportData.UpTime,
+          this.currentRow.UpTime,
            "工单来源：",
-          this.MaDialogReportData.EventFromName
+          this.currentRow.EventFromName
         ],
         [
            "上报人：",
-          this.MaDialogReportData.PersonName,
+          this.currentRow.PersonName,
            "上报部门：",
-          this.MaDialogReportData.cDepName
+          this.currentRow.cDepName
         ],
         [
            "事件类型：",
-          this.MaDialogReportData.EventTypeName,
+          this.currentRow.EventTypeName,
            "事件内容：",
-          this.MaDialogReportData.EventTypeName2
+          this.currentRow.EventTypeName2
         ],
         [
            "紧急程度：",
-          this.MaDialogReportData.UrgencyName,
+          this.currentRow.UrgencyName,
            "处理时间：",
-          this.MaDialogReportData.ExecTime
+          this.currentRow.ExecTime
        ],
         [
            "联系人：",
-          this.MaDialogReportData.LinkMan,
+          this.currentRow.LinkMan,
            "联系电话：",
-          this.MaDialogReportData.LinkCall
+          this.currentRow.LinkCall
         ],
         [
            "处理部门：",
-          this.MaDialogReportData.DispatchPersonDeptName,
+          this.currentRow.ExecDetpName,
            "处理人：",
-          this.MaDialogReportData.DispatchPersonName2
+          this.currentRow.ExecPersonName
         ]
       ];
     }
   },
-  created() {},
-  methods: {}
+  created() {
+    
+  },
+  methods: {
+    //查询数据 
+    // SubmitResult(){
+    //   console.log("report查询");
+    //   let eventid = localStorage.getItem("eventid");
+    //   let ExecPersonId = "";//待处理人
+    //   let sort = 'EventID';
+    //   let ordering = "";
+    //   let num = 50;
+    //   let page = 1;
+    //   EventManageForMaintain.get(this.SubmitStartTime,this.SubmitEndTime,this.eventSourceSelectID,this.evevtTypeSelect,eventid,this.nowStatusStID,1,this.deptDataSelectID,this.eventContentName,ExecPersonId,sort,ordering,num,page).then(res=>{
+    //     this.MaDialogReportData = res.data.Data.Result[0];
+    //     this.$set(this.MaDialogReportData,"EventCode",this.MaDialogReportData.EventCode)
+    //     console.log(res.data.Data.Result[0],eventid);
+    //   })
+    // },
+  }
 };
 </script>
+<style scoped>
+.dialog-table-lable {
+  width: 82px!important;
+}
+</style>

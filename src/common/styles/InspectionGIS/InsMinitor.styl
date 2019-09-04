@@ -1,5 +1,5 @@
 .InsMinitor {
-  width: 260px;
+  width: 320px !important;
   min-width: 260px;
 
   // 左侧表单的标题样式
@@ -24,10 +24,18 @@
           cursor: pointer;
 
           svg {
-            height: 20px;
-            width: 20px;
+            height: 16px;
+            width: 16px;
             vertical-align: middle;
             display: inline-block;
+            path {
+              d: path('M 14,25 18.5,22 18.5,14 14,11 z M 18.5,22 25,18 26,18 18.5,14 z');
+              fill: #3790F1;
+              transition: d .2s linear .1s
+            }
+            path.pause{
+              d: path('M 13,24 16,24 16,11 13,11 z M 21,24 24,24 24,11 21,11 z')
+            }
           }
         }
       }
@@ -49,6 +57,14 @@
         margin: -6px 10px 0;
         padding: 0;
 
+        .el-slider__bar {
+          background-image: linear-gradient(
+            90deg,
+            #0091da 0%,
+            #37bff1 100%
+          );
+        }
+
         .el-slider__runway, .el-slider__bar {
           height: 12px;
           border-radius: 7px;
@@ -57,7 +73,7 @@
             top: -12px;
 
             .el-slider__button {
-              background: #0091da;
+              background: #35bdf0;
               border-color: #fff;
             }
           }
@@ -100,11 +116,11 @@
 
     .el-scrollbar__wrap {
       overflow-x: hidden;
-      margin-right:-20px;
+      margin-right: -20px;
 
-      .uesr-info-warpper{
+      .uesr-info-warpper {
         margin-top: 10px;
-        }
+      }
     }
   }
 
@@ -183,7 +199,7 @@
     .el-collapse-item__header {
       background: $minitorBgColor;
       color: #fff;
-      padding-left: 10px;
+      padding: 0 10px;
       font-size: 16px;
       height: 40px;
       line-height: 40px;
@@ -191,8 +207,6 @@
       margin: 10px 0 0;
 
       i {
-        padding-right: 10px;
-
         &:first-child {
           color: $minitorActiveColor;
         }

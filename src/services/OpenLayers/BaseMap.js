@@ -51,14 +51,14 @@ OpenLayer地图基础数据操作
 class BaseMap {
 
     constructor() {
-        this._DefaultProjection = "EPSG:3857";
+        this._DefaultProjection = "EPSG:4326";
         //定义坐标系
-        _.forEach(MapConfigure.CoordinateDefinition, InfoValue => {
-            if (InfoValue.IsDeFault) {
-                this._DefaultProjection = InfoValue.DeFineName;
-            }
-            proj4.defs(InfoValue.DeFineName, InfoValue.DefineContent); //坐标类型定义
-        });
+        // _.forEach(MapConfigure.CoordinateDefinition, InfoValue => {
+        //     if (InfoValue.IsDeFault) {
+        //         this._DefaultProjection = InfoValue.DeFineName;
+        //     }
+        //     proj4.defs(InfoValue.DeFineName, InfoValue.DefineContent); //坐标类型定义
+        // });
         register(proj4); //坐标注册
         this._Projection = getProjection(this._DefaultProjection);
         this._Projection.setExtent([MapConfigure.MapExtent.XMin, MapConfigure.MapExtent.YMin, MapConfigure.MapExtent.XMax, MapConfigure.MapExtent.YMax]);
@@ -120,16 +120,16 @@ class BaseMap {
         let spatialSearchLayerGroup = []
 
         //遥感图加载
-        let _SatellLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlSatell), "SatellLayer", false);
+        let _SatellLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlSatell), "SatellLayer", true);
         _tileLayers.push(_SatellLayer);
 
-        //街道图加载
-        let _StreetLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlStreet), "StreetLayer", false);
-        _tileLayers.push(_StreetLayer);
+        // //街道图加载
+        // let _StreetLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlStreet), "StreetLayer", false);
+        // _tileLayers.push(_StreetLayer);
 
-        //地形图加载
-        let _TerrainLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlTerrain), "TerrainLayer", true);
-        _tileLayers.push(_TerrainLayer);
+        // //地形图加载
+        // let _TerrainLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlTerrain), "TerrainLayer", true);
+        // _tileLayers.push(_TerrainLayer);
 
         groups.tileLayerGroup = new LayerGroup({
             layers: _tileLayers
@@ -268,7 +268,7 @@ class BaseMap {
         let esrijsonFormat = new EsriJSON();
         let vectorSource = new VectorSource({
             loader: (extent, resolution, projection) => {
-                // let Extent4490 = transformExtent(extent, "EPSG:4547", "EPSG:4490");
+                // let Extent4490 = transformExtent(extent, "EPSG:4326", "EPSG:4490");
                 // let url = '/9/query/?f=json&' +
                 //     'returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=' +
                 //     encodeURIComponent('{"xmin":' + Extent4490[0] + ',"ymin":YMin: ' + Extent4490[1] + ',"xmax":XMax: ' + Extent4490[2] + ',"ymax":YMax: ' + Extent4490[3] + ',"spatialReference":{"wkid":4490}}') +
@@ -303,7 +303,7 @@ class BaseMap {
                 tileSize: 512
             }))
         });
-        console.log('createVectorSource', vectorSource.getFeatures())
+        // console.log('createVectorSource', vectorSource.getFeatures())
         return vectorSource;
     }
 
@@ -327,8 +327,8 @@ class BaseMap {
              "rings":CoordinatesArray,
             "_ring": 0,
             "spatialReference": {
-                "wkid": 4547,
-                "latestWkid": 4547
+                "wkid": 4326,
+                "latestWkid": 4326
             },
             "cache": {
                 "_extent": {
@@ -337,8 +337,8 @@ class BaseMap {
                     "xmax": extent[2],
                     "ymax": extent[3],
                     "spatialReference": {
-                        "wkid": 4547,
-                        "latestWkid": 4547
+                        "wkid": 4326,
+                        "latestWkid": 4326
                     }
                 },
                 "_partwise": null
@@ -347,8 +347,8 @@ class BaseMap {
         //_layerURL = 9
         let url = '/' + _layerURL + '/query/?f=json&' +
             'returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=' + JSON.stringify(geometryStr) +
-            '&geometryType=esriGeometryPolygon&inSR=4547&outFields=*' +
-            '&outSR=4547';
+            '&geometryType=esriGeometryPolygon&inSR=4326&outFields=*' +
+            '&outSR=4326';
 
         let esrijsonFormat = new EsriJSON();
         

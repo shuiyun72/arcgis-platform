@@ -4,6 +4,7 @@ export default {
     EventManageAll(numValue,pageValue,startTime, endTime,eventType, eventStatus,searchCondition,sortName,orderingValue){
         sortName = sortName || 'EventID'
         orderingValue = orderingValue || 'asc'
+        searchCondition = searchCondition || "";
         return instance.get('/EventManage/Get', {
             params: {
                 startTime: startTime,

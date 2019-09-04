@@ -568,7 +568,7 @@ export const ChartPie = {
     },
     calculable: true,
     series: [{
-        name: "口径",
+        // name: "口径",
         type: "pie",
         radius: "65%",
         center: ['50%', '60%'],
@@ -682,7 +682,8 @@ export const ChartBrokenLine = {
         trigger: 'axis'
     },
     legend: {
-        data: ['接电上报', '临时工作', '热线系统']
+        // data: ['接电上报', '临时工作', '热线系统']
+        data: []
     },
     grid: {
         top: '16%',

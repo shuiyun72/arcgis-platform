@@ -235,41 +235,35 @@ class MapNavigate {
                     if(this.options.featureQueryCompleted && this.options.featureQueryCompleted instanceof Function){
                         this.options.featureQueryCompleted(evt)
                     }
-                    this.toolbar.deactivate(); //撤销地图绘制功能
-                    // this.Map.graphics.clear();
-                    // this.Map.graphics.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
                     break;
                 case this.operType.fillSymbolSelect://框选
                     this.featureQueryTask(evt.geometry, result => {
                         this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(result)
                     });
+                    this.toolbar.deactivate(); //撤销地图绘制功能
                     break;
                 case this.operType.areaSelect: //面积选择，例如，缓冲区查询，或者统计区域统计类
                     //进行返回数据
-                    // this.Map.graphics.add(new this.modules.Graphic(evt.geometry, this.createSimpleFillSymbol()));
                     gLayer.add(new this.modules.Graphic(evt.geometry, this.createSimpleFillSymbol()));
                     this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     this.toolbar.deactivate(); //撤销地图绘制功能
                     break;
                 case this.operType.selectSquibPoint: //爆管点选择绘制
-                    //this.Map.graphics.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
                     gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
                     this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     this.toolbar.deactivate(); //撤销地图绘制功能
+                    this.mapOperationInit(true,true)
                     break;
                 case this.operType.setJoinJoinAnalysis: //连通分析点选择
                     gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
-                    // this.Map.graphics.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
                     this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     break;
                 case this.operType.getMapPoint: //获取地图空间数据点
-                    // this.Map.graphics.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
                     gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
-                    this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
+                    this.options.featureQueryCompleted && this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     this.toolbar.deactivate(); //撤销地图绘制功能
                     break;
                 case this.operType.drawLine: //画线
-                    // this.Map.graphics.add(new this.modules.Graphic(evt.geometry, this.createSimpleLineSymbol([255, 0, 0, 0.8], 2)));
                     gLayer.add(new this.modules.Graphic(evt.geometry, this.createSimpleLineSymbol([255, 0, 0, 0.8], 2)));
                     this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     this.toolbar.deactivate(); //撤销地图绘制功能
@@ -277,7 +271,6 @@ class MapNavigate {
                 default:
                     break;
             }
-            // this.toolbar.deactivate(); //撤销地图绘制功能
         });
 
         //生成两点之间的连线
@@ -323,7 +316,8 @@ class MapNavigate {
      */
     mapOperationInit(isInfoWindow, isSnapping) {
         this.Map.enableScrollWheelZoom();
-        this.Map.setInfoWindowOnClick(isInfoWindow); //取消Infowinddow 选中事件
+        this.Map.setInfoWindowOnClick(true); //取消Infowinddow 选中事件
+        document.querySelector('div .esriPopup').style.display = isInfoWindow ? 'block' : 'none';
         this.Map.enableSnapping({
             alwaysSnap: isSnapping
         }); //启动吸附功能
@@ -696,40 +690,6 @@ class MapNavigate {
             console.log(err)
             alert(err)
         });
-
-        // Vue.prototype.$startLoading()
-        // let printTask = new this.modules.PrintTask(MapConfigure.SpatialAnalysisURL.PrintService);
-        // let params = new this.modules.PrintParameters();
-
-        // // debugger;
-        // let outWidth = (this.Map.extent.xmax - this.Map.extent.xmin) * 4600 / this.Map.getScale();
-        // let outHeight = (this.Map.extent.ymax - this.Map.extent.ymin) * 4600 / this.Map.getScale();
-        // let template = new this.modules.PrintTemplate();
-        // template.exportOptions = {
-        //     width: parseInt(outWidth),
-        //     height: parseInt(outHeight),
-        //     dpi: 96
-        // };
-        // template.label = "测试地图打印";
-        // template.format = "PDF"; //输出为png格式的图片
-        // template.layout = "MAP_ONLY";
-        // template.preserveScale = true;
-        // template.showAttribution = true;
-        // template.layoutOptions = {
-        //     "authorText": "Made by:  Esri's JS API Team",
-        //     "copyrightText": "<copyright info here>",
-        //     "legendLayers": [],
-        //     "titleText": "Pool Permits",
-        //     "scalebarUnit": "Meters"
-        // };
-
-        // params.map = this.Map;
-        // params.template = template;
-        // printTask.execute(params, function (evt) {
-        //     // console.log(evt.url);
-        //     Vue.prototype.$endLoading()
-        //     window.open(evt.url, "_blank");
-        // });
     }
 
     //图层显示与隐藏
@@ -1108,11 +1068,6 @@ class MapNavigate {
             return;
         }
         let setpoint = new this.modules.Point(coordinates[0], coordinates[1], this.Map.spatialReference);
-        // let circle = new this.modules.Circle({
-		// 	crenter: [0,0],
-		// 	geodesic: true,
-		// 	radius: 1000
-        // })
         let buffer = new this.modules.geometryEngine.buffer([setpoint], [coordinates[2]], "meters", true);
         let gLayer = this.getFeatureLayerByName("Graphicslayer");
         gLayer.add(new this.modules.Graphic(buffer[0], this.createSimpleFillSymbol()));

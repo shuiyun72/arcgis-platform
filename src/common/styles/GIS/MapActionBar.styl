@@ -1,4 +1,4 @@
-/返回首页按钮样式
+// 返回首页按钮样式,
 .homeDiv {
   position: absolute;
   top: 46px;
@@ -6,31 +6,32 @@
   z-index: 50;
   width: 32px;
   height: 32px;
-  
-	background-color: #fff;
-	border-radius: 6px;
+  background-color: #fff;
+  border-radius: 6px;
   text-align: center;
   border: 1px solid #000;
+
   .icon-shouye {
     color: #444;
     font-size: 20px;
     line-height: 32px;
     text-decoration: none;
-   
   }
-  //去除点击后的虚线边框
+
+  // 去除点击后的虚线边框
   a:focus {
-    outline-style:none;
+    outline-style: none;
     -moz-outline-style: none;
   }
+
   &:hover {
     background: #eee;
-    .iconfont{
+
+    .iconfont {
       color: #03b1a7;
-    } 
+    }
   }
 }
-
 
 .side_action_bar_placeholder {
   width: 100%;
@@ -39,15 +40,12 @@
   right: 0;
   left: 0;
   line-height: $MapActionBarBgHeight;
-  height:$MapActionBarBgHeight;
+  height: $MapActionBarBgHeight;
   color: #444;
   font-family: arial;
   z-index: 2;
-  background-color: rgba(47,50,57,.9);
-  
-  
+  background-color: rgba(47, 50, 57, 0.9);
 
-  
   // 地图顶部描述字体样式
   .Text-Wraper {
     padding-left: 10px;
@@ -57,27 +55,29 @@
     .orange {
       color: $MapActionBarTextActiveColor;
     }
-    & > span{
+
+    & > span {
       padding: 0 10px;
 
-      &:after{
-        content:'';
+      &:after {
+        content: '';
         display: inline-block;
         width: 1px;
         height: 21px;
         opacity: 0.9;
         background-color: #2f3239;
-	      box-shadow: 1px 0px 0px 0px #5b6479;
+        box-shadow: 1px 0px 0px 0px #5b6479;
         vertical-align: middle;
       }
     }
-    & span:last-child{
-      padding-right:10px;
+
+    & span:last-child {
+      padding-right: 10px;
     }
   }
 
-  .Map_Action_Bar_Search{
-    padding-left: $leftBarWidth; 
+  .Map_Action_Bar_Search {
+    padding-left: $leftBarWidth;
   }
 
   .row {
@@ -95,25 +95,25 @@
   line-height: 42px;
   height: 42px;
 
-  .search-factor{
-
-    input{
+  .search-factor {
+    input {
       color: #fff;
       width: 60px;
-      padding:0 26px 0 4px;
-	    height: 27px;
-      line-height:28px;
-	    background-color: #5a5f6b;
-	    border: solid 1px #5a5f6b;
-      border-radius: 2px  0 0 2px;
+      padding: 0 26px 0 4px;
+      height: 27px;
+      line-height: 28px;
+      background-color: #5a5f6b;
+      border: solid 1px #5a5f6b;
+      border-radius: 2px 0 0 2px;
     }
-    &:focus,
-    &.is-active {
+
+    &:focus, &.is-active {
       outline: none;
       border-color: #5a5f6b;
     }
-    .el-input__suffix{
-      .el-icon-arrow-up:before{
+
+    .el-input__suffix {
+      .el-icon-arrow-up:before {
         content: '';
         height: 0px;
         width: 0px;
@@ -124,53 +124,57 @@
         vertical-align: middle;
         transform: scale(0.9);
       }
+
       right: -1px;
     }
-    .el-input__icon{
+
+    .el-input__icon {
       line-height: normal;
     }
   }
-  .el-select .el-input__inner:focus{
+
+  .el-select .el-input__inner:focus {
     outline: none;
     border-color: #5a5f6b;
   }
 
-  .input-Wraper{
+  .input-Wraper {
     width: 160px;
-    input{
+
+    input {
       color: #fff;
       height: 27px;
       background-color: #333742;
       border: solid 0.5px #5a5f6b;
       border-radius: 0;
-      
     }
-    .el-input-number{
+
+    .el-input-number {
       height: auto;
     }
 
-    &.between{
-      display:flex;
-      flex-direction:row;
+    &.between {
+      display: flex;
+      flex-direction: row;
       justify-content: space-between;
-      input{
+
+      input {
         flex: 0 0 50%;
-        padding-left:10px;
+        padding-left: 10px;
         padding-right: 10px;
         text-align: left;
       }
-      
-      
-      .el-input-number__decrease,
-      .el-input-number__increase{
+
+      .el-input-number__decrease, .el-input-number__increase {
         width: 20px;
         background: transparent;
         height: 12px;
         line-height: 12px;
         color: #fff;
-        border:none;
-        &:hover{
-          color:#409eff;
+        border: none;
+
+        &:hover {
+          color: #409eff;
         }
       }
     }
@@ -192,69 +196,71 @@
   }
 }
 
-
-
 // 图层控制弹窗样式
 .Map_Action_Bar_Layer_Win {
   height: auto;
   border: 1px solid #3b3d44;
-  background: transprant;;
+  background: transprant;
   position: absolute;
   top: 41px;
   right: 0;
   box-shadow: -1.5px 1.3px 6px 0px rgba(179, 179, 179, 0.38);
   font-size: $fontSizeNormal;
 
-  .el-input__icon{
+  .el-input__icon {
     line-height: 28px;
   }
-  .Win_Title{
+
+  .Win_Title {
     display: flex;
-    flex-direction:row;
+    flex-direction: row;
     justify-content: space-between;
     height: $MapActionBarBgHeight;
     line-height: $MapActionBarBgHeight;
     font-size: 14px;
-    background:#fff;
-    color:#199cdd;
+    background: #fff;
+    color: #199cdd;
     padding: 0 4px;
-    .text{
-      &:before{
+
+    .text {
+      &:before {
         margin-right: 10px;
-        content:'';
+        content: '';
         display: inline-block;
         width: 4px;
-	      height: 10px;
-	      background-color: #0080c1;
-        border: 3px solid  #98cce5;
+        height: 10px;
+        background-color: #0080c1;
+        border: 3px solid #98cce5;
         vertical-align: sub;
       }
     }
-    .icon{
+
+    .icon {
       height: $MapActionBarBgHeight;
-      cursor:pointer;
-      font-size:$fontSizeNormal
-      text-align:center;
-      width:30px;
+      cursor: pointer;
+      font-size: $fontSizeNormal;
+      text-align: center;
+      width: 30px;
       z-index: 9;
-      color:#6a8694;
+      color: #6a8694;
     }
   }
+
   // 图层弹窗样式
   .TuCeng_List {
     width: 140px;
     height: $MapActionBarWraperHeight - $MapActionBarBgHeight;
     color: #707070;
-    position:relative;
-    background:#fff;
-    
+    position: relative;
+    background: #fff;
 
     .el-scrollbar {
       height: 100%;
 
       .el-scrollbar__wrap {
         padding-bottom: 20px;
-        .el-scrollbar__view{
+
+        .el-scrollbar__view {
           overflow: visible;
           width: 100%;
           border: 1px saddlebrown;
@@ -266,13 +272,14 @@
     .List_Item {
       border-top: solid #e6e6e3 1px;
       padding: 10px;
+
       .Win_Img_List_Item {
         height: 72px;
         border: 1px #0091da solid;
         position: relative;
         text-align: center;
 
-        &.active span{
+        &.active span {
           opacity: 1;
           background-color: #0091da;
         }
@@ -288,7 +295,7 @@
           line-height: 25px;
           text-align: center;
           position: absolute;
-          background-color: rgba(47,50,57,.5);
+          background-color: rgba(47, 50, 57, 0.5);
           color: #fff;
           bottom: 0;
           right: 0;
@@ -310,23 +317,26 @@
             margin: 0 0;
             border-radius: 8px;
             background-color: transparent;
-            border: 1px solid  #00c3aa;
-            
+            border: 1px solid #00c3aa;
           }
-          .el-slider__button{
+
+          .el-slider__button {
             width: 10px;
-	          height: 10px;
-            border-color:#02b0d2;;
-            background:#02b0d2;
+            height: 10px;
+            border-color: #02b0d2;
+            background: #02b0d2;
           }
-          .el-slider__bar{
+
+          .el-slider__bar {
             border-radius: 3px;
             background-image: linear-gradient(-83deg, #01aed5 0%, #00c3aa 100%);
           }
         }
-        .tuceng_title{
-          float:left;
+
+        .tuceng_title {
+          float: left;
         }
+
         .Win_Range_Value {
           float: right;
           color: #0091da;
@@ -339,46 +349,54 @@
       border-top: solid #e6e6e3 1px;
       padding: 10px 0;
       padding-right: 10px;
-      
+
       .el-checkbox {
         with: 100%;
         display: block;
         color: #fff;
         line-height: 28px;
-        .el-checkbox__input.is-checked .el-checkbox__inner {
 
+        .el-checkbox__input.is-checked .el-checkbox__inner {
         }
+
         .el-checkbox__label {
           padding-left: 5px;
         }
       }
-      .el-tree{
-        background:transparent;
-        color:#333;
-      } 
-      .expanded.el-tree-node__expand-icon.el-icon-caret-right{
+
+      .el-tree {
+        background: transparent;
+        color: #333;
+      }
+
+      .expanded.el-tree-node__expand-icon.el-icon-caret-right {
         color: #0091da;
       }
-      .el-tree-node__content:hover{
-        background:transparent;
+
+      .el-tree-node__content:hover {
+        background: transparent;
+        color: #000;
       }
-      .el-tree-node:focus>.el-tree-node__content{
-        background:transparent;
+
+      .el-tree-node:focus>.el-tree-node__content {
+        background: transparent;
+        color: #000;
       }
-      .el-tree-node,
-      .el-tree-node__content{
+
+      .el-tree-node, .el-tree-node__content {
         width: 100%;
         overflow: visible;
       }
-      .el-tree-node__content{
-        flex-wrap: nowrap
+
+      .el-tree-node__content {
+        flex-wrap: nowrap;
       }
-      .el-tree-node > .el-tree-node__children{
+
+      .el-tree-node > .el-tree-node__children {
         overflow: visible;
-        }
+      }
     }
   }
-
 
   // 图例弹窗样式
   .Tuli_List {
@@ -387,28 +405,30 @@
     width: 140px;
     text-align: center;
     color: #333333;
-    position:relative;
-    background:#fff;
+    position: relative;
+    background: #fff;
 
     .el-scrollbar {
       height: 100%;
 
       .el-scrollbar__wrap {
-       padding-bottom: 20px;
+        padding-bottom: 20px;
       }
     }
-    
-    .Tuli-Pipe_Item{
+
+    .Tuli-Pipe_Item {
       margin-left: 10px;
       margin-right: 10px;
       border-bottom: 1px solid #e8e8e6;
       height: 50px;
-      .pipe-name{
+
+      .pipe-name {
         text-align: right;
         height: 27px;
         white-space: nowrap;
       }
-      .pipe-icon{
+
+      .pipe-icon {
         display: inline-block;
         vertical-align: top;
         height: 6px;
@@ -423,6 +443,7 @@
         background-position: center;
       }
     }
+
     .Tuli_List_Item {
       list-style: none;
       vertical-align: middle;
@@ -430,16 +451,16 @@
       padding-right: 10px;
       height: 100%;
       line-height: 100%;
-      
+
       span {
-        overflow:hidden;
+        overflow: hidden;
         display: inline-block;
         width: 50%;
         line-height: 35px;
         height: 35px;
         box-sizing: border-box;
 
-        img{
+        img {
           width: 20px;
           height: 20px;
           vertical-align: middle;
@@ -448,10 +469,11 @@
     }
   }
 
-  .print_List{
+  .print_List {
     height: auto;
-    position:relative;
-    background:#fff;
+    position: relative;
+    background: #fff;
+
     .el-scrollbar {
       height: 100%;
 
@@ -464,24 +486,22 @@
 
 // 右侧地图操作图标样式
 .Map_Action_Bar_container {
-  display:flex;
-  flex-direction:row-reverse;
+  display: flex;
+  flex-direction: row-reverse;
   justify-content: end;
-   line-height: 42px;
+  line-height: 42px;
 
   .action_item {
     height: 34px;
     width: 40px;
     line-height: 34px;
     color: $MapActionBarTextColor;
-	  opacity: 0.7;
+    opacity: 0.7;
     text-align: center;
     cursor: pointer;
 
-
-    &:hover ,
-    &.active{
-      opacity:1;
+    &:hover, &.active {
+      opacity: 1;
     }
 
     .iconfont {
@@ -490,43 +510,48 @@
     }
   }
 }
-.print_List{
-  .el-scrollbar__wrap{
+
+.print_List {
+  .el-scrollbar__wrap {
     margin-bottom: 0 !important;
   }
 }
-.print-wrapper{
-    height: 100%;
-    background: #fff;
-    width: 400px;
-    width: 300px;
-    padding: 10px 20px 0 0;
+
+.print-wrapper {
+  height: 100%;
+  background: #fff;
+  width: 400px;
+  width: 300px;
+  padding: 10px 20px 0 0;
 }
-//选择单位的popover样式
-.Map_Action_Bar_popover{
+
+// 选择单位的popover样式
+.Map_Action_Bar_popover {
   min-width: 72px;
   box-shadow: 0px 1px 0px 0px rgba(47, 50, 57, 0.14);
-	border-radius: 2px;
-	border: solid 1px #e1ecf5;
+  border-radius: 2px;
+  border: solid 1px #e1ecf5;
   padding: 0;
   font-size: 14px;
+
   .el-button {
-    &:last-child{
-      &:after{
+    &:last-child {
+      &:after {
         display: none;
       }
     }
+
     text-align: left;
     width: 100%;
     padding: 0;
     display: block;
-    height:30px;
+    height: 30px;
     border: none;
     margin-left: 0;
     padding-left: 10px;
     position: relative;
-    
-    &:after{
+
+    &:after {
       content: '';
       display: inline-block;
       width: 100%;
@@ -535,24 +560,18 @@
       bottom: 0;
       left: 0;
     }
-    &:focus, 
-    &:hover{
+
+    &:focus, &:hover {
       background-color: #fff;
     }
-    &.active{
+
+    &.active {
       background-color: #e1ecf5;
       color: #0091da;
     }
-
-    
-
-    
-
   }
-
 }
 
-#mapNode_zoom_slider{
-  display:none;
+#mapNode_zoom_slider {
+  display: none;
 }
-
