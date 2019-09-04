@@ -1,0 +1,34 @@
+.DS_Store
+node_modules
+/dist
+/server/public
+server/GisPlateformV1.0/GisPlateformV1.0/css/*
+server/GisPlateformV1.0/GisPlateformV1.0/fonts/*
+server/GisPlateformV1.0/GisPlateformV1.0/img/*
+server/GisPlateformV1.0/GisPlateformV1.0/js/*
+server/GisPlateformV1.0/GisPlateformV1.0/upload/EventsImg
+# backend ignore files
+bin
+obj
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea
+.vscode
+.vs
+
+*.ntvs*
+*.njsproj
+
+*.sw*
+server/GisPlateformV1.0/GisPlateformV1.0/Properties/PublishProfiles/FolderProfile.pubxml.user
+server/GisPlateformV1.0/GisPlateformV1.0/GisPlateformV1.0.csproj.user
+server/GisPlateformV1.0/GisPlateformV1.0/Properties/PublishProfiles/FolderProfile.pubxml

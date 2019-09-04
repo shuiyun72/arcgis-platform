@@ -1,0 +1,103 @@
+.MaintainGIS{
+	height: 100%;
+  	background:$tableBgColor;
+	  
+	//事件状态
+	.event_status_btn{
+		@media (min-width: 1300px){
+			.el-form-item__content {
+				max-width: 700px;
+			}
+		}	
+		&.el-form-item--small.el-form-item{
+			margin-bottom:2px;
+		}
+		.table-state-btn{
+		    padding: 7px 10px;
+		    background: transparent;
+		    border: solid 1px #58647b;
+		    color: #afbcc4;
+		    margin-right: 10px;
+		    margin-bottom: 10px;
+		}
+		.active.el-button{
+			background-color: #53678e;
+			color: #fff;
+		}
+		.el-button+.el-button {
+			margin-left:0;
+		}
+	}
+	
+	/*合并表格样式*/
+	.merge_rows_table{		
+		.details_btn {
+			padding: 6px 8px;
+			background-color: #179FE2;
+			color: #fff;
+		}	
+		.default_btn{ 
+			border-radius: 4px
+			font-size: 12px
+			display:inline-block
+			padding:0px 8px
+			height:26px
+			line-height:26px
+			border:1px solid #eee
+			white-space:nowrap
+			background:#1E9FFF
+			color:#eee		
+			&pointer{
+				cursor:pointer
+			}
+			&.white_btn{
+				background: #fff
+				color: #333
+			}
+			&.purple_btn{
+				background: purple
+				color: #eee
+			}
+		}
+		.el-table .cell{
+			text-align: center
+		}
+		.el-table td.is-hidden .cell div{
+			visibility: initial
+		}
+		
+		.el-table td .cell{
+			height: initial
+			line-height: initial
+		}
+		.el-table tr:nth-child(2n-1) td{
+			padding:8px 0
+		}
+	}
+
+	
+	.el-button.el-orange-btn{
+		background-color: #fd831a;
+		border:none;
+		margin-top:2px;
+	}
+}		
+	/*合并表格样式 end */
+.clearfix:after{
+	content:""
+	display: block
+	clear:both
+}
+.left{
+	float:left
+}
+.right{
+	float:right	
+}
+.el_add_dialog{
+  width:365px;
+  .el-form .el-form-item__content .el-date-editor--timerange.el-input__inner {
+	  width:100%;
+  }
+}
+

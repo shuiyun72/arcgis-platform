@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0FE54FDD-FF65-4B0E-9662-1C4710AB950E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GisPlateform.IDAL</RootNamespace>
+    <AssemblyName>GisPlateform.IDAL</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EventOperation\IEventManageDAL.cs" />
+    <Compile Include="EventOperation\IEventStartForMaintainDAL.cs" />
+    <Compile Include="IAttendanceRecordDAL.cs" />
+    <Compile Include="ICellphoneManageDAL.cs" />
+    <Compile Include="IDepartmentDAL.cs" />
+    <Compile Include="InspectionMonitor\IMonitorDAL.cs" />
+    <Compile Include="InspectionPlan\IPlanLineDAL.cs" />
+    <Compile Include="InspectionPlan\IPlanLineDetailDAL.cs" />
+    <Compile Include="InspectionPlan\IPlanManageDAL.cs" />
+    <Compile Include="InspectionPlan\ITaskManageDAL.cs" />
+    <Compile Include="InspectionSettings\IEquipmentDAL.cs" />
+    <Compile Include="InspectionSettings\IEventStatusDAL.cs" />
+    <Compile Include="InspectionSettings\IEventTypeDAL.cs" />
+    <Compile Include="InspectionSettings\IEventContentDAL.cs" />
+    <Compile Include="InspectionPlan\IPlanAreaDAL.cs" />
+    <Compile Include="ICommonDAL.cs" />
+    <Compile Include="IDependency.cs" />
+    <Compile Include="InspectionSettings\IPlanCycleDAL.cs" />
+    <Compile Include="InspectionSettings\IPlanTypeDAL.cs" />
+    <Compile Include="InspectionSettings\IWorkTimeIntervalDAL.cs" />
+    <Compile Include="InspectionStatistics\IEventTypeStatisticsDAL.cs" />
+    <Compile Include="InspectionStatistics\IEventTypeTrendStatisticsDAL.cs" />
+    <Compile Include="InspectionStatistics\IExecutedRateDAL.cs" />
+    <Compile Include="InspectionStatistics\ITaskStatisticsDAL.cs" />
+    <Compile Include="InspectionStatistics\IUserReportStatisticsDAL.cs" />
+    <Compile Include="IPipeDAL.cs" />
+    <Compile Include="InspectionPlan\IPointAreaInfoDAL.cs" />
+    <Compile Include="IPOIDAL.cs" />
+    <Compile Include="IP_AdminDAL.cs" />
+    <Compile Include="IP_FunPurviewDAL.cs" />
+    <Compile Include="IRoleDAL.cs" />
+    <Compile Include="MainTainStatistics\IMainTainStatisticsDAL.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GisPlateform.Model\GisPlateform.Model.csproj">
+      <Project>{6D780218-F7C8-442D-8C92-5AB290E717F9}</Project>
+      <Name>GisPlateform.Model</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

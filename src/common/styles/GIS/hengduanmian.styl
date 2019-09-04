@@ -1,0 +1,54 @@
+.my-chart{
+  padding-right: 0 !important;
+  margin: 0 auto;
+}
+.my-table{
+  overflow: hidden;
+  width:600px;
+  padding-right: 20px;
+  overflow:hidden;
+  box-sizing: border-box;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-bottom: 0;
+  position: relative;
+   margin: 0 auto;
+  .my-line{
+    position: absolute;
+    width: 100%;
+  }
+  .my-thead{
+    width:70px;
+    float:left;
+    .my-cell{
+      font-size: 12px;
+      border-right: 1px solid #000;
+    }
+  }
+  .my-cell{
+    line-height: 40px;
+    height: 40px;
+    padding:0;
+    border-bottom: 1px solid #000;
+  }
+  .my-tbody{
+    margin-left:70px;
+    display: flex;
+    .my-tr{
+      width: 10%;
+    }
+    .my-cell{
+      text-align: right;
+      display:block;
+      border-right: 1px dashed #000;
+      span{
+        white-space: nowrap;
+        font-size: 8px;
+        transform: rotateZ(-90deg)  scale(.8) translate(20px ,-10px);
+        transform-origin: right;
+        display: inline-block;
+      }
+    }
+  }
+}
