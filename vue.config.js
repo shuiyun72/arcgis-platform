@@ -5,6 +5,9 @@ function resolve(dir) {
 }
 
 module.exports = {
+  // 基本路径
+  publicPath: './',
+  outputDir: 'zhengzhou',
   chainWebpack: config => {
     config.resolve.alias
       .set("@vue", resolve("node_modules/vue/dist/vue.min.js"))
