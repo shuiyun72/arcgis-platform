@@ -74,3 +74,9 @@ export const encryptSHA1HD = (HDACC ,HDSTAMP)  => {
   let message = 'HD#@!' + HDACC + HDSTAMP 
   return CryptoJS.SHA1(message).toString(CryptoJS.enc.Hex); 
 } 
+
+
+//CryptoJS.SHA256(waitSignData).toString();
+export const encryptSHA256 = (waitSignData) => {
+  return CryptoJS.SHA256(waitSignData).toString(CryptoJS.enc.Hex); 
+}

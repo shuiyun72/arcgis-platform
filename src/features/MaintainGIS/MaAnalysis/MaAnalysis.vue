@@ -143,7 +143,6 @@ export default {
       }      
     },
     controlTableHeight(state){
-      console.log(state)
       if(state){
         this.tableHeight ='calc(100vh - 582px)'
       }else{
@@ -182,7 +181,6 @@ export default {
       })
       this.chartBarZoom.legend.top = 14
       this.chartBarZoom.legend.right = 0
-      console.log(this.chartBarZoom.legend);
       this.chartBar = echarts.init(document.querySelector(".charWraper.job1"))
       this.chartBar.setOption(this.chartBarZoom);
       this.chartBrokenLine = _.cloneDeep(this.chartBarZoom),
@@ -194,20 +192,17 @@ export default {
       this.chartBrokenLine.xAxis[0].data = this.Xarr;
       // 折线图去掉legend
       // this.chartBrokenLine.legend[0].data = [];
-      console.log(this.chartBrokenLine)
       this.chartLine = echarts.init(document.querySelector(".charWraper.job2"))
       this.chartBrokenLine.legend = null;
       this.chartLine.setOption(this.chartBrokenLine); 
     },
     // 分页相关
     onPageChange(objvalue) {
-      console.log(objvalue)
       this.currentPageNumber = objvalue;
       this.GetEvents();
     },
     //当前页数据变化
     onPageSizeChange(objvalue) {
-      console.log(objvalue)
       this.currentPageSize = objvalue;
       this.GetEvents();
     },
@@ -248,7 +243,6 @@ export default {
         //   }else if(res.name == "巡检上报"){
         //     this.getLineData.p3[index] = _.assign({},{color:"#c2b230"},res)
         //   }
-        console.log(this.getLineData);
         this.Xarr = this.getLineData.p1.split(',');
         this.gtCharInitGauge();
       })
@@ -263,8 +257,6 @@ export default {
         let temp = JSON.stringify(res.data.Data.Result);
         this.getData = JSON.parse(temp);
         this.squareQueryTotal = res.data.Data.TotalRows
-        console.log(this.squareQueryTotal);
-        console.log(this.getData);
       })
     }
   }

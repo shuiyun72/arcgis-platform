@@ -10,7 +10,7 @@ store.dispatch('system/setState', {
   value: true
 })
 export default new Router({
-  //mode: 'history',
+  mode: 'history',
   routes: [
     {
       path: "/login",

@@ -38,6 +38,7 @@ export default {
             cAdminTel: formData.cAdminTel,
             iIsLocked: Number(formData.iIsLocked),
             iIsAllowChangePWD: Number(formData.iIsAllowChangePWD),
+            IsAssignment: Number(formData.IsAssignment),
             dExpireDate: formData.dExpireDate,
             cAdminPassWord:'123',//随便写后台重置
             P_Role: {},
@@ -57,6 +58,7 @@ export default {
             cAdminTel: formData.cAdminTel,
             iIsLocked: Number(formData.iIsLocked),
             iIsAllowChangePWD: Number(formData.iIsAllowChangePWD),
+            IsAssignment:Number(formData.IsAssignment),
             dExpireDate: formData.dExpireDate,
             cAdminPassWord:'123',
             P_Role: {},

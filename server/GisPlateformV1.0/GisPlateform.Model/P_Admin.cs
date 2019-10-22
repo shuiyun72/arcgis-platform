@@ -254,6 +254,15 @@ namespace GisPlateform.Model
             set;
             get;
         }
+        /// <summary>
+        /// 是否有权限份派工单 0::否 1:是
+        /// </summary>
+        [DataMember]
+        public int? IsAssignment
+        {
+            set;
+            get;
+        }
         [DataMember]
         [Column(FilterType = FilterType.IsNotEdit)]
         public P_Role P_Role { set; get; }

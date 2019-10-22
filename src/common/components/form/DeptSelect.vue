@@ -2,7 +2,7 @@
 
 
 <template>
-  <el-select :value="valueTitle" class="selectTree">
+  <el-select :value="valueTitle" class="selectTree" ref="sel">
     <el-option :value="valueTitle" :label="valueTitle" v-loading="loading">
       <el-scrollbar style="height: 260px;" class="selectTreeScroll">
         <el-tree
@@ -167,6 +167,7 @@ export default {
       this.valueId = node[this.selectTreeProps.value];
       this.$emit("getChildChange", this.name, this.valueId);
       this.defaultExpandedKey = [];
+      this.$refs.sel.blur();
     },
     valueTitleParent(node, parentTitle) {
       if (node) {

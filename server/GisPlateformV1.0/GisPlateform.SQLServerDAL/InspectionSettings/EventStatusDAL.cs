@@ -58,7 +58,7 @@ FROM M_WorkOrder_Oper left join(select mh.OperId, count(0) as sumcount from M_Ev
                                         GROUP BY h.EventID) AS a LEFT OUTER JOIN dbo.M_WorkOrder_Oper_History as B ON a.EventID = B.EventID AND a.ExecUpDateTime = B.ExecUpDateTime) mh on mh.EventID = m.EventID
                                       where m.DeleteStatus=0  and m.IsValid<>0 {0}
                                         group by mh.OperId) mm on mm.OperId = M_WorkOrder_Oper.OperId
-where M_WorkOrder_Oper.OperId in (11, 2, 3, 4, 5, 6, 7, 9) 
+where M_WorkOrder_Oper.OperId in (11, 2, 3, 4, 5, 6, 7, 8,9) 
  ", sqlwhere);
             try
             {

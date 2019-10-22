@@ -38,30 +38,43 @@ function endLoading() {
 function singleHdLogin(to, from, next) {
     let query = to.query
     let iAdminID = localStorage.getItem("iAdminID")
-    if (query.HDACC && query.HDSTAMP && query.HDSSOKEY) {
-        let encryptSHA1HD = Des.encryptSHA1HD(query.HDACC, query.HDSTAMP)
-        let allowLogin = encryptSHA1HD == query.HDSSOKEY
-        if (allowLogin) {
-            loginSystem.loginHDSystem(query).then(res => {
-                let Result = res.data.Data.Result
-                let UserID = {}
-                store.dispatch('login/userStatus', res.data.Data.Result)
-                let date = new Date()
-                date.setDate(date.getDate() + 1)
-                UserID.Token = Result.Token
-                UserID.cAdminName = Result.cAdminName
-                UserID.exprise = date.getTime();
-                UserID.iAdminID = Result.iAdminID
-                UserID.dExpireDate = Result.dExpireDate
-                localStorage.setItem("iAdminID", JSON.stringify(UserID))
-                sessionStorage.setItem('store', JSON.stringify(store.state.login))
-                location.replace('/')
-                // router.addRoutes(store.getters['login/addRoute']);
-                // loginSuccessSet(next, true)
-            })
-        } else {
-            loginError(next)
+    if (query.iframe) {
+        sessionStorage.setItem("iframe", true);
+        store.dispatch('login/iframeState',query.iframe)
+    } else if(!store.state.login.iframe){
+        if (sessionStorage.getItem("iframe")) {
+            store.dispatch('login/iframeState',true)
         }
+    }
+    
+
+    if (query.HDACC && query.HDSTAMP && query.HDSSOKEY) {
+        loginSystem.loginHDSystem(query).then(res => {
+            if (res.data.ErrorType !== 3) {
+                loginError(next, res.data.Msg)
+                return
+            }
+            let Result = res.data.Data.Result
+            let UserID = {}
+            store.dispatch('login/userStatus', res.data.Data.Result, query)
+            let date = new Date()
+            date.setDate(date.getDate() + 1)
+            UserID.Token = Result.Token
+            UserID.cAdminName = Result.cAdminName
+            UserID.exprise = date.getTime();
+            UserID.iAdminID = Result.iAdminID
+            UserID.dExpireDate = Result.dExpireDate
+            localStorage.setItem("iAdminID", JSON.stringify(UserID))
+            sessionStorage.setItem('store', JSON.stringify(store.state.login))
+            if(query.iframe){
+                next({name:to.name})
+            }
+            location.replace('/')
+            // router.addRoutes(store.getters['login/addRoute']);
+            // loginSuccessSet(next, true)
+        }).catch(err => {
+            loginError(next)
+        })
     } else if (to.name == 'Login') {
         loading.close()
         next()
@@ -92,30 +105,8 @@ function singleHdLogin(to, from, next) {
         }
     }
 }
-// if (query.HDACC && query.HDSTAMP && query.HDSSOKEY) {
-//     let encryptSHA1HD = Des.encryptSHA1HD(query.HDACC, query.HDSTAMP)
-//     let allowLogin = encryptSHA1HD == query.HDSSOKEY
-//     if (allowLogin) {
-//         loginSuccessSet(next,true)
-//     } else {
-//         loginError(next)
-//     }
-// } else if (query.HDACC || query.HDSTAMP || query.HDSSOKEY) {
-//     loginError()
-// } else {
-//     let allowStamptime = Cookies.get('allowStamp')
-//     console.log(allowStamptime)
-//     let data = (new Date()).getTime()
-//     if (allowStamptime && allowStamptime > data) {
-//         loginSuccessSet(next)
-//     } else {
-//         loginError(next)
-//     }
-// }
-// }
 function loginSuccessSet(next, first, to) {
     if (first) {
-        console.log(to)
         next({ path: to.path })
     }
 
@@ -126,13 +117,17 @@ function loginSuccessSet(next, first, to) {
     next()
 }
 
-function loginError(next) {
+function loginError(next, Message) {
     localStorage.removeItem("iAdminID")
     // let loginUrl = 'http://www.baidu.com'
     // let loginUrl = 'http://114.215.126.11:5009/user/login.html?reload#/static/spread/index.html?sys=gtwenty&other=true&hebi=true'
     endLoading()
     Cookies.remove('allowStamp')
-    alert('登陆已过期，请重新登陆')
+    if (Message) {
+        alert(Message)
+    } else {
+        alert('登陆已过期，请重新登陆')
+    }
     next({ name: 'Login' })
     // location.href = '/'
 }

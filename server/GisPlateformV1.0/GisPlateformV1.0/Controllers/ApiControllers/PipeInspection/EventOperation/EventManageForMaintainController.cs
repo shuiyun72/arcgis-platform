@@ -12,7 +12,7 @@ using GisPlateform.IDAL.EventOperation;
 using GisPlateform.Model.BaseEntity;
 using Newtonsoft.Json;
 using GisPlateform.CommonTools;
-
+using System.Data;
 namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperation
 {
     /// <summary>
@@ -70,25 +70,27 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <param name="EventID">事件ID</param>
         /// <param name="OrderId">工单编号</param>
         /// <param name="OperId">步骤ID 0:无效 1: 待处理 2:待接受  3:待处置 4 5:处置中  5:延期确认  6:待审核  7:审核完成  11:待处理  12:回复完成  null:待分派</param>
-        /// <param name="DispatchPersonID">指派人ID</param>
+        /// <param name="execPersonId">登录人id</param>
+        /// <param name="idetpID">登录人部门id</param>
         /// <returns></returns>
-        public MessageEntity WorkorderInvalid(string EventID , string OrderId, string OperId = "", string DispatchPersonID = "")
+        public MessageEntity WorkorderInvalid(string EventID , string OrderId, string execPersonId, string idetpID, string OperId = "")
         {
-            return _eventManage.WorkorderInvalid(EventID, OrderId, OperId, DispatchPersonID);
+            return _eventManage.WorkorderInvalid(EventID, OrderId, execPersonId, idetpID, OperId);
         }
         /// <summary>
         /// 事件工单流转操作（审核)
         /// </summary>
         /// <param name="EventID">事件ID</param>
         /// <param name="OrderId">工单编号</param>
+        /// <param name="OperRemarks">操作意见</param>
+        /// <param name="satisfaction">满意度 (非常满意、满意、不满意)</param>
         /// <param name="StepNum">步骤id(7)</param>
         /// <param name="iAdminID">登陆ID</param>
         ///  <param name="iDetpID">登陆人员部门ID</param>
-        /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListAudit(string EventID, string OrderId, string iDetpID, string StepNum = "7", string iAdminID = "", string OperRemarks="")
+        public MessageEntity WorkListAudit(string EventID, string OrderId, string iDetpID, string OperRemarks, string satisfaction ,string StepNum = "7", string iAdminID = "")
         {
-            return _eventManage.WorkListAudit(EventID, OrderId, iDetpID, StepNum, iAdminID, OperRemarks);
+            return _eventManage.WorkListAudit(EventID, OrderId, iDetpID, OperRemarks, satisfaction, StepNum, iAdminID);
         }
         /// <summary>
         /// 事件工单流转操作（接单)
@@ -257,11 +259,27 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <param name="complishTime">延期完成事件</param>
         /// <param name="iDeptID">登陆人员所属部门ID</param>
         /// <param name="iAdminID">登陆人员ID</param>
+        ///  <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListDelayExec(string EventID, string OrderId, string complishTime, string iDeptID, string iAdminID)
+        public MessageEntity WorkListDelayExec(string EventID, string OrderId, string complishTime, string iDeptID, string iAdminID, string OperRemarks = "")
         {
-            return _eventManage.WorkListDelayExec(EventID, OrderId, complishTime, iDeptID, iAdminID);
+            return _eventManage.WorkListDelayExec(EventID, OrderId, complishTime, iDeptID, iAdminID, OperRemarks);
         }
+        /// <summary>
+        /// 事件工单流转操作（延期确认退回)
+        /// </summary>
+        /// <param name="eventID">事件ID</param>
+        /// <param name="orderId">工单编号ID</param>
+        /// <param name="complishTime">延期完成事件</param>
+        /// <param name="iDeptID">登陆人员所属部门ID</param>
+        /// <param name="iAdminID">登陆人员ID</param>
+        ///  <param name="operRemarks">操作意见</param>
+        /// <returns></returns>
+        public MessageEntity WorkListDelayReturn(string eventID, string orderId, string complishTime, string iDeptID, string iAdminID, string operRemarks = "")
+        {
+            return _eventManage.WorkListDelayReturn(eventID, orderId, complishTime, iDeptID, iAdminID, operRemarks);
+        }
+
         /// <summary>
         /// 事件工单处理(回复)按钮
         /// </summary>
@@ -293,6 +311,30 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
 
             return messageEntity;
         }
+        /// <summary>
+        /// 获取延期退回数据
+        /// </summary>
+        /// <param name="eventId">事件id</param>
+        /// <param name="orderId">工单id</param>
+        /// <returns></returns>
+        public MessageEntity GetPostponeOrder(string eventId, String orderId)
+        {
+            //获取延期申请数据
+            DataTable dtsq = _eventManage.GetPostponeOrderSQ(eventId, orderId);
+            DataTable dtfh = _eventManage.GetPostponeOrderFH(eventId, orderId);
+            dtsq.Columns.Add("QRCause", Type.GetType("System.String"));//项目id
+            //循环遍历将延期返回数据添加到申请dt中
+            int i = 0;
+            foreach (var item in dtsq.Rows)
+            {
+                if (i < dtfh.Rows.Count) { 
+                    dtsq.Rows[i]["QRCause"] = dtfh.Rows[i]["Cause"];
+                }
+                     i++;
+            }
 
-    }
+            return MessageEntityTool.GetMessage(1, dtsq); 
+        }
+
+    } 
 }

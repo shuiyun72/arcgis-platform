@@ -78,11 +78,16 @@
 
   .Map_Action_Bar_Search {
     padding-left: $leftBarWidth;
+    transition: all 0.5s ease;
   }
 
   .row {
     align-items: center;
   }
+}
+
+.isCollapse .side_action_bar_placeholder .Map_Action_Bar_Search {
+  padding-left: $leftBarWidthLarge;
 }
 
 // 顶部查询样式
@@ -188,6 +193,7 @@
     text-align: center;
     color: #fff;
     border: solid 0.5px #5a5f6b;
+    border-left: 0;
 
     .iconfont {
       font-size: 18px;
@@ -248,7 +254,6 @@
 
   // 图层弹窗样式
   .TuCeng_List {
-    width: 140px;
     height: $MapActionBarWraperHeight - $MapActionBarBgHeight;
     color: #707070;
     position: relative;
@@ -269,9 +274,17 @@
     }
 
     // 图层弹窗大图片列表
+    .Win_Img_List {
+      display: flex;
+      flex-wrap: wrap;
+      width: 240px;
+    }
+
     .List_Item {
       border-top: solid #e6e6e3 1px;
-      padding: 10px;
+      padding: 10px 0px 10px 10px;
+      width: 110px;
+      box-sizing: border-box;
 
       .Win_Img_List_Item {
         height: 72px;
@@ -402,7 +415,6 @@
   .Tuli_List {
     height: $MapActionBarWraperHeight - $MapActionBarBgHeight;
     margin: 0;
-    width: 140px;
     text-align: center;
     color: #333333;
     position: relative;
@@ -455,7 +467,7 @@
       span {
         overflow: hidden;
         display: inline-block;
-        width: 50%;
+        width: 60%;
         line-height: 35px;
         height: 35px;
         box-sizing: border-box;
@@ -464,6 +476,10 @@
           width: 20px;
           height: 20px;
           vertical-align: middle;
+        }
+
+        &:first-child {
+          width: 40%;
         }
       }
     }
@@ -502,6 +518,10 @@
 
     &:hover, &.active {
       opacity: 1;
+    }
+
+    .el-button {
+      border-radius: 0;
     }
 
     .iconfont {

@@ -4,6 +4,7 @@
       <el-scrollbar style="min-width:200px;">
         <el-tree
           highlight-current
+          class="black"
           :data="deptList"
           :props="defaultProps"
           @node-click="handleNodeClick"

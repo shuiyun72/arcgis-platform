@@ -59,13 +59,13 @@ export default {
         rank: 0
       };
       let inVailid = {
-        OperId: 0,
+        OperId: "",
         OperName: "无 效",
         OperName2: "无 效",
         rank: 0
       };
       this.EventStatus.unshift(obj);
-      this.EventStatus.push(inVailid)
+      this.EventStatus.push(inVailid);
       //this.FlowPath = res
     });
   },

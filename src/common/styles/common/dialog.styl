@@ -75,6 +75,8 @@
       }
 
       .left-tree-title {
+        line-height: 42px;
+
         &:before {
           content: '';
           margin: 0 6px 0 14px;
@@ -125,6 +127,9 @@
     .district_table_container {
       overflow: hidden;
       padding: 10px 10px 0;
+      height: calc(50vh + 107px);
+      display: flex;
+      flex-direction: column;
 
       .el-table {
         color: #7a7e80;
@@ -154,6 +159,10 @@
       .panel-body.f-full {
         height: 100%;
       }
+    }
+
+    .dialog-footer {
+      line-height: 47px;
     }
   }
 
@@ -395,6 +404,7 @@
       width: 100%;
       height: 400px;
       margin: 20px 0;
+      border: solid 1px #68788f;
     }
 
     .dialog-table {

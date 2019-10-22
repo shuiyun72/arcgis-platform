@@ -66,6 +66,26 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.Common
                 return MessageEntityTool.GetMessage(ErrorType.SqlError);
             }
         }
+
+        /// <summary>
+        /// 查询用户列表(只选择有分派权限的用户)
+        /// </summary>
+        /// <param name="deptId">部门id</param>
+        /// <param name="roleId">角色id</param>
+        /// <returns></returns>
+        public MessageEntity GetUserComboboxListAssigment(string deptId = "", string roleId = "")
+        {
+            var result = base.CommonDAL.GetUserComboboxListAssigment(deptId, roleId, out string errMsg);
+
+            if (string.IsNullOrEmpty(errMsg))
+            {
+                return MessageEntityTool.GetMessage(result.Count, result, true, "", result.Count);
+            }
+            else
+            {
+                return MessageEntityTool.GetMessage(ErrorType.SqlError);
+            }
+        }
         /// <summary>
         /// 获取所有用户
         /// </summary>

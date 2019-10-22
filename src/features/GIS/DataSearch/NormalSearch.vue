@@ -36,13 +36,13 @@
         </el-form-item>
       </el-col>
       <el-col :span="9" :xs="12" :sm="12" :lg="9" class="hidden-md-and-down">
-        <el-form-item label="竣工开始日期：" style="padding-left:5px;" label-width="120px">
+        <el-form-item label="创建开始日期：" style="padding-left:5px;" label-width="120px">
           <el-date-picker
-            v-model="SearchPar.startCompletion_date"
+            v-model="SearchPar.ADD_DATE"
             type="date"
             placeholder="开始日期"
             style=" width:100%"
-            value-format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd HH:mm:ss"
             size="mini"
           ></el-date-picker>
         </el-form-item>
@@ -87,13 +87,13 @@
         </el-form-item>
       </el-col>
       <el-col :span="9" :xs="12" :sm="12" :lg="9" class="hidden-md-and-down">
-        <el-form-item label="竣工结束日期：" style="padding-left:5px;" label-width="120px">
+        <el-form-item label="创建结束日期：" style="padding-left:5px;" label-width="120px">
           <el-date-picker
-            v-model="SearchPar.endCompletion_date"
+            v-model="SearchPar.ADD_END_DATE"
             type="date"
             placeholder="结束日期"
             style="width:100%"
-            value-format="yyyy-MM-dd"
+            value-format="yyyy-MM-dd HH:mm:ss"
             size="mini"
           ></el-date-picker>
         </el-form-item>
@@ -102,26 +102,26 @@
     </el-row>
     <el-row>
       <el-col :span="9" :xs="12" :sm="12" :lg="9" class="hidden-lg-and-up">
-        <el-form-item label="竣工结束日期："  label-width="104px">
+        <el-form-item label="创建开始日期："  label-width="104px">
           <el-date-picker
-            v-model="SearchPar.endCompletion_date"
+            v-model="SearchPar.ADD_DATE"
             type="date"
             placeholder="结束日期"
             style="width:100%"
-            value-format="yyyy-MM-dd"
             size="mini"
+            value-format="yyyy-MM-dd HH:mm:ss"
           ></el-date-picker>
         </el-form-item>
       </el-col>
       <el-col :span="9" :xs="12" :sm="12" :lg="9" class="hidden-lg-and-up">
-        <el-form-item label="竣工开始日期：" style="padding-left:5px;" label-width="104px">
+        <el-form-item label="创建结束日期：" style="padding-left:5px;" label-width="104px">
           <el-date-picker
-            v-model="SearchPar.startCompletion_date"
+            v-model="SearchPar.ADD_END_DATE "
             type="date"
             placeholder="开始日期"
             style=" width:100%"
-            value-format="yyyy-MM-dd"
             size="mini"
+            value-format="yyyy-MM-dd HH:mm:ss"
           ></el-date-picker>
         </el-form-item>
       </el-col>
@@ -181,8 +181,8 @@ export default {
         installation_address: "",
         material_science: "",
         caliber: "",
-        startCompletion_date: "",
-        endCompletion_date: "",
+        ADD_END_DATE: "",
+        ADD_DATE: "",
         sort: "caliber",
         ordering: "asc",
       },
@@ -340,13 +340,13 @@ export default {
         this.whereGIScondition +=
           " and  caliber=" + this.SearchPar.caliber + " ";
       }
-      if (this.SearchPar.startCompletion_date) {
+      if (this.SearchPar.ADD_END_DATE) {
         this.whereGIScondition +=
-          " and  completion_date>=" + this.SearchPar.startCompletion_date + " ";
+          " and  ADD_DATE <= date ' " + this.SearchPar.ADD_END_DATE + "' ";
       }
-      if (this.SearchPar.endCompletion_date) {
+      if (this.SearchPar.ADD_DATE) {
         this.whereGIScondition +=
-          " and  completion_date <= " + this.SearchPar.endCompletion_date + " ";
+          " and  ADD_DATE >=  date ' " + this.SearchPar.ADD_DATE + "' ";
       }
       if (this.whereGIScondition) {
         this.$bus.emit("clearGDataLayer"); //清除绘制过的图层数据信息
@@ -387,7 +387,29 @@ export default {
     },
     //导出表格
     exportExcel() {
-      ExportExcel("div .outDataSerchExcel", this.layerDataValue);
+      //下载excel导出
+      let exportName;
+      _.some(this.layerData, group => {
+        if (group.children && _.isArray(group.children)) {
+          if (group.value === this.groupLayerDataValue[0]) {
+            _.some(group.children, item => {
+              if (item.value === this.layerDataValue) {
+                exportName = group.label + item.label;
+                return true;
+              }
+              return false;
+            });
+          }
+          return exportName;
+        } else {
+          if (group.value === this.layerDataValue) {
+            exportName = group.label;
+            return true;
+          }
+          return false;
+        }
+      });
+      ExportExcel("div .outDataSerchExcel", exportName+" - 数据查询");
     },
   }
 };

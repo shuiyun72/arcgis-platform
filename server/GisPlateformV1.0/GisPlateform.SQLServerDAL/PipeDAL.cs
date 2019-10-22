@@ -489,7 +489,7 @@ WHERE 1 = 1 {1}  {2}";
                                 }
                                 if (valueAndPipe.LinesPID != null && valueAndPipe.LinesPID != "")
                                 {
-                                    pipeQuerySql += $@" union all  SELECT {pipeField} FROM PIPE WHERE PID in ({valueAndPipe.LinesPID}) ";
+                                    pipeQuerySql += $@" union all SELECT {pipeField} FROM PIPE WHERE PID in ({valueAndPipe.LinesPID}) ";
                                 }
                                 if (valueAndPipe.NodesPID2 != null && valueAndPipe.NodesPID2 != "")
                                 {

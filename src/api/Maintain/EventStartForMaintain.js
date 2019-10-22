@@ -87,6 +87,14 @@ export default {
             }
         })
     },
+    //查询用户列表(只选择有分派权限的用户）
+    GetUserComboboxListAssigment(deptId){
+        return matance.get("/User/GetUserComboboxListAssigment",{
+            params:{
+                deptId:deptId
+            }
+        })
+    },
     //获取所有部门
     excelPart(){
         return matance.get("/Department/GetUserComboboxList")

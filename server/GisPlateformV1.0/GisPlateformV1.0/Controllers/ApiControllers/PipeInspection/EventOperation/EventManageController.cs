@@ -13,7 +13,7 @@ using GisPlateform.IDAL.EventOperation;
 using GisPlateform.Model.BaseEntity;
 using GisPlateform.Model.PipeInspectionBase_Gis_OutSide;
 using Newtonsoft.Json;
-
+using System.Data;
 namespace GisPlateformV1_0.Controllers.ApiControllers.EventManage
 {
     /// <summary>
@@ -100,7 +100,12 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.EventManage
             {
                 return MessageEntityTool.GetMessage(ErrorType.SystemError, m_Event.EventPictures);
             }
-
+            int ExecTime = 36;
+           DataTable dt= _eventManage.GetEventExecTime(eventTypeId);
+            if(dt !=null && dt.Rows.Count>0)
+            {
+                ExecTime = int.Parse(dt.Rows[0]["ExecTime"].ToString());
+            }
             if (eventFromId == 1)
             {
                 m_Event.EventCode = "DH";
@@ -134,7 +139,7 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.EventManage
             m_Event.IsValid = 1;
             m_Event.DeleteStatus = "0";
             m_Event.TaskId = -1;
-            m_Event.ExecTime =36;
+            m_Event.ExecTime = ExecTime;
             m_Event.LinkMan = linkMan;
             m_Event.LinkCall = linkCall;
 

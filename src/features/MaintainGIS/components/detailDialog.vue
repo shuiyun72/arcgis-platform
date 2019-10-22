@@ -214,7 +214,12 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button class="my-dialog-cancel" @click="centerDialog = false">取 消</el-button>
-        <el-button class="my-dialog-submit" type="primary" @click="zhuanPSure">确 定</el-button>
+        <el-button
+          class="my-dialog-submit"
+          type="primary"
+          @click="zhuanPSure"
+          :loading="sunBtnLoad"
+        >确 定</el-button>
       </span>
     </el-dialog>
     <!-- 回复 -->
@@ -233,7 +238,12 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button class="my-dialog-cancel" @click="backDialog = false">取 消</el-button>
-        <el-button class="my-dialog-submit" type="primary" @click="backSure">确 定</el-button>
+        <el-button
+          class="my-dialog-submit"
+          type="primary"
+          @click="backSure"
+          :loading="sunBtnLoad"
+        >确 定</el-button>
       </span>
     </el-dialog>
     <!-- 分派 -->
@@ -269,7 +279,12 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button class="my-dialog-cancel" @click="fenpaiDialog = false">取 消</el-button>
-        <el-button class="my-dialog-submit" type="primary" @click="fenpaiSure">确 定</el-button>
+        <el-button
+          class="my-dialog-submit"
+          type="primary"
+          @click="fenpaiSure"
+          :loading="sunBtnLoad"
+        >确 定</el-button>
       </span>
     </el-dialog>
     <!-- 回复 -->
@@ -288,7 +303,12 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button class="my-dialog-cancel" @click="goBackDialog = false">取 消</el-button>
-        <el-button class="my-dialog-submit" type="primary" @click="goBackSure">确 定</el-button>
+        <el-button
+          class="my-dialog-submit"
+          type="primary"
+          @click="goBackSure"
+          :loading="sunBtnLoad"
+        >确 定</el-button>
       </span>
     </el-dialog>
     <!-- 退单 -->
@@ -307,11 +327,17 @@
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button class="my-dialog-cancel" @click="exitOrderDialog = false">取 消</el-button>
-        <el-button class="my-dialog-submit" type="primary" @click="exitOrderSure">确 定</el-button>
+        <el-button
+          class="my-dialog-submit"
+          type="primary"
+          @click="exitOrderSure"
+          :loading="sunBtnLoad"
+        >确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 延期or延期确认 -->
     <el-dialog
-      title="延期"
+      :title="(localDispathPersonID == currentRow.adminID && currentRow.IsValid == 5) ?'延期确认':'延期'"
       :visible.sync="timeoutDialog"
       center
       append-to-body
@@ -325,6 +351,7 @@
             type="date"
             value-format="yyyy-MM-dd"
             placeholder="选择日期"
+            :disabled="IsTimeoutSure"
           ></el-date-picker>
         </el-form-item>
         <el-form-item label="延时完成内容:">
@@ -332,8 +359,51 @@
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
-        <el-button class="my-dialog-cancel" @click="timeoutDialog = false">取 消</el-button>
-        <el-button class="my-dialog-submit" type="primary" @click="timeoutSure">确 定</el-button>
+        <el-button
+          class="my-dialog-cancel"
+          @click="WorkListDelayReturn"
+          v-if="localDispathPersonID == currentRow.adminID && currentRow.IsValid == 5"
+          :loading="sunBtnLoad"
+        >退回</el-button>
+        <el-button class="my-dialog-cancel" @click="timeoutDialog = false" v-else>取 消</el-button>
+        <el-button
+          class="my-dialog-submit"
+          type="primary"
+          @click="timeoutSure"
+          :loading="sunBtnLoad"
+        >确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 审核 -->
+    <el-dialog
+      title="审核"
+      :visible.sync="examineDialog"
+      center
+      append-to-body
+      customClass="el_add_dialog_new"
+      class="myDialog insPlanDialog"
+    >
+      <el-form>
+        <el-form-item label="反馈内容：">
+          <el-input type="textarea" :rows="5" placeholder="请输入内容" v-model="examineContent"></el-input>
+        </el-form-item>
+        <el-form-item label="满意度：">
+          <el-radio-group v-model="radio">
+            <el-radio label="非常满意" value="非常满意"></el-radio>
+            <el-radio label="满意" value="满意"></el-radio>
+            <el-radio label="不满意" value="不满意"></el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+
+      <span slot="footer" class="dialog-footer">
+        <el-button class="my-dialog-cancel" @click="examineDialog = false">取 消</el-button>
+        <el-button
+          class="my-dialog-submit"
+          type="primary"
+          @click="examineSure"
+          :loading="sunBtnLoad"
+        >确 定</el-button>
       </span>
     </el-dialog>
     <el-tabs v-model="DialogTab" type="card" @tab-click="changeDialog">
@@ -432,8 +502,8 @@ export default {
       exitOrderDialog: false, //退单
       centerDialog: false, //转派
       backDialog: false, //回复
-
       timeoutDialog: false, //延期
+      examineDialog: false, //审核
       optionsZpPart: [], //转派部门
       optionsZpUser: [], //转派人员
       backInfo: "", //回复内容
@@ -441,13 +511,16 @@ export default {
       exitOrderInfo: "", //退回内容
       timeoutValue: "", //延期时间
       timeoutContent: "", //延期内容
+      examineContent: "", //审核内容
       zpID: "", //转派部门id
       fpID: "", //转派部门id
       zpUserID: "", //转派人员id
       fpUserID: "", //转派人员id,
       adminID: "", //登陆人id
       adminName: "", //登陆人姓名
-      IsFpUserID: "" //存储是否是分派人
+      radio: "非常满意",
+      sunBtnLoad: false, //form提交加载
+      IsTimeoutSure:true
     };
   },
   watch: {
@@ -460,18 +533,6 @@ export default {
       }
     }
   },
-  computed: {
-    IsFpUserID() {
-      // 分派的对象是否为自己
-      if (localStorage.getItem("fpUserID")) {
-        this.IsFpUserID = localStorage.getItem("fpUserID");
-      } else {
-        this.IsFpUserID = this.currentRow.DispatchPersonID;
-      }
-      return this.IsFpUserID;
-      console.log(this.IsFpUserID);
-    }
-  },
   //切换数据/地图
   methods: {
     loadData(id) {
@@ -479,11 +540,17 @@ export default {
       this.loading = true;
       EventManageForMaintain.GetEventWorkorder(EventID).then(res => {
         this.stepDetail = res.data.Data.Result;
-        console.log(this.stepDetail);
         if (this.stepDetail.length > 0) {
           this.localDispathPersonID = this.stepDetail[0].DispatchPersonID;
           _.each(this.stepDetail, (res, index) => {
-            this.stepDetail[index].ExecUpDateTime = this.stepDetail[index].ExecUpDateTime.replace(/T/," ");
+            this.stepDetail[index].ExecUpDateTime = this.stepDetail[index].ExecUpDateTime.replace(/T/, " ");
+            if(this.stepDetail[index].PostponeTime){
+              this.stepDetail[index].PostponeTime = this.stepDetail[index].PostponeTime.replace(/T/, " ");
+            }
+            if (this.stepDetail[index].IsValid == 5 || this.stepDetail[index].IsValid == 6) {
+              this.timeoutValue = this.stepDetail[index].PostponeTime;
+              this.timeoutContent = this.stepDetail[index].OperRemarks;
+            }
           });
         }
         this.loading = false;
@@ -502,7 +569,6 @@ export default {
           _mapController
             .createMap("MDialogDetailMap")
             .then(ResultObject => {
-              console.log(ResultObject);
               this.MapMethods = new MapNavigate(ResultObject);
               this.MapMethods.setPointOnMap(
                 [[x, y]],
@@ -511,7 +577,7 @@ export default {
                 "RoutePoint",
                 "desript"
               );
-              this.MapMethods.setCenter([x, y]);
+              this.MapMethods.setCenter([x, y],8);
               // this.MapMethods.pointermoveControl(
               //   document.getElementById("popup"),
               //   (res, title) => {
@@ -534,7 +600,7 @@ export default {
             "RoutePoint",
             "desript"
           );
-          this.MapMethods.setCenter([x, y]);
+          this.MapMethods.setCenter([x, y],8);
         }
       });
     },
@@ -568,12 +634,12 @@ export default {
           OperName2: "上报",
           rank: 0
         });
-        this.FlowPath.push({
-          OperId: 8,
-          OperName: "完成",
-          OperName2: "完成",
-          rank: 8
-        });
+        // this.FlowPath.push({
+        //   OperId: 8,
+        //   OperName: "完成",
+        //   OperName2: "完成",
+        //   rank: 8
+        // });
       });
     },
     handleClose() {
@@ -600,13 +666,14 @@ export default {
     },
     // 接单
     acceptOrder() {
-      console.log(1);
+      this.sunBtnLoad = true;
       EventManageForMaintain.WorkListReceipt(
         this.currentRow.EventID,
         this.currentRow.ExecDetpID,
         this.currentRow.ExecPersonId,
         this.currentRow.OrderId
       ).then(res => {
+        this.sunBtnLoad = false;
         this.$message("接单成功");
         this.loadData();
         this.$parent.getOrder();
@@ -615,12 +682,14 @@ export default {
     },
     // 到场
     arrive() {
+      this.sunBtnLoad = true;
       EventManageForMaintain.WorkListPresent(
         this.currentRow.EventID,
         this.currentRow.ExecDetpID,
         this.currentRow.ExecPersonId,
         this.currentRow.OrderId
       ).then(res => {
+        this.sunBtnLoad = false;
         this.$message("到场成功");
         this.loadData();
         this.$parent.getOrder();
@@ -629,6 +698,8 @@ export default {
     },
     // 退单
     exitOrderSure() {
+      this.timeoutDialog = false;
+      this.sunBtnLoad = true;
       EventManageForMaintain.WordListBackExec(
         this.currentRow.EventID,
         this.currentRow.OrderId,
@@ -636,6 +707,7 @@ export default {
         this.exitOrderInfo,
         this.currentRow.DeptId
       ).then(res => {
+        this.sunBtnLoad = false;
         this.$message("退单成功");
         this.loadData();
         this.$parent.getOrder();
@@ -646,15 +718,18 @@ export default {
     // 延期
     timeout() {
       this.timeoutDialog = true;
+      this.IsTimeoutSure = this.currentRow.IsValid == 5 ?  true : false;
     },
     // 处置
     operate() {
+      this.sunBtnLoad = true;
       EventManageForMaintain.WorkListChuZhi(
         this.currentRow.EventID,
         this.currentRow.ExecDetpID,
         this.currentRow.ExecPersonId,
         this.currentRow.OrderId
       ).then(res => {
+        this.sunBtnLoad = false;
         this.$message("处置成功");
         this.loadData();
         this.$parent.getOrder();
@@ -663,12 +738,14 @@ export default {
     },
     // 完工
     finish() {
+      this.sunBtnLoad = true;
       EventManageForMaintain.WorkListFinished(
         this.currentRow.EventID,
         this.currentRow.DeptId,
         this.adminID,
         this.currentRow.OrderId
       ).then(res => {
+        this.sunBtnLoad = false;
         this.$message("完工成功");
         this.loadData();
         this.$parent.getOrder();
@@ -677,17 +754,7 @@ export default {
     },
     // 审核
     examine() {
-      EventManageForMaintain.WorkListAudit(
-        this.currentRow.EventID,
-        this.currentRow.OrderId,
-        this.currentRow.DeptId,
-        this.adminID
-      ).then(res => {
-        this.$message("审核成功");
-        this.loadData();
-        this.$parent.getOrder();
-        this.$parent.SubmitResult();
-      });
+      this.examineDialog = true;
     },
     timeoutSure(num) {
       if (!this.timeoutValue) {
@@ -700,6 +767,7 @@ export default {
       }
       // 5延期确认
       if (this.currentRow.IsValid != 5) {
+        this.sunBtnLoad = true;
         EventManageForMaintain.WordListDelay(
           this.currentRow.EventID,
           this.currentRow.OrderId,
@@ -708,37 +776,90 @@ export default {
           this.currentRow.ExecDetpID,
           this.adminID
         ).then(res => {
+          this.sunBtnLoad = false;
           this.$message("延期成功");
           this.loadData();
           this.$parent.getOrder();
           this.$parent.SubmitResult();
           this.timeoutDialog = false;
-          // 分派对象是否为自己
         });
       } else {
+        this.sunBtnLoad = true;
         EventManageForMaintain.WorkListDelayExec(
           this.currentRow.EventID,
           this.currentRow.OrderId,
           this.timeoutValue,
           this.currentRow.DeptId,
-          this.adminID
+          this.adminID,
+          this.timeoutContent,
         ).then(res => {
+          this.sunBtnLoad = false;
           this.$message("延期成功");
           this.loadData();
           this.$parent.getOrder();
           this.$parent.SubmitResult();
           this.timeoutDialog = false;
-          this.currentRow.timeoutIsPerson = true;
-          localStorage.removeItem("isOwn");
         });
       }
     },
+    // 审核确认
+    examineSure() {
+      if (!this.examineContent) {
+        this.$message("请输入反馈内容");
+        return;
+      }
+      if (!this.radio) {
+        this.$message("请选择满意度");
+        return;
+      }
+      this.sunBtnLoad = true;
+      EventManageForMaintain.WorkListAudit(
+        this.currentRow.EventID,
+        this.currentRow.OrderId,
+        this.currentRow.DeptId,
+        this.adminID,
+        this.examineContent,
+        this.radio
+      ).then(res => {
+        this.sunBtnLoad = false;
+        this.$message("审核成功");
+        this.loadData();
+        this.$parent.getOrder();
+        this.$parent.SubmitResult();
+        this.examineDialog = false;
+      });
+    },
+    //延期退回
+    WorkListDelayReturn(){
+      if(!this.timeoutContent){
+        this.$message("请输入退回内容");
+      }
+      this.IsTimeoutSure = true;
+      this.sunBtnLoad = true;
+      EventManageForMaintain.WorkListDelayReturn(
+        this.currentRow.EventID,
+        this.currentRow.OrderId,
+        this.timeoutValue,
+        this.currentRow.DeptId,
+        this.adminID,
+        this.timeoutContent,
+      ).then(res=>{
+        this.sunBtnLoad = false;
+        this.$message("退回成功");
+        this.loadData();
+        this.$parent.getOrder();
+        this.$parent.SubmitResult();
+        this.timeoutDialog = false;
+      })
+    },
     backSure() {
       if (this.backInfo) {
+        this.sunBtnLoad = true;
         EventManageForMaintain.WorkListEventReply(
           this.currentRow.EventID,
           this.backInfo
         ).then(res => {
+          this.sunBtnLoad = false;
           this.$message("回复成功");
           this.backDialog = false;
           this.loadData();
@@ -751,6 +872,7 @@ export default {
     },
     goBackSure() {
       if (this.goBackInfo) {
+        this.sunBtnLoad = true;
         EventManageForMaintain.WorkListBackToOper(
           this.currentRow.EventID,
           this.adminID,
@@ -758,7 +880,7 @@ export default {
           this.currentRow.DispatchPersonID,
           this.currentRow.DeptId
         ).then(res => {
-          console.log(res.data.Data.Result);
+          this.sunBtnLoad = false;
           this.goBackDialog = false;
         });
       } else {
@@ -788,6 +910,7 @@ export default {
       } else {
         this.hourUp = hour;
       }
+      this.sunBtnLoad = true;
       EventManageForMaintain.WorkListAssign(
         this.currentRow.EventID,
         this.fpID,
@@ -796,6 +919,7 @@ export default {
         this.hourUp,
         this.currentRow.OrderId
       ).then(res => {
+        this.sunBtnLoad = false;
         this.$message("分派成功");
         this.loadData();
         this.$parent.getOrder();
@@ -813,6 +937,7 @@ export default {
         this.$message("请选择转派人员");
         return;
       }
+      this.sunBtnLoad = true;
       EventManageForMaintain.WorkListReAssign(
         this.currentRow.EventID,
         this.currentRow.ExecDetpID,
@@ -820,6 +945,7 @@ export default {
         this.currentRow.DispatchPersonID,
         this.adminID
       ).then(res => {
+        this.sunBtnLoad = false;
         this.$message("转派成功");
         this.loadData();
         this.$parent.getOrder();
@@ -828,6 +954,7 @@ export default {
       });
     },
     zpChange(item) {
+      this.fpUserID = "";
       this.getzhuanPuser(item);
     },
     zpUserChange() {
@@ -852,9 +979,8 @@ export default {
     },
     // 获取转派人员
     getzhuanPuser(deptId) {
-      EventStartForMaintain.excelUser(deptId).then(res => {
+      EventStartForMaintain.GetUserComboboxListNoDelete(deptId).then(res => {
         this.optionsZpUser = res.data.Data.Result;
-        console.log(this.optionsZpUser);
       });
     }
   }
@@ -893,6 +1019,10 @@ export default {
 
 .dialog-table-lable {
   width: 82px !important;
+}
+
+.el_add_dialog_new {
+  width: 400px;
 }
 
 /* .el-input__icon {

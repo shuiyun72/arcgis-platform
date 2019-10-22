@@ -52,6 +52,8 @@ export default {
   },
   computed: {
     MaDialogReport() {
+      this.currentRow.UpTime = this.currentRow.UpTime.replace(/T/," ");
+      this.currentRow.ExecTime = this.currentRow.ExecTime.replace(/T/," ");
       return [
         [
            "事件编号：",
@@ -84,9 +86,9 @@ export default {
           this.currentRow.ExecTime
        ],
         [
-           "联系人：",
+           "报修人：",
           this.currentRow.LinkMan,
-           "联系电话：",
+           "报修电话：",
           this.currentRow.LinkCall
         ],
         [

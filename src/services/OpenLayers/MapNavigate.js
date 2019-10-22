@@ -261,15 +261,21 @@ class MapNavigate {
             this.baseMap.createSpatialSearchVectorSource(layerIndex, feature.getGeometry().getCoordinates(), feature.getGeometry().getExtent()).then(resultObject => {
                 let pointAll = [];
                 _.forEach(resultObject, res => {
-                    pointAll.push({ "SmID": res.values_.OBJECTID, "SmX": res.values_.geometry.flatCoordinates[0], "SmY": res.values_.geometry.flatCoordinates[1], "EquType": layerIndex[0] })
+                    if (res && res.values_ && res.values_.geometry) {
+                        pointAll.push({ "SmID": res.values_.OBJECTID, "SmX": res.values_.geometry.flatCoordinates[0], "SmY": res.values_.geometry.flatCoordinates[1], "EquType": layerIndex[0] })
+                    }
+
                 })
+                
                 if (resultObject.length != 0) {
 
                     layer.setSource(
                         new VectorSource({
-                            features: resultObject
+                            features: resultObject,
+                            projection:"EPSG:4326"
                         })
                     )
+                    
                     callback instanceof Function && callback(layerIndex, pointAll)
                 }
             })
@@ -670,15 +676,15 @@ class MapNavigate {
 
                         callback(innerHTML, '事件')
                         overlay.setPosition(coodinate)
-                    }else if(properties.name == 'DatailEvent'){  
-                        let innerHTML = 
+                    } else if (properties.name == 'DatailEvent') {
+                        let innerHTML =
                             `<div><strong>事件编号：</strong>${properties.properties.EventCode}</div>
                             <div><strong>时间：</strong>${properties.properties.EventUpdateTime.split("T")[0]} ${properties.properties.EventUpdateTime.split("T")[1]}</div>
                             <div><strong>事件位置：</strong>${properties.properties.EventAddress}</div>
                             <div><strong>部门：</strong>${properties.properties.cDepName || properties.properties.DeptName}</div>
                             <div><strong>事件来源：</strong>${properties.properties.EventFromName}</div>
                             <div><strong>事件描述：</strong>${properties.properties.EventDesc}</div>`;
-                        callback(innerHTML,'事件上报')
+                        callback(innerHTML, '事件上报')
                         overlay.setPosition(coodinate)
                     }
                 }

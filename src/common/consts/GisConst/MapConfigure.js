@@ -45,10 +45,31 @@ export const LayerType = {
   TeeTypeNO: 11, //三通
   ElbowTypeNO: 12, //弯头
   ConnectionpointTypeNO: 13, //连接点
-  WatermeterboxTypeNO: 14 ,//水表箱
-  ReducersTypeNO:15,//变径
-  FourTypeNO:16,//四通
-  ModificationTypeNO:17,//变材
+  WatermeterboxTypeNO: 14,//水表箱
+  ReducersTypeNO: 15,//变径
+  FourTypeNO: 16,//四通
+  ModificationTypeNO: 17,//变材
+  MonitoringPointTypeNO: 18,//监测点
+  DischargePortTypeNO: 20,//排放口
+  ReservedPortTypeNO: 21,//预留口
+  SewagePlantTypeNO: 22,//污水处理厂
+  WaterSourcePointTypeNO: 23,//水源点
+  ManholeTypeNO: 24,//窨井
+  RainGrateTypeNO: 25,//雨水篦
+  GateWellTypeNO: 26,//闸门井
+  StructureTypeNO: 27,//构造物
+  InterceptingStationTypeNO: 28,//截流泵站
+  SewageStationTypeNO: 29,//污水泵站
+  ProcessingPoolTypeNO: 30,//处理池
+  NetworkEnterpriseTypeNO: 31,//入网企业
+  ValveholeTypeNO: 32, //阀门井
+  DrainWellTypeNO: 33,//排污井
+  BlowOffChamberTypeNO: 34,//排泥井
+  ExhaustShaftTypeNO: 35,//排气井
+  PumpingStationTypeNO: 36,//加压泵站
+  OutletTypeNO: 37,//出水口
+  PipePluggingTypeNO: 38,//管堵
+  NonCensusAreaTypeNO: 39,//非普查区
 };
 export const Legend_Json = 'http://39.100.62.29:6080/arcgis/rest/services/hb/HB_pipe/MapServer/legend?f=pjson'
 //地图配置
@@ -94,7 +115,7 @@ export const MapConfigure = {
       transValue: 100, //透明度
       iconName: "Layer-JieDao.png", //图层缩略图
       layerURL: "http://39.100.62.29:6080/arcgis/rest/services/hb/HB_jdt/MapServer", //空间数据地址
-      isActive: true ,//默认显示与隐藏
+      isActive: true,//默认显示与隐藏
       layertype: 1, //1:切片图层，2:矢量图层
     },
     {
@@ -104,7 +125,7 @@ export const MapConfigure = {
       transValue: 100, //透明度
       iconName: "Layer-GuanWang.png", //图层缩略图
       layerURL: "http://39.100.62.29:6080/arcgis/rest/services/hb/HB_vector_new/MapServer", //空间数据地址
-      isActive: false ,//默认显示与隐藏
+      isActive: false,//默认显示与隐藏
       layertype: 1, //1:切片图层，2:矢量图层
     }],
   //POI数据定位查询
@@ -116,7 +137,8 @@ export const MapConfigure = {
       layerCName: "点", //图层中文名称
       layerName: 'POILayer', //图层编号
       layerType: 1, //点查询
-      layerIndex: 0, //对应ArcGis图层编号
+      NAME: "NAME",
+      layerIndex: 1, //对应ArcGis图层编号
       viewIndex: 1 //图层显示顺序
     }]
   },
@@ -141,6 +163,7 @@ export const MapConfigure = {
       isActive: true, //默认显示与隐藏
       isEnable: true, //是否启用
       isDeFault: true,
+      isHide: false,//是否在layer图层管理中隐藏
       viewIndex: 1, //分组显示顺序
       featureLayers: [{
         layerCName: "管线", //图层中文名称
@@ -316,7 +339,8 @@ export const MapConfigure = {
     YMin: 3949940.7315999996,
     XMax: 530649.7657000003,
     YMax: 3983120.0219,
-    SpatialReference: 4547
+    SpatialReference: 4547,
+    isCurved: false,//是否是曲面
   },
   //比例尺缩放到哪个级别时切换地图
   MapChange: {
@@ -359,22 +383,33 @@ export const FeatureLayerOperation = {
     return _FeatureURL;
   },
   /**
-   *根据图层类别获取图层URL 
-   * @param {图层类别} LayerTypeID 
+   *根据图层类别获取图层URL
+   * @param {图层类别} LayerTypeID
+   * @menuFeature {是否为功能图层}
    */
-  getLayerURLByType(LayerTypeID) {
-    let layerCollection = _.map(
-      MapConfigure.FeatureLayerGroup,
-      objValue => {
-        let fResult = _.filter(objValue.featureLayers, objLayerName => {
-          return objLayerName.layerType === LayerTypeID;
-        });
-        return fResult.length > 0 && {
-          layerURL: objValue.layerURL,
-          layerIndex: fResult[0].layerIndex
-        };
+  getLayerURLByType(LayerTypeID, menuFeature) {
+    let layerCollection = _.map(MapConfigure.FeatureLayerGroup, objValue => {
+      let fResult = []
+      if (menuFeature) {
+        if (!objValue.isEnable) {
+          fResult = _.filter(objValue.featureLayers, objLayerName => {
+            return objLayerName.layerType === LayerTypeID;
+          });
+        }
       }
-    );
+      else {
+        if (objValue.isEnable) {
+          fResult = _.filter(objValue.featureLayers, objLayerName => {
+            return objLayerName.layerType === LayerTypeID;
+          });
+        }
+      }
+      return ( fResult.length > 0 && {
+          layerURL: objValue.layerURL,
+          layerIndex: fResult
+        }) 
+    })
+    layerCollection = _.filter(layerCollection,item=>{ return item})
     //图层URL
     let _layerUrl = [];
     _.forEach(layerCollection, objValue => {
@@ -383,8 +418,10 @@ export const FeatureLayerOperation = {
         if (!_.endsWith(objValue.layerURL, '/')) {
           _FeatureURL = objValue.layerURL + "/";
         }
-        _FeatureURL = _FeatureURL + objValue.layerIndex;
-        _layerUrl.push(_FeatureURL);
+        _.forEach(objValue.layerIndex, item => {
+          _layerUrl.push(_FeatureURL + item.layerIndex);
+        })
+
       }
     });
     return _layerUrl;
@@ -394,6 +431,9 @@ export const FeatureLayerOperation = {
     let returnLayers = [];
 
     _.forEach(MapConfigure.FeatureLayerGroup, objValue => {
+      if(objValue.isHide){
+        return
+      }
       let layerNode = {};
       layerNode.value = objValue.groupName;
       layerNode.id = objValue.groupName;
@@ -413,6 +453,7 @@ export const FeatureLayerOperation = {
   GetFeatureByType(featrueLayers, _featurType) {
     let returnLayers = [];
     _.forEach(featrueLayers, objValue => {
+      if(objValue.layerTypeCountHide) return
       let layerNode = {};
       layerNode.value = objValue.layerName;
       layerNode.id = objValue.layerName;
@@ -420,7 +461,7 @@ export const FeatureLayerOperation = {
       layerNode.type = 1; //0：代表分组 1：代表分组下的图层
       layerNode.isActive = objValue.isActive;
       layerNode.listViewColumn = objValue.listViewColumn,
-      layerNode.layerIndex = objValue.layerIndex;
+        layerNode.layerIndex = objValue.layerIndex;
       layerNode.viewIndex = objValue.viewIndex;
       if (_featurType === objValue.layerType) {
         returnLayers.push(layerNode);
@@ -432,6 +473,7 @@ export const FeatureLayerOperation = {
   GetALLFeatureChild(featrueLayers) {
     let returnLayers = [];
     _.forEach(featrueLayers, objValue => {
+      if(objValue.layerTypeCountHide) return
       let layerNode = {};
       layerNode.value = objValue.layerName;
       layerNode.id = objValue.layerName;
@@ -439,7 +481,7 @@ export const FeatureLayerOperation = {
       layerNode.type = 1; //0：代表分组 1：代表分组下的图层
       layerNode.isActive = objValue.isActive;
       layerNode.listViewColumn = objValue.listViewColumn,
-      layerNode.layerIndex = objValue.layerIndex;
+        layerNode.layerIndex = objValue.layerIndex;
       layerNode.viewIndex = objValue.viewIndex;
       returnLayers.push(layerNode);
     });
@@ -454,6 +496,7 @@ export const FeatureLayerOperation = {
     let layerGroup = _.filter(MapConfigure.FeatureLayerGroup, groupValue => {
       return groupValue.groupName === groupName;
     });
+
     let retrunValue = "";
     if (layerGroup.length > 0) {
       _.forEach(layerGroup[0].featureLayers, featureValue => {
@@ -484,7 +527,10 @@ export const FeatureLayerOperation = {
     return layerFeature
   },
   getNeedLayerChildren(item) {
-    return _.map(item.featureLayers, ele => {
+    let featureLayers =  _.filter(item.featureLayers , item =>{
+      return !item.layerTypeCountHide
+    })
+    return _.map(featureLayers, ele => {
       return {
         listViewColumn: ele.listViewColumn,
         iconName: ele.iconName,
@@ -496,33 +542,32 @@ export const FeatureLayerOperation = {
       }
     })
   },
-  getNeedLayer(special) {
-    let layerCollection = _.filter(
-      MapConfigure.FeatureLayerGroup,
-      objValue => {
-        return objValue.isEnable
+  //根据页面获取相应需要展示的图层 所在页面标识  是否为功能图层（非普通图层）
+  getNeedLayer(special, menuFeature) {
+    let layerCollection = _.filter(MapConfigure.FeatureLayerGroup, objValue => {
+      if (menuFeature) {
+        return !objValue.isEnable;
       }
-    );
+      return objValue.isEnable;
+    });
     if (special) {
-      layerCollection = _.map(
-        layerCollection,
-        objValue => {
-          let fResult = _.filter(objValue.featureLayers, objLayerName => {
-            if (objLayerName.special) {
-              return (_.indexOf(objLayerName.special, special) + 1)
-            }
-          })
-          return Object.assign({}, objValue, {
-            featureLayers: fResult
-          });
-        }
-      );
+      layerCollection = _.map(layerCollection, objValue => {
+        let fResult = _.filter(objValue.featureLayers, objLayerName => {
+          if (objLayerName.special && !objLayerName.layerTypeCountHide) {
+            return _.indexOf(objLayerName.special, special) + 1;
+          }
+        });
+        return Object.assign({}, objValue, {
+          featureLayers: fResult
+        });
+      });
     }
     layerCollection = _.filter(layerCollection, item => {
-      item.featureLayers = _.filter(item.featureLayers, feature => {
+      let itemClone = _.cloneDeep(item)
+      itemClone.featureLayers = _.filter(itemClone.featureLayers, feature => {
         return feature.isActive
       })
-      return item.featureLayers.length
+      return itemClone.featureLayers.length
     })
     let layerData = layerCollection[0].featureLayers //图层下拉数组信息
     let layerDataValue = layerData[0].layerName //图层下拉数组选中信息
@@ -553,7 +598,7 @@ export const LAYER_NAME_MAP = {
 }
 
 //ArcGIS 版本号
-export const JS_API_VERSION = 3.27;
+export const JS_API_VERSION = 3.29;
 let ArcgisCSSUrl = config.apiPath.ArcgisCSSUrl
 export const ArcgisCSS = `${ArcgisCSSUrl}/library/${JS_API_VERSION}/${JS_API_VERSION}/esri/css/esri.css`;
 export const ArcgisJS = `${ArcgisCSSUrl}/library/${JS_API_VERSION}/${JS_API_VERSION}/init.js`;

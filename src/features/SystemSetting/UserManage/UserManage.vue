@@ -149,6 +149,13 @@
             inactive-color="#ff4949"
           ></el-switch>
         </el-form-item>
+        <el-form-item label="可分派工单：">
+          <el-switch
+            v-model="formValue.IsAssignment"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
+        </el-form-item>
         <el-form-item label="过期时间：" prop="dExpireDate">
           <el-date-picker
             value-format="yyyy-MM-dd"
@@ -251,6 +258,7 @@ export default {
         cAdminTel: undefined,
         iIsLocked: false,
         iIsAllowChangePWD: true,
+        IsAssignment: true,//是否可分派部门
         dExpireDate: undefined,
         cAdminEmail: undefined
       }, //添加弹窗信息
@@ -404,6 +412,9 @@ export default {
       this.formValue.iIsAllowChangePWD = Boolean(
         this.formValue.iIsAllowChangePWD
       );
+      this.formValue.IsAssignment = Boolean(
+        this.formValue.IsAssignment
+      );
       this.dialogVisible = true;
       this.dialogtype = 1;
     },
@@ -422,6 +433,7 @@ export default {
         cAdminEmail: undefined,
         iIsLocked: false,
         iIsAllowChangePWD: true,
+        IsAssignment: true,
         dExpireDate: undefined
       }; //添加弹窗信息
     },

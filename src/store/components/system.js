@@ -9,13 +9,12 @@ export default {
         roleList: [],
         userList: [], 
         modular: [],
-        hashMode: true, //是否是哈希路由                                                                                                                                                                                                                                                                                              
+        hashMode: false, //是否是哈希路由                                                                                                                                                                                                                                                                                              
     },
     mutations: {
         setDeptList(state, obj) {
             state.departAllList = obj.departAllList
             state.departList = obj.departList
-            console.log(state)
         },
         setDeptListFnc(state, departList) {
             state.departList = departList[0].children

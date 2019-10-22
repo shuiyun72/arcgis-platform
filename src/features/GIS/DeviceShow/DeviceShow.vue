@@ -71,7 +71,7 @@
                  v-else-if="fatorObj.dom === 'Date'"
                 v-model="fatorObj.detailDataValue"
                 type="date"
-                value-format="yyyy-MM-dd"
+                value-format="yyyy-MM-dd HH:mm:ss"
                 size="mini"
               ></el-date-picker>
               <el-input v-else v-model="fatorObj.detailDataValue" style="width:95%;"></el-input>
@@ -80,14 +80,14 @@
         </el-col>
         <el-col :span="4" class="flexCol">
           <div class="sql-btn-warpper">
-            <el-button class="my-SeniorSearch" @click="addOrSql('and')">add条件</el-button>
-            <el-button class="my-SeniorSearch" @click="addOrSql('or')">or条件</el-button>
+            <el-button class="my-SeniorSearch" @click="addOrSql('and')">与条件</el-button>
+            <el-button class="my-SeniorSearch" @click="addOrSql('or')">或条件</el-button>
             <el-button class="my-SeniorSearch" @click="clearSql">清空</el-button>
           </div>
         </el-col>
         <el-col :span="10" :xs="6" :sm="6" :lg="10">
           <el-form-item  label-width="0px">
-            <el-input type="textarea" v-model="sqlValue"></el-input>
+            <el-input type="textarea" v-model="sqlCValue" disabled ></el-input>
           </el-form-item>
         </el-col>
       </div>
@@ -149,6 +149,7 @@ export default {
       columnListData: [], //空间数据查询出来的所有数据列
       seniorData: [] ,//非缓冲区图层数据  图层下拉框数据
       sqlValue: "", //高级查询拼接后的sql语句
+      sqlCValue:'', //高级查询拼接后的中文sql语句
       oldersqlValue:'',//上次查询的sql
       attRList: [], //sql的查询属性列表
       //关系比较数组列表
@@ -162,7 +163,6 @@ export default {
         type:'',//是字符还是数字
         dom:'',//是下拉框还是时间选择，默认input
       }, //sql查询
-      addIndex: 0, //sql第几条
     };
   },
   created() {
@@ -179,7 +179,7 @@ export default {
     filterSearch(){
       if(this.sqlValue){
         this.filterLayer = true
-        this.$bus.emit('setCheckedTreeNodes',false)
+        // this.$bus.emit('setCheckedTreeNodes',false)
         this.$bus.emit('onLayerViewAllVisibale',false)
         if(this.oldersqlValue != this.sqlValue){
           this.loading = true;
@@ -250,8 +250,8 @@ export default {
     },
     //清空sql查询
     clearSql() {
-      this.addIndex = 0;
       this.sqlValue = "";
+      this.sqlCValue = "";
       // this.fatorObj = {
       //   mathDataValue: this.mathData[0].value,
       //   attRListValue: this.attRList[0].field,
@@ -365,7 +365,28 @@ export default {
     //导出表格
     exportExcel() {
       //下载excel导出
-      ExportExcel("div .outDataSerchExcel", this.layerDataValue);
+      let exportName;
+      _.some(this.seniorData, group => {
+        if (group.children && _.isArray(group.children)) {
+          if (group.value === this.groupLayerDataValue[0]) {
+            _.some(group.children, item => {
+              if (item.value === this.layerDataValue) {
+                exportName = group.label + item.label;
+                return true;
+              }
+              return false;
+            });
+          }
+          return exportName;
+        } else {
+          if (group.value === this.layerDataValue) {
+            exportName = group.label;
+            return true;
+          }
+          return false;
+        }
+      });
+      ExportExcel("div .outDataSerchExcel", exportName + " - 设备展示");
     },
     //图层下拉选择
     onLayerSelectChange(objvalue) {
@@ -401,34 +422,49 @@ export default {
  
     //高级查询部分sql计算
     addOrSql(type) {
-      if(!this.fatorObj.detailDataValue){
-        this.$message({
-          type:'warning',
-          message:'请输入查询条件',
-          showclose:true
-        })
-        return
+      let CForm = {
+        type: "",
+        attRListValue:"",
+        mathDataValue: "",
+        detailDataValue: ""
+      };
+      if (type === "and") {
+        CForm.type = "而且";
+      } else {
+        CForm.type = "或者";
       }
-      let whereList;
-      let detailDataValue;
-      let item = this.fatorObj;
-      detailDataValue = item.detailDataValue;
-      if (item.mathDataValue == "like") {
+      CForm.mathDataValue = _.filter(this.mathData, math => {
+        return math.value === this.fatorObj.mathDataValue;
+      })[0].text;
+      CForm.attRListValue = _.filter(this.attRList, attR => {
+        return attR.field === this.fatorObj.attRListValue;
+      })[0].text;
+
+     
+      if (!this.fatorObj.detailDataValue) {
+        this.$message({
+          type: "warning",
+          message: "请输入查询条件",
+          showclose: true
+        });
+        return;
+      }
+      let detailDataValue = this.fatorObj.detailDataValue;
+      if (this.fatorObj.mathDataValue == "like") {
         detailDataValue = `'%${detailDataValue}%'`;
-      } else if (item.type != "Number") {
+      } else if(this.fatorObj.dom === 'Date'){
+        detailDataValue = `date '${detailDataValue}'`;
+      }else if (this.fatorObj.type != "Number" && this.fatorObj.dom != "Date") {
         detailDataValue = `'${detailDataValue}'`;
       }
 
-      if (this.addIndex) {
-        this.sqlValue += `${type} ${item.attRListValue} ${
-          item.mathDataValue
-        } ${detailDataValue} `;
+      if (this.sqlValue) {
+        this.sqlValue += ` ${type} ${this.fatorObj.attRListValue} ${this.fatorObj.mathDataValue} ${detailDataValue} `;
+        this.sqlCValue += `  ${CForm.type} ${CForm.attRListValue} ${CForm.mathDataValue} ${this.fatorObj.detailDataValue} `;
       } else {
-        this.sqlValue += `${item.attRListValue} ${
-          item.mathDataValue
-        } ${detailDataValue} `;
+        this.sqlValue += `${this.fatorObj.attRListValue} ${this.fatorObj.mathDataValue} ${detailDataValue} `;
+        this.sqlCValue += ` ${CForm.attRListValue} ${CForm.mathDataValue} ${this.fatorObj.detailDataValue} `;
       }
-      this.addIndex = 1;
     },
     //高级查询
     seniorSearch() {

@@ -52,8 +52,10 @@
 	{ text: "上报人", value: "PersonName", field: 'PersonName' },
 	{ text: "步骤处理人", value: "ExecPersonName", field: 'ExecPersonName' },
 	{ text: "处理单位", value: "ExecDetpName", field: 'ExecDetpName' },
-	{ text: "联系人", value: "LinkMan", field: 'LinkMan' },
-	{ text: "联系电话", value: "LinkCall", width: 96, field: 'LinkCall' },
+	// { text: "联系人", value: "LinkMan", field: 'LinkMan' },
+	{ text: "保修人", value: "LinkMan", field: 'LinkMan' },
+	// { text: "联系电话", value: "LinkCall", width: 96, field: 'LinkCall' },
+	{ text: "保修电话", value: "LinkCall", width: 96, field: 'LinkCall' },
 	{ text: "更新时间", value: "EventUpdateTime", field: 'EventUpdateTime' }
  ]
 

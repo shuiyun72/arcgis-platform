@@ -5,6 +5,7 @@ import _ from "lodash";
 let cFunUrl
 let iFunOrder
 let iFunID
+let routeName = []
 let routeFilter = (array) => {
     for (let i = 0; i < array.length; i++) {
         if (array[i].name) {
@@ -13,8 +14,9 @@ let routeFilter = (array) => {
                 array.splice(i, 1)
                 i--
             } else {
+                routeName.push(array[i].name)
                 array[i].iFunOrder = iFunOrder[indexName]
-                array[i].meta = { iFunID : iFunID[indexName]}
+                array[i].meta = { iFunID: iFunID[indexName] }
                 if (array[i].children) {
                     routeFilter(array[i].children)
                 }
@@ -60,7 +62,8 @@ export default {
         cAdminName: '',
         iAdminID: '',
         UserAuthority: [],
-                                                                                                                                                                                                                                                                                                              
+        iframe: false,
+
     },
     getters: {
         addRoute(state) {
@@ -108,6 +111,12 @@ export default {
             })
             _.forEach(tree, (item, key) => {
                 tree[key] = _.orderBy(item, ['iFunOrder']);
+                for (let i = 0; i < tree[key].length; i++) {
+                    if (_.indexOf(routeName, tree[key][i].cFunUrl) < 0) {
+                        tree[key].splice(i, 1)
+                        i--
+                    }
+                }
             })
             return tree
         },
@@ -133,15 +142,18 @@ export default {
         UserAuthority(state, UserAuthority) {
             state.UserAuthority = UserAuthority
         },
-        userStatus(state, currentUser) {
+        iframeState(state, iframe) {
+            state.iframe = iframe
+        },
+        userStatus(state, currentUser, query) {
             if (currentUser) {
                 state.cAdminName = currentUser.cAdminName
-                state.userToken = currentUser.Token ? currentUser.Token  : currentUser.userToken
+                state.userToken = currentUser.Token ? currentUser.Token : currentUser.userToken
                 state.iAdminID = currentUser.iAdminID
                 state.UserAuthority = currentUser.UserAuthority
                 state.currentUser = true
             } else {
-                state.currentUser =false
+                state.currentUser = false
                 state.cAdminName = ''
                 state.userToken = ''
                 state.iAdminID = ''
@@ -150,11 +162,14 @@ export default {
         },
     },
     actions: {
-        userStatus(contex, currentUser) {
-            contex.commit('userStatus', currentUser)
+        userStatus(contex, currentUser, query) {
+            contex.commit('userStatus', currentUser, query)
         },
         UserAuthority(contex, UserAuthority) {
             contex.commit('UserAuthority', UserAuthority)
+        },
+        iframeState(contex, iframe) {
+            contex.commit('iframeState', iframe)
         },
 
     }

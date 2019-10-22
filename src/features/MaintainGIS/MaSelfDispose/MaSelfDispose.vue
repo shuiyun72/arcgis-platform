@@ -69,16 +69,25 @@ export default {
       centerDialogVisible: false,
       adminName: "", //登陆人姓名
       adminID: "", //登陆人id
+      adminDeptID: "", //登陆人所在部门id
       num: 50,
       page: 1,
       SubmitStartTime: "",
       SubmitEndTime: "",
-      simple:""
+      simple: ""
     };
   },
   created() {
     this.SubmitResult();
     this.init();
+    this.$bus.emit("setBusinessLayerGroupVisible", true);
+  },
+  beforeDestroy() {
+    this.$bus.emit("removeInteractions");
+    this.$bus.emit("CloseModifyInteraction");
+    this.$bus.emit("OffPointermoveControl");
+    this.$bus.emit("setBusinessLayerGroupVisible", false);
+    //this.$bus.emit("setBusinessLayerGroupVisible", false); //开启业务图层
   },
   methods: {
     init() {
@@ -93,16 +102,13 @@ export default {
           // Result:disposeData.DataDispose
           Result: this.eventOrderResult
         };
-      } else {
-        this.SubmitResult();
       }
     },
     //单击行
     tableClick(row) {
       this.currentRow = row;
-      console.log(row);
     },
-        //双击
+    //双击
     tableDbClick(row) {
       this.currentRow = row;
       this.drawPoint(row);
@@ -123,18 +129,19 @@ export default {
               });
             }
             objArray.push({
-              EventCode: data.EventCode,
-              DeptName: data.DispatchPersonDeptName,
+              EventCode: data.EventCode || "",
+              DeptName: data.DispatchPersonDeptName || "",
               // PName: data.PName,
-              PName: data.PersonName,
+              PName: data.PersonName || "",
+              PointName: data.EventTypeName || "",
               // ET1: data.ET1,
-              ET1: data.EventTypeName2,
-              EventFromName: data.EventFromName,
+              ET1: data.EventTypeName2 || "",
+              EventFromName: data.EventFromName || "",
               // HandlerLevelName: data.HandlerLevelName,
-              HandlerLevelName: data.UrgencyName,
-              eventAddress: data.EventAddress,
+              HandlerLevelName: data.UrgencyName || "",
+              eventAddress: data.EventAddress || "",
               eventDesc: data.EventDesc || "数据最后上传时间" + data.UpTime,
-              EventPictures: EventPictures
+              EventPictures: EventPictures || ""
             });
           }
         });
@@ -148,18 +155,19 @@ export default {
           });
         }
         objArray.push({
-          EventCode: data.EventCode,
-          DeptName: data.DispatchPersonDeptName,
+          EventCode: data.EventCode || "",
+          DeptName: data.DispatchPersonDeptName || "",
           // PName: data.PName,
-          PName: data.PersonName,
+          PName: data.PersonName || "",
+          PointName: data.EventTypeName || "",
           // ET1: data.ET1,
-          ET1: data.EventTypeName2,
-          EventFromName: data.EventFromName,
+          ET1: data.EventTypeName2 || "",
+          EventFromName: data.EventFromName || "",
           // HandlerLevelName: data.HandlerLevelName,
-          HandlerLevelName: data.UrgencyName,
-          eventAddress: data.EventAddress,
+          HandlerLevelName: data.UrgencyName || "",
+          eventAddress: data.EventAddress || "",
           eventDesc: data.EventDesc || "数据最后上传时间" + data.UpTime,
-          EventPictures: EventPictures
+          EventPictures: EventPictures || ""
         });
         this.$bus.emit("setCenter", ...pointArrayData);
       } else {
@@ -198,29 +206,52 @@ export default {
         // 分派的对象是否为自己
         let temp = JSON.parse(localStorage.getItem("iAdminID"));
         this.currentRow.adminID = temp.iAdminID;
-        console.log(temp.iAdminID);
         this.currentRow.isBtn = true;
         this.centerDialogVisible = true;
       }
     },
-    orderInvalid(){
-      if (this.currentRow.OrderId) {
-        if(this.simple != this.currentRow.EventID){
-          EventManageForMaintain.WorkorderInvalid(
-            this.currentRow.EventID,
-            this.currentRow.OrderId,
-            this.currentRow.OperId,
-            this.currentRow.DispatchPersonID
-          ).then(res => {
-            this.$message("作废成功");
-            this.simple = this.currentRow.EventID;
-            this.SubmitResult(this.currentRow.EventID);
-          });
-        }else{
-          this.$message("请选择工单");
+    orderInvalid() {
+      if (!this.currentRow.EventID) {
+        this.$message("请选择要作废的工单");
+        return;
+      }
+      if (!this.currentRow.OrderId) {
+        this.$message("此工单未分派,请重新选择");
+        return;
+      }
+      if (this.currentRow.OperId && this.simple != this.currentRow.EventID) {
+        if (this.currentRow.OperId > 1 && this.currentRow.IsValid != 4) {
+          this.$confirm("确认要作废此工单", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+            .then(() => {
+              EventManageForMaintain.WorkorderInvalid(
+                this.currentRow.EventID,
+                this.currentRow.OrderId,
+                this.adminID,
+                this.adminDeptID
+              ).then(res => {
+                this.$message({
+                  type: "success",
+                  message: "作废成功!"
+                });
+                this.simple = this.currentRow.EventID;
+                this.SubmitResult(this.currentRow.EventID);
+              });
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消作废"
+              });
+            });
+        } else {
+          this.$message("此工单未分派,请重新选择");
         }
       } else {
-        this.$message("此工单未分派,请重新选择");
+        this.$message("此工单已作废,请重新选择");
       }
     },
     //待办处理查询数据
@@ -228,6 +259,7 @@ export default {
       let admin = JSON.parse(localStorage.getItem("iAdminID"));
       this.adminID = admin.iAdminID;
       this.adminName = admin.cAdminName;
+      this.adminDeptID = admin.iDeptID;
       EventManageForMaintain.getCurrentOrder(
         this.num,
         this.page,
@@ -236,9 +268,17 @@ export default {
         this.adminID
       ).then(res => {
         this.eventOrderResult = res.data.Data.Result;
-        console.log(this.eventOrderResult);
         for (var i in res.data.Data.Result) {
           res.data.Data.Result[i].ExecTime += "小时";
+          res.data.Data.Result[i].EventUpdateTime = res.data.Data.Result[
+            i
+          ].EventUpdateTime.replace(/T/, " ");
+          res.data.Data.Result[i].ExecUpDateTime = res.data.Data.Result[
+            i
+          ].ExecUpDateTime.replace(/T/, " ");
+          res.data.Data.Result[i].UpTime = res.data.Data.Result[
+            i
+          ].UpTime.replace(/T/, " ");
         }
         this.eventOrderResultLength = res.data.Data.TotalRows;
         this.columnList = TableData.Mai_EventBills_Columns;
@@ -275,5 +315,9 @@ export default {
 <style lang="stylus" scoped>
 .el-button.my-del {
   margin-left: 10px;
+}
+
+.el_add_dialog_new {
+  width: 400px;
 }
 </style>

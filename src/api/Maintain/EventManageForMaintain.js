@@ -18,6 +18,24 @@ export default {
             }
         })
     },
+    //事件工单无效查询(个人处理-待办处理)
+    getWuXiao(startTime,endTime,EventFromId,eventType,OperId,DeptId,EventContenct,ExecPersonId,num,page){
+        return matance.get('/EventManageForMaintain/Get',{
+            params:{
+                startTime:startTime,
+                endTime:endTime,
+                EventFromId:EventFromId,
+                eventType:eventType,
+                OperId:OperId,
+                DeptId:DeptId,
+                EventContenct:EventContenct,
+                ExecPersonId:ExecPersonId,
+                num:num,
+                page:page,
+                IsValid:0
+            }
+        })
+    },
     getCurrentOrder(num,page,startTime,endTime,ExecPersonId){
         return matance.get('/EventManageForMaintain/Get',{
             params:{
@@ -40,20 +58,21 @@ export default {
 
     },
     //事件工单作废
-    WorkorderInvalid(EventID,OrderId,OperId,DispatchPersonID){
+    WorkorderInvalid(EventID,OrderId,execPersonId,idetpID){
         return matance({
             method: 'post',
             url: '/EventManageForMaintain/WorkorderInvalid',
             params: {
                 EventID:EventID,
                 OrderId:OrderId,
-                OperId:OperId,
-                DispatchPersonID:DispatchPersonID,
+                OperId:0,
+                execPersonId:execPersonId,
+                idetpID:idetpID
             }
         })
     },
     //事件工单流转操作（审核)
-    WorkListAudit(EventID,OrderId,DeptId,iAdminID){
+    WorkListAudit(EventID,OrderId,DeptId,iAdminID,OperRemarks,satisfaction){
         return matance({
             method: 'post',
             url: '/EventManageForMaintain/WorkListAudit',
@@ -61,7 +80,9 @@ export default {
                 EventID:EventID,
                 OrderId:OrderId,
                 iDetpID:DeptId,
-                iAdminID:iAdminID
+                iAdminID:iAdminID,
+                OperRemarks:OperRemarks,
+                satisfaction:satisfaction
             }
         })
     },
@@ -192,7 +213,7 @@ export default {
         })
     },
     //事件工单流转操作（延期确认)
-    WorkListDelayExec(EventID,OrderId,complishTime,iDeptID,iAdminID){
+    WorkListDelayExec(EventID,OrderId,complishTime,iDeptID,iAdminID,OperRemarks){
         return matance({
             method: 'post',
             url: '/EventManageForMaintain/WorkListDelayExec',
@@ -201,7 +222,8 @@ export default {
                 OrderId:OrderId,
                 complishTime:complishTime,
                 iDeptID:iDeptID,
-                iAdminID:iAdminID
+                iAdminID:iAdminID,
+                OperRemarks:OperRemarks
             }
         })
     },
@@ -261,6 +283,21 @@ export default {
                 ordering:ordering,
                 num:num,
                 page:page
+            }
+        }) 
+    },
+    //延期退回确认
+    WorkListDelayReturn(eventID,orderId,complishTime,iDeptID,iAdminID,operRemarks){
+        return matance({
+            method: 'post',
+            url: '/EventManageForMaintain/WorkListDelayReturn',
+            params:{
+                eventID:eventID,
+                orderId:orderId,
+                complishTime:complishTime,
+                iDeptID:iDeptID,
+                iAdminID:iAdminID,
+                operRemarks:operRemarks
             }
         }) 
     },

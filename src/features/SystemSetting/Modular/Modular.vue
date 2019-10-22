@@ -4,6 +4,7 @@
       <el-scrollbar style="min-width:200px;">
         <el-tree
           highlight-current
+          class="black"
           :data="modularList"
           :props="defaultProps"
           @node-click="handleNodeClick"
@@ -134,20 +135,19 @@ export default {
       dialogVisible: false, //弹窗是否展示
       dialogtype: 0, //弹窗标题0:新增1：修改
       typeList: {
-        0: "手机app",
         1: "B/S 显示",
+        3: "手机app",
         4: "C/S 显示"
       }, //系统状态过滤
       typeListArr: [
         {
-          cFunName: "手机app",
-          iFunID: 0
-        },
-        {
           cFunName: "B/S 显示",
           iFunID: 1
         },
-        
+        {
+          cFunName: "手机app",
+          iFunID: 3
+        },
         {
           cFunName: "C/S 显示",
           iFunID: 4
@@ -206,10 +206,6 @@ export default {
             this.ModularSerialize([item], item.System_Type);
             this.modularList[0].children.push(item);
           });
-          this.$store.dispatch("system/setState", {
-            name: "modular",
-            value: this.modularList
-          });
           let active = _.isString(this.nodeID)
             ? Number(this.nodeID.split("#")[0])
             : this.nodeID;
@@ -238,6 +234,16 @@ export default {
           : item.iFunID;
         if (this.FatherList[System_Type][iFunID]) {
           item.children = this.FatherList[System_Type][iFunID];
+          let parent = {};
+          parent.iFunID = iFunID;
+          if (item.parent) {
+            parent.parent = item.parent;
+          }
+
+          item.children = _.map(this.FatherList[System_Type][iFunID], child => {
+            child.parent = parent;
+            return child;
+          });
           this.ModularSerialize(
             this.FatherList[System_Type][iFunID],
             System_Type

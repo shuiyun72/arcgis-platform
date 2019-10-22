@@ -5,7 +5,7 @@
       <el-row>
         <el-col :xs="12" :sm="12">
           <el-form-item label="事件来源：">
-            <el-select v-model="EventSourceDataSelect" @change="onAttRChange" size="small">
+            <el-select v-model="EventSourceDataSelect" size="small">
               <el-option
                 v-for="item in eventSource"
                 :label="item.EventFromName"
@@ -17,7 +17,7 @@
         </el-col>
         <el-col :xs="12" :sm="12">
           <el-form-item label="紧急程度：">
-            <el-select v-model="UrgencyDataSelect" @change="onAttRChange" size="small">
+            <el-select v-model="UrgencyDataSelect" size="small">
               <el-option
                 v-for="item in UrgencyList"
                 :label="item.UrgencyName"
@@ -31,7 +31,7 @@
       <el-row>
         <el-col :xs="12" :sm="12">
           <el-form-item label="事件类型：">
-            <el-select v-model="EvevtClassDataSelect" @change="onAttRChange" size="small">
+            <el-select v-model="EvevtClassDataSelect" size="small">
               <el-option
                 v-for="item in evevtType"
                 :label="item.EventTypeName"
@@ -46,7 +46,6 @@
             <el-select
               v-model="EvevtContentDataSelect"
               @focus="operateEventContent"
-              @change="onAttRChange"
               size="small"
             >
               <el-option
@@ -61,13 +60,13 @@
       </el-row>
       <el-row>
         <el-col :xs="12" :sm="12">
-          <el-form-item label="联系人：">
-            <el-input v-model="Linkman" size="mini" placeholder="请输入联系人" class="width_bi80"></el-input>
+          <el-form-item label="报修人：">
+            <el-input v-model="Linkman" size="mini" placeholder="请输入报修人" class="width_bi80"></el-input>
           </el-form-item>
         </el-col>
         <el-col :xs="12" :sm="12">
-          <el-form-item label="联系电话：">
-            <el-input v-model="Phone" size="mini" placeholder="请输入联系电话" class="width_bi80"></el-input>
+          <el-form-item label="报修电话：">
+            <el-input v-model="Phone" size="mini" placeholder="请输入报修电话" class="width_bi80"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -89,8 +88,6 @@
           <el-form-item label="处理人：">
             <el-select
               v-model="DisposeUserSelect"
-              @focus="operateUser"
-              @change="onAttRChange"
               size="small"
             >
               <el-option
@@ -135,7 +132,7 @@
           <el-form-item label="事件备注：">
             <el-input
               type="textarea"
-              :autosize="{ minRows: 8, maxRows: 20}"
+              :autosize="{ minRows: 6, maxRows: 20}"
               placeholder="请输入内容"
               v-model="EventNote"
             ></el-input>
@@ -203,7 +200,6 @@ export default {
       this.axiosEventFrom();
       this.axiosEventType();
       this.GetUrgencyList();
-      this.getDeptid();
     },
     // 事件上报
     eventUpload() {
@@ -255,12 +251,12 @@ export default {
       let admin = JSON.parse(localStorage.getItem("iAdminID"));
       let adminName = admin.cAdminName;
       let adminID = admin.iAdminID;
+      let depid = admin.iDeptID;
       let base64Img = ["|"];
-      console.log(admin, admin.cAdminName, adminID);
       EventStartForMaintain.eventUpload(
         adminID,
         adminName,
-        this.userDeptID,
+        depid,
         this.EventSourceDataSelect,
         this.UrgencyDataSelect,
         this.EvevtClassDataSelect,
@@ -305,7 +301,6 @@ export default {
     },
     //查询部门数据
     axiosDeptData() {
-      // console.log("查询部门数据")
       MaDepartmentUserCycle.DeptData().then(res => {
         this.deptData = res.data.Data.Result;
       });
@@ -334,11 +329,10 @@ export default {
     getEventContent(EventTypeId) {
       EventStartForMaintain.EventContent(EventTypeId).then(res => {
         this.EvevtContentData = res.data.Data.Result;
-        console.log(this.EvevtContentData);
       });
     },
     operateEventContent() {
-      if (!this.EvevtClassDataSelect) {
+      if (!this.EvevtClassDataSelect) { 
         this.$message("请先选择事件类型");
       } else {
         this.getEventContent(this.EvevtClassDataSelect);
@@ -346,32 +340,13 @@ export default {
     },
     // 获取处理人
     getUser(depid) {
-      EventStartForMaintain.GetUserComboboxListNoDelete(depid).then(res => {
+      EventStartForMaintain.GetUserComboboxListAssigment(depid).then(res => {
         this.DisposeUser = res.data.Data.Result;
-        console.log(this.DisposeUser);
       });
-    },
-    operateUser() {
-      console.log(this.UnitDataSelect);
-      if (!this.UnitDataSelect) {
-        this.$message("请先选择处理部门");
-      } else {
-        this.getUser(this.UnitDataSelect);
-      }
     },
     onAttRChange() {
-      console.log(this.UnitDataSelect);
-    },
-    // 通过用户id获取部门
-    getDeptid() {
-      let admin = JSON.parse(localStorage.getItem("iAdminID"));
-      let adminName = admin.cAdminName;
-      EventStartForMaintain.getDeptid().then(res => {
-        let temp = res.data.Data.Result.filter(item => {
-          return item.cAdminName == adminName;
-        });
-        this.userDeptID = temp[0].iDeptID;
-      });
+      this.DisposeUserSelect = "";
+      this.getUser(this.UnitDataSelect);
     }
   }
 };

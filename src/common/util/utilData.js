@@ -53,16 +53,26 @@ export default {
         let begin;
         let over;
         switch (type) {
-            case 'day':
+            case 'day':  
                 next++;
                 break;
             case 'week':
-                pre = 1 - date.getDay();
-                next = 7 - date.getDay();
+                if(date.getDay() == 0){
+                    pre = date.getDay() - 6;
+                    next = date.getDay();
+                }else{
+                    pre = 1 - date.getDay();
+                    next = 7 - date.getDay();   
+                }
                 break;
             case 'lastWeek':
-                pre = -6 - date.getDay();
-                next = 0 - date.getDay();
+                if(date.getDay() == 0){
+                    pre = -13 - date.getDay();
+                    next = -7 - date.getDay();
+                }else{
+                    pre = -6 - date.getDay();
+                    next = 0 - date.getDay(); 
+                }
                 break;
             default:
         }
@@ -81,11 +91,9 @@ export default {
         let monthEnd = {};
         let begin;
         let over;
-        if (date.month == 12) {
-            monthEnd = { year: date.year + 1, month: date.month + 1, day: 1 };
-        } else {
-            monthEnd = { year: date.year, month: date.month + 1, day: 1 };
-        }
+        // getMonth 方法返回 0-11，代表1-12月
+        let endOfMonth = new Date(date.year, date.month, 0).getDate(); // 获取本月最后一天
+        monthEnd = { year: date.year, month: date.month, day: endOfMonth };
         monthStart = { year: date.year, month: date.month, day: 1 };
         begin = this.myformatStr(monthStart)
         over = this.myformatStr(monthEnd)

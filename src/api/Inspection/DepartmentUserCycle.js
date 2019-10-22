@@ -17,7 +17,7 @@ export default {
     GetUserComboboxListNoDelete(deptId) {
         return instance.get('/User/GetUserComboboxListNoDelete', {
             params: {
-                deptId: Number(deptId)
+                deptId: Number(deptId),
             }
         })
     },

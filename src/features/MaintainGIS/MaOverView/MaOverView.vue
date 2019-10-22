@@ -151,10 +151,8 @@ export default {
     //获取地图点位数据
     initData(firstDate,lastDate){
       EventManageForMaintain.get(firstDate, lastDate,"","","","","","",4000).then(res => {
-        console.log(res.data.Data);
         this.TotalRows = res.data.Data.TotalRows;
         let Result = res.data.Data.Result;
-        console.log(Result)
         let DataForPositionArray = [];
         let trueResult = [];
         let IsValidNum = 0;
@@ -184,11 +182,9 @@ export default {
     },
     //获取事件管理状态及数量
     getEventManage(startTime,endTime,IsValidNum){
-      console.log(this.TotalRows)
       startTime = startTime || "";
       endTime = endTime || "";
       GetStatusForMantain.GetStatusForMantain(startTime,endTime).then(res=>{
-        console.log(res.data.Data)
         let PandectNavPre = res.data.Data.Result;
         let PandectNavSumcount = 0;
         _.map(PandectNavPre,item => {
@@ -197,24 +193,22 @@ export default {
           }
           PandectNavSumcount += item.sumcount
         })
-        console.log(this.DataForPosition)
-        PandectNavPre.unshift({OperName2:"全部",sumcount:this.DataForPosition.length,rank:20})
+        console.log(PandectNavSumcount)
+        PandectNavSumcount = PandectNavSumcount+IsValidNum;
+        PandectNavPre.unshift({OperName2:"全部",sumcount:PandectNavSumcount,rank:20})
         PandectNavPre.push({OperName2:"无效",sumcount:IsValidNum,rank:0})
         this.PandectNav = PandectNavPre;
       })
     },
     //事件来源分析
     GetEventFrom(startTime,endTime){
-      console.log("GetEventFrom")
       startTime = startTime || "";
       endTime = endTime || "";
       GetStatusForMantain.GetEventFrom(startTime,endTime).then(res=>{
-        console.log(res.data.Data)
         let EventSourceAnaly = [];
         _.map(res.data.Data.Result , result => {
           EventSourceAnaly.push({ name: result.EventFromName, value: result.SUMCOUNT })
         }) ;
-        console.log(EventSourceAnaly)
         this.EventSourceAnalysis = EventSourceAnaly;
         this.charInitPie();
       })
@@ -286,8 +280,36 @@ export default {
   }
 } 
 
+.InsOverView .inspectiongis_fixed {
+    left: 60px;
+}
+
 .InsOverView .inspectiongis_fixed.flexible .control-show-btn {
     position: fixed;
-    bottom: 0;
+    bottom: 10px;
+}
+
+.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+    color: #fff;
+    background-color: #367bc7;
+    border-color: #367bc7;
+}
+
+.el-button {
+    background: #367bc7;
+    border: none;
+    color: white;
+}
+
+.InsOverView .inspectiongis_fixed .overview-card .car-list-wrapper .btn-item {
+    padding: 0px 3px;
+}
+
+.picker-date-overview .el-date-editor.el-input {
+    width: 137px;
+}
+
+.picker-date-overview .el-radio-button--mini .el-radio-button__inner {
+    padding: 7px 12px;
 }
 </style>

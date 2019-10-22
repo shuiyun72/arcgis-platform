@@ -1,5 +1,5 @@
 <template>
-  <div class="Home_container" :class="{ GISDiv: menusDataList === 'GIS' }">
+  <div class="Home_container" :class="{ GISDiv: menusDataList === 'GIS' ,iframe:iframe}">
     <el-row class="top-bar" type="flex" justify="space-between">
       <div>
         <img class="app-logo" src="@assets/hedalogo.png" />
@@ -124,19 +124,6 @@
         <el-button class="el-menu-control" @click="leftMenuControl">
           <i class="icon-qiehuan iconfont"></i>
         </el-button>
-        <!-- 
-          <ul class="MainLeft" >
-            <router-link
-              v-for="item in menusData"
-              :key="item.keyName"
-              :to="{name:item.target}"
-              tag="li"
-              class="nav-box tc pr"
-            >
-              <i class="icon IconSet" :class="item.iconCls"></i>
-              <p>{{item.text}}</p>
-            </router-link>
-        </ul>-->
       </div>
       <div
         class="main-body"
@@ -193,9 +180,9 @@ export default {
       }
       this.menusDataList = num;
       this.leftMenuData = this.$route.name;
-      return this.MenusTreeData[num];
+      return this.iframe ? MenusData[num] :this.MenusTreeData[num] ;
     },
-    ...mapState("login", ["cAdminName"]),
+    ...mapState("login", [ "iframe" ,"cAdminName"]),
     ...mapGetters("login", ["routeTree", "MenusTreeData"])
   },
   created() {
@@ -227,6 +214,7 @@ export default {
     lodaMenu() {
       this.tagData = this.routeTree[0];
     },
+
     flexibleControl(val) {
       this.flexible = val;
       if (this.$route.name == "InsMinitor") {
@@ -235,6 +223,9 @@ export default {
     },
     //是否展示mune更多选项
     menuMoreControl() {
+      if(this.iframe){
+        return
+      }
       this.menuMoreState = false;
       this.menuShow = true;
       if (
@@ -281,7 +272,7 @@ export default {
       this.$confirm("确定退出系统么？", "提示信息").then(res => {
         localStorage.clear();
         sessionStorage.clear();
-        this.$store.dispatch("login/userStatus", undefined);
+        // this.$store.dispatch("login/userStatus", undefined);
         if (this.$store.state.system.hashMode) {
           location.replace("/#/Login");
         } else {

@@ -22,6 +22,9 @@ export const UserManage_Columns = [
 	{ field: "iIsAllowChangePWD", text: "密码修改",formatter: function (row, column, cellValue, index) {
 		return cellValue ? '允许' : '不允许'
 	}, align: "center", fixed: false },
+	{ field: "IsAssignment", text: "分派部门",formatter: function (row, column, cellValue, index) {
+		return cellValue ? '允许' : '不允许'
+	}, align: "center", fixed: false },
 ]
 //系统状态过滤
 const typeList = {

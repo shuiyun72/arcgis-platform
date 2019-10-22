@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Data;
 namespace GisPlateform.SQLServerDAL.EventOperation
 {
     public class EventManageDAL : BaseDAL, IEventManageDAL
@@ -195,10 +195,10 @@ FROM            dbo.M_Event AS A LEFT OUTER JOIN
                 dbo.M_EventType AS B1 ON A.EventTypeId2 = B1.EventTypeId LEFT OUTER JOIN
                 dbo.M_EventFrom AS C ON A.EventFromId = C.EventFromId LEFT OUTER JOIN
                 dbo.M_Urgency AS D ON A.UrgencyId = D.UrgencyId LEFT OUTER JOIN
-               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,p.cAdminTel AS Telephone from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,p.cAdminTel AS Telephone from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID ) AS E ON A.DispatchPerson = E.iAdminID LEFT OUTER JOIN--指派人员信息 E
-               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,r.cRoleName from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
-      ON p.iDeptID =d.iDeptID LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Role r  ON p.iRoleID =r.iRoleID )  AS G ON A.PersonId = G.iAdminID LEFT OUTER JOIN--上报人信息 G
+               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,r.cRoleName from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
+      ON p.iDeptID =d.iDeptID LEFT OUTER JOIN GisPlateform.dbo.P_Role r  ON p.iRoleID =r.iRoleID )  AS G ON A.PersonId = G.iAdminID LEFT OUTER JOIN--上报人信息 G
 				(SELECT a.EventID, B.HistoryId, B.OrderId, B.OperId, C.OperName, B.Pictures, B.Voices, 
       B.OperRemarks, B.DispatchPersonID, B.ExecPersonId, B.ExecUpDateTime, 
       B.ExecDetpID, D.cDepName AS ExecDetpName, 
@@ -224,9 +224,9 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
       dbo.M_WorkOrder ON 
       dbo.M_WorkOrder_Oper_History.OrderId = dbo.M_WorkOrder.OrderId) as B ON a.EventID = B.EventID AND a.ExecUpDateTime = B.ExecUpDateTime LEFT OUTER JOIN
       dbo.M_WorkOrder_Oper AS C ON B.OperId = C.OperId LEFT OUTER JOIN
-      ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+      ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID ) AS D ON B.ExecPersonId = D.iAdminID LEFT OUTER JOIN
-       ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+       ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID )  AS E ON B.DispatchPersonID = E.iAdminID
 )AS H ON H.EventID = A.EventID --处理信息 处理单位 最后一步骤处理人 E
 LEFT OUTER JOIN dbo.M_Status AS I ON A.EventStatus = I.StatusID 
@@ -270,7 +270,7 @@ LEFT OUTER JOIN dbo.M_EventLeakInfo AS eli ON eli.OrderId = H.OrderId where a.De
                 }
                 else
                 {
-                    sql += " and OperId in(" + OperId + ")";
+                    sql += " and OperId in(" + OperId + ") and IsValid<>0";
                 }
             }
             if (IsValid != null)//是否有效
@@ -338,10 +338,10 @@ FROM            dbo.M_Event AS A LEFT OUTER JOIN
                 dbo.M_EventType AS B1 ON A.EventTypeId2 = B1.EventTypeId LEFT OUTER JOIN
                 dbo.M_EventFrom AS C ON A.EventFromId = C.EventFromId LEFT OUTER JOIN
                 dbo.M_Urgency AS D ON A.UrgencyId = D.UrgencyId LEFT OUTER JOIN
-               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,p.cAdminTel AS Telephone from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,p.cAdminTel AS Telephone from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID ) AS E ON A.DispatchPerson = E.iAdminID LEFT OUTER JOIN--指派人员信息 E
-               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,r.cRoleName from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
-      ON p.iDeptID =d.iDeptID LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Role r  ON p.iRoleID =r.iRoleID )  AS G ON A.PersonId = G.iAdminID LEFT OUTER JOIN--上报人信息 G
+               ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID,r.cRoleName from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
+      ON p.iDeptID =d.iDeptID LEFT OUTER JOIN GisPlateform.dbo.P_Role r  ON p.iRoleID =r.iRoleID )  AS G ON A.PersonId = G.iAdminID LEFT OUTER JOIN--上报人信息 G
 				(SELECT a.EventID, B.HistoryId, B.OrderId, B.OperId, C.OperName, B.Pictures, B.Voices, 
       B.OperRemarks, B.DispatchPersonID, B.ExecPersonId, B.ExecUpDateTime, 
       B.ExecDetpID, D.cDepName AS ExecDetpName, 
@@ -367,9 +367,9 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
       dbo.M_WorkOrder ON 
       dbo.M_WorkOrder_Oper_History.OrderId = dbo.M_WorkOrder.OrderId) as B ON a.EventID = B.EventID AND a.ExecUpDateTime = B.ExecUpDateTime LEFT OUTER JOIN
       dbo.M_WorkOrder_Oper AS C ON B.OperId = C.OperId LEFT OUTER JOIN
-      ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+      ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID ) AS D ON B.ExecPersonId = D.iAdminID LEFT OUTER JOIN
-       ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+       ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID )  AS E ON B.DispatchPersonID = E.iAdminID
 )AS H ON H.EventID = A.EventID --处理信息 处理单位 最后一步骤处理人 E
 LEFT OUTER JOIN dbo.M_Status AS I ON A.EventStatus = I.StatusID 
@@ -402,12 +402,12 @@ right join (SELECT EventID as ID FROM M_WorkOrder_Oper_History WHERE (DispatchPe
         /// <returns></returns>
         public MessageEntity GetEventWorkorderStepForMaintain(int? EventID)
         {
-            string sql = string.Format(@"SELECT B.HistoryId, B.OrderId, B.OperId, B.ExecUpDateTime,case when B.IsValid in(4,5,6) then  F.IsValidName else   C.OperName end as OperName, B.Pictures, 
+            string sql = string.Format(@"SELECT B.HistoryId, B.OrderId, B.OperId, B.ExecUpDateTime,case when B.IsValid in(4,5,6,7) then  F.IsValidName else   C.OperName end as OperName, B.Pictures, 
       B.Voices, B.OperRemarks, B.DispatchPersonID, B.ExecPersonId, B.ExecDetpID, 
       D.cDepName AS ExecDetpName, D.PersonName AS ExecPersonName, 
       E.PersonName AS DispatchPersonName, 
       E.cDepName AS DispatchPersonDeptName, C.OperName2, B.IsValid, F.IsValidName, 
-      B.EventID,wo.OrderStatus
+      B.EventID,wo.OrderStatus,po.PostponeTime,po.Cause
 FROM   (SELECT dbo.M_WorkOrder_Oper_History.HistoryId, 
       dbo.M_WorkOrder_Oper_History.OrderId, dbo.M_WorkOrder_Oper_History.OperId, 
       dbo.M_WorkOrder_Oper_History.OperTime, 
@@ -425,12 +425,14 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
       dbo.M_WorkOrder ON 
       dbo.M_WorkOrder_Oper_History.OrderId = dbo.M_WorkOrder.OrderId)B
   LEFT OUTER JOIN    dbo.M_WorkOrder_Oper AS C ON B.OperId = C.OperId
-    LEFT OUTER JOIN      ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+    LEFT OUTER JOIN      ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID ) AS D ON B.ExecPersonId = D.iAdminID --处理人员信息
-    LEFT OUTER JOIN   ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN PipeInspection_Smart_Water.dbo.P_Department d
+    LEFT OUTER JOIN   ( select d.cDepName,p.cAdminName AS PersonName,p.iAdminID from GisPlateform.dbo.P_Admin p LEFT OUTER JOIN GisPlateform.dbo.P_Department d
       ON p.iDeptID =d.iDeptID )  AS E ON B.DispatchPersonID = E.iAdminID--派发人员信息
     LEFT OUTER JOIN dbo.M_IsValidStatus AS F ON B.IsValid = F.IsValidID
-	LEFT JOIN dbo.M_WorkOrder  AS wo ON b.OrderId = wo.OrderId where 1=1 ");
+	LEFT JOIN dbo.M_WorkOrder  AS wo ON b.OrderId = wo.OrderId
+   LEFT JOIN (select max(PostponeID)PostponeID,OrderId from M_PostponeOrder group by OrderId ) po1 on po1.OrderId = wo.OrderId 
+   LEFT JOIN M_PostponeOrder po on po.PostponeID = po1.PostponeID where 1=1 ");
             if (EventID != null)//事件id
             {
                 sql += " and B.EventID='" + EventID + "'";
@@ -457,12 +459,12 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
         /// <param name="EventID">事件ID</param>
         /// <param name="OrderId">工单编号</param>
         /// <param name="OperId">步骤ID 0:无效 1: 待处理 2:待接受  3:待处置 4 5:处置中  5:延期确认  6:待审核  7:审核完成  11:待处理  12:回复完成  null:待分派</param>
-        /// <param name="DispatchPersonID">指派人ID</param>
+        /// <param name="execPersonId">处理人ID</param>
         /// <returns></returns>
-        public MessageEntity WorkorderInvalid(string EventID, string OrderId, string OperId, string DispatchPersonID)
+        public MessageEntity WorkorderInvalid(string EventID, string OrderId, string execPersonId, string idetpID, string OperId)
         {
             var updateSql = "update  M_Event set IsValid=0 where DeleteStatus=0 and EventID=@EventID";
-            string insertSql = @"INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID ) VALUES ( @EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID ); ";
+            string insertSql = @"INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID ) VALUES ( @EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID,@ExecPersonId,@ExecDetpID ); ";
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
             {
                 using (var transaction = conn.BeginTransaction())
@@ -471,7 +473,7 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
                     try
                     {
                         conn.Execute(updateSql, new { EventID = EventID }, transaction);
-                        var i = conn.Execute(insertSql, new { EventID = EventID, OperId = OperId, OrderId = OrderId, OperTime = DateTime.Now.ToString(), DispatchPersonID = DispatchPersonID }, transaction);
+                        var i = conn.Execute(insertSql, new { EventID = EventID, OperId = OperId, OrderId = OrderId, OperTime = DateTime.Now.ToString(), DispatchPersonID = execPersonId, ExecPersonId=execPersonId, ExecDetpID= idetpID }, transaction);
 
                         transaction.Commit();
                         return MessageEntityTool.GetMessage(1, null, true);
@@ -493,12 +495,12 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
         /// <param name="iAdminID">登陆人员ID</param>
         /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListAudit(string EventID, string OrderId, string iDetpID, string StepNum, string iAdminID, string OperRemarks)
+        public MessageEntity WorkListAudit(string EventID, string OrderId, string iDetpID, string OperRemarks, string satisfaction, string StepNum, string iAdminID)
         {
             //审核
-            string insertSql = @" INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID ) VALUES (@EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID,@ExecPersonId,@ExecDetpID   ); ";
+            string insertSql = @" INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID,Satisfaction ) VALUES (@EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID,@ExecPersonId,@ExecDetpID,@Satisfaction   ); ";
             //完成OperId=8 完成
-            string insertSql1 = @" INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID ) VALUES (@EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID,@ExecPersonId,@ExecDetpID   ); ";
+            string insertSql1 = @" INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID,Satisfaction ) VALUES (@EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID,@ExecPersonId,@ExecDetpID,@Satisfaction   ); ";
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
             {
                 using (var transaction = conn.BeginTransaction())
@@ -506,8 +508,8 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
 
                     try
                     {
-                        var i = conn.Execute(insertSql, new { EventID = EventID, OrderId = OrderId, OperId = StepNum, OperTime = DateTime.Now.ToString(), DispatchPersonID = iAdminID, OperRemarks= OperRemarks, ExecPersonId=iAdminID, ExecDetpID= iDetpID }, transaction);
-                        var i1 = conn.Execute(insertSql1, new { EventID = EventID, OrderId = OrderId, OperId = 8, OperTime = DateTime.Now.AddHours(1).ToString(), DispatchPersonID = iAdminID, OperRemarks = OperRemarks, ExecPersonId = iAdminID, ExecDetpID = iDetpID }, transaction);
+                        var i = conn.Execute(insertSql, new { EventID = EventID, OrderId = OrderId, OperId = StepNum, OperTime = DateTime.Now.ToString(), DispatchPersonID = iAdminID, OperRemarks= OperRemarks, ExecPersonId=iAdminID, ExecDetpID= iDetpID, Satisfaction =satisfaction}, transaction);
+                        var i1 = conn.Execute(insertSql1, new { EventID = EventID, OrderId = OrderId, OperId = 8, OperTime = DateTime.Now.AddHours(1).ToString(), DispatchPersonID = iAdminID, OperRemarks = OperRemarks, ExecPersonId = iAdminID, ExecDetpID = iDetpID, Satisfaction = satisfaction }, transaction);
 
                         transaction.Commit();
                         return MessageEntityTool.GetMessage(1, null, true);
@@ -642,7 +644,7 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
 
         public MessageEntity WorkListFinished(string EventID, string OrderId, string StepNum, string iAdminID, string OperRemarks, string eventPictures)
         {
-            string insertSql = @" INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID,Pictures ) VALUES (@EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID,(SELECT TOP 1 ExecPersonId  FROM M_WorkOrder_Oper_History where EventID=" + EventID + " AND dbo.M_WorkOrder_Oper_History.OperId =11   ORDER BY ExecUpDateTime DESC ),(SELECT TOP 1 ExecDetpID  FROM M_WorkOrder_Oper_History where EventID=" + EventID+" AND dbo.M_WorkOrder_Oper_History.OperId =11   ORDER BY ExecUpDateTime DESC ),@Pictures   ); ";
+            string insertSql = @" INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID,Pictures,OperRemarks ) VALUES (@EventID,@OrderId,@OperId,@OperTime,@DispatchPersonID,(SELECT TOP 1 ExecPersonId  FROM M_WorkOrder_Oper_History where EventID=" + EventID + " AND dbo.M_WorkOrder_Oper_History.OperId =11   ORDER BY ExecUpDateTime DESC ),(SELECT TOP 1 ExecDetpID  FROM M_WorkOrder_Oper_History where EventID=" + EventID + " AND dbo.M_WorkOrder_Oper_History.OperId =11   ORDER BY ExecUpDateTime DESC ),@Pictures ,OperRemarks  ); ";
 
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
             {
@@ -879,14 +881,15 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
         /// <param name="complishTime">延期完成事件</param>
         /// <param name="iDeptID">登陆人员所属部门ID</param>
         /// <param name="iAdminID">登陆人员ID</param>
+        /// <param name="OperRemarks">操作意见</param>
         /// <returns></returns>
-        public MessageEntity WorkListDelayExec(string EventID, string OrderId, string complishTime, string iDeptID, string iAdminID)
+        public MessageEntity WorkListDelayExec(string EventID, string OrderId, string complishTime, string iDeptID, string iAdminID, string OperRemarks)
         {
 
             var updateeventSql = "update M_WorkOrder Set PreEndTime=@PreEndTime where OrderId=@OrderId";
             var updateevsql = "update M_PostponeOrder Set AuditStatus=2 where OrderId=@OrderId";
             var updateSql = "update M_Event Set IsValid=1 where EventID=@EventID";
-            string insertSql = string.Format(@"INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID,IsValid ) VALUES ( @EventID,@OrderId,(SELECT TOP 1 OperId  FROM M_WorkOrder_Oper_History where OrderId={0} ORDER BY ExecUpDateTime DESC ),@OperTime,@DispatchPersonID,(SELECT TOP 1 PersonId  FROM M_WorkOrder where OrderId={0} ORDER BY OrderId DESC ),@ExecDetpID,@IsValid ); ", OrderId);
+            string insertSql = string.Format(@"INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID,IsValid,OperRemarks ) VALUES ( @EventID,@OrderId,(SELECT TOP 1 OperId  FROM M_WorkOrder_Oper_History where OrderId={0} ORDER BY ExecUpDateTime DESC ),@OperTime,@DispatchPersonID,(SELECT TOP 1 PersonId  FROM M_WorkOrder where OrderId={0} ORDER BY OrderId DESC ),@ExecDetpID,@IsValid,@OperRemarks ); ", OrderId);
 
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
             {
@@ -898,7 +901,48 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
                         conn.Execute(updateeventSql, new { OrderId = OrderId, PreEndTime= complishTime }, transaction);
                         conn.Execute(updateevsql, new { OrderId = OrderId }, transaction);
                         conn.Execute(updateSql, new { EventID = EventID }, transaction);
-                        var ii = conn.Execute(insertSql, new { EventID = EventID, OrderId = OrderId, OperTime = DateTime.Now.ToString(), DispatchPersonID = iAdminID, ExecDetpID = iDeptID, IsValid = 6 }, transaction);
+                        var ii = conn.Execute(insertSql, new { EventID = EventID, OrderId = OrderId, OperTime = DateTime.Now.ToString(), DispatchPersonID = iAdminID, ExecDetpID = iDeptID, IsValid = 6, OperRemarks= OperRemarks }, transaction);
+
+                        transaction.Commit();
+                        return MessageEntityTool.GetMessage(1, null, true);
+                    }
+                    catch (Exception e)
+                    {
+                        transaction.Rollback();
+                        return MessageEntityTool.GetMessage(ErrorType.SqlError, e.Message);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// 事件工单流转操作（延期确认退回)
+        /// </summary>
+        /// <param name="EventID">事件ID</param>
+        /// <param name="OrderId">工单编号ID</param>
+        /// <param name="complishTime">延期完成事件</param>
+        /// <param name="iDeptID">登陆人员所属部门ID</param>
+        /// <param name="iAdminID">登陆人员ID</param>
+        /// <param name="OperRemarks">操作意见</param>
+        /// <returns></returns>
+        public MessageEntity WorkListDelayReturn(string EventID, string OrderId, string complishTime, string iDeptID, string iAdminID, string OperRemarks)
+        {
+
+            var updateeventSql = "update M_WorkOrder Set PreEndTime=@PreEndTime where OrderId=@OrderId";
+            var updateevsql = "update M_PostponeOrder Set AuditStatus=2 where OrderId=@OrderId";
+            var updateSql = "update M_Event Set IsValid=7 where EventID=@EventID";
+            string insertSql = string.Format(@"INSERT INTO M_WorkOrder_Oper_History (EventID,OrderId,OperId,OperTime,DispatchPersonID,ExecPersonId,ExecDetpID,IsValid,OperRemarks ) VALUES ( @EventID,@OrderId,(SELECT TOP 1 OperId  FROM M_WorkOrder_Oper_History where OrderId={0} ORDER BY ExecUpDateTime DESC ),@OperTime,@DispatchPersonID,(SELECT TOP 1 PersonId  FROM M_WorkOrder where OrderId={0} ORDER BY OrderId DESC ),@ExecDetpID,@IsValid,@OperRemarks ); ", OrderId);
+
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
+            {
+                using (var transaction = conn.BeginTransaction())
+                {
+
+                    try
+                    {
+                        conn.Execute(updateeventSql, new { OrderId = OrderId, PreEndTime = complishTime }, transaction);
+                        conn.Execute(updateevsql, new { OrderId = OrderId }, transaction);
+                        conn.Execute(updateSql, new { EventID = EventID }, transaction);
+                        var ii = conn.Execute(insertSql, new { EventID = EventID, OrderId = OrderId, OperTime = DateTime.Now.ToString(), DispatchPersonID = iAdminID, ExecDetpID = iDeptID, IsValid = 7, OperRemarks = OperRemarks }, transaction);
 
                         transaction.Commit();
                         return MessageEntityTool.GetMessage(1, null, true);
@@ -944,7 +988,26 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
                 }
             }
         }
+        public DataTable GetEventExecTime(int eventTypeID)
+        {
+            string errorMsg = "";
+            string sql = " select * from M_EventType where ParentTypeId=0 and EventTypeId=@EventTypeId";
+            try
+            {
+                using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
+                {
+                    DataTable dt_Type = new DataTable();
+                    dt_Type.Load(conn.ExecuteReader(sql,new { EventTypeId = eventTypeID })); 
 
+                    return dt_Type;
+                }
+            }
+            catch (Exception e)
+            {
+                errorMsg = e.Message;
+                return null;
+            }
+        }
         public MessageEntity PostEvent(M_Event m_Event, M_WorkOrder_Oper_History workOrder_Oper_History)
         {
             string m_eventInsertSQL = $@"INSERT INTO M_Event
@@ -1025,5 +1088,76 @@ FROM dbo.M_WorkOrder_Oper_History LEFT OUTER JOIN
                 }
             }
         }
-    }
+
+        /// <summary>
+        /// 获取延期申请数据
+        /// </summary>
+        /// <param name="eventId">事件id</param>
+        /// <param name="orderId">工单id</param>
+        /// <returns>{“result”:true，”message “:”成功！”}</returns>
+        public DataTable GetPostponeOrderSQ(string eventId, String orderId)
+        {
+            string errorMsg = "";
+            #region 条件
+            string strWhere = " ";
+            if (!string.IsNullOrEmpty(eventId))
+            {
+                strWhere = string.Format(@"and h.eventId = {0}", eventId);
+            }
+            #endregion
+            //延期申请数据
+            string query = string.Format(@"   SELECT DISTINCT PostponeID,p.PostponeTime,p.Cause,h.EventID FROM M_WorkOrder_Oper_History h  JOIN M_PostponeOrder p ON p.EventID=h.EventID 
+            WHERE h.IsValid=7 {0} ORDER BY p.PostponeID desc", strWhere);
+            try
+            {
+                using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
+                {
+                    DataTable dt = new DataTable();
+                    dt.Load(conn.ExecuteReader(query)); //此类别下时间段内隐患名称出现的个数
+
+                    return dt;
+                }
+            }
+            catch (Exception e)
+            {
+                errorMsg = e.Message;
+                return null;
+            }
+        }
+        /// <summary>
+        /// 获取延期退回数据
+        /// </summary>
+        /// <param name="eventId">事件id</param>
+        /// <param name="orderId">工单id</param>
+        /// <returns>{“result”:true，”message “:”成功！”}</returns>
+        public DataTable GetPostponeOrderFH(string eventId, String orderId)
+        {
+            string errorMsg = "";
+            #region 条件
+            string strWhere = " ";
+            if (!string.IsNullOrEmpty(eventId))
+            {
+                strWhere = string.Format(@"and h.eventId = {0}", eventId);
+            }
+            #endregion
+            //延期申请数据
+            string query = string.Format(@"  SELECT h.EventID,h.HistoryId,h.OperRemarks as Cause,h.IsValid  FROM M_WorkOrder_Oper_History h  
+            WHERE h.IsValid in(7,6) {0} ORDER BY h.HistoryId desc", strWhere);
+            try
+            {
+                using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
+                {
+                    DataTable dt = new DataTable();
+                    dt.Load(conn.ExecuteReader(query)); //此类别下时间段内隐患名称出现的个数
+
+                    return dt;
+                }
+            }
+            catch (Exception e)
+            {
+                errorMsg = e.Message;
+                return null;
+            }
+        }
+        }
 }

@@ -91,14 +91,16 @@
                 :class="{active:uesrInfo.iAdminID == userlistValue,online:uesrInfo.IsOnline == 'Y'}"
                 @click="getRoute(uesrInfo)"
               >
-                <!-- <div class="img-wraper">
-                <i class="img-shadow" v-show="uesrInfo.IsOnline == 'N'"></i>
-                <img
+                <div class="img-wraper" style="background:none;width:unset;height:unset;"> 
+                <!-- <i class="img-shadow" v-show="uesrInfo.IsOnline == 'N'"></i> -->
+                <div style="background-color:#b3b3b3;width:10px;height:10px;opacity:0.6;" v-show="uesrInfo.IsOnline == 'N'"></div>
+                <div style="background-color:#5bc863;width:10px;height:10px" v-show="uesrInfo.IsOnline == 'Y'"></div>
+                <!-- <img
                 src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1555167380380&di=347b5f13b120723a41ca6cfa3edc3d03&imgtype=0&src=http%3A%2F%2Fuserimg.yingyonghui.com%2Fhead%2F56%2F1431005490560%2F2210156.png-thumb"
-              >
-                </div>-->
+              > -->
+                </div>
 
-                <span style="padding-left:30px;font-size: 14px;">{{uesrInfo.cAdminName}}</span>
+                <span style="font-size: 14px;">{{uesrInfo.cAdminName}}</span>
               </div>
             </div>
           </el-collapse-item>
@@ -281,7 +283,8 @@ export default {
     GetData() {
       User.UserInfo().then(res => {
         this.userList = res.data.Data.Result;
-        this.userList[0].Persons[0].IsOnline = "Y";
+        console.log(this.userList);
+        // this.userList[0].Persons[0].IsOnline = "Y";
         this.loadLayerData();
       });
     },

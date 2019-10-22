@@ -15,4 +15,6 @@ export const DEFAULT_ACTION_LIST = [
     {id: "zoomout",name: "放大",value: "放大",text: "放大",icon:"icon-pin_zoom_out4"},
     {id: "zoomin",name: "缩小",value: "缩小",text: "缩小",icon:"icon-pin_zoom_in1"},
     {id: "Polyline",name: "全图",value: "全图",text: "全图",icon:"icon-home"},
+    {id: "Swipe",name: "卷帘",value: "卷帘",text: "卷帘",icon:"icon-juanlian"},
+    {id: "Magnify",name: "放大镜",value: "放大镜",text: "放大镜",icon:"icon-toushi"},
   ];

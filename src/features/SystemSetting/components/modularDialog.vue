@@ -42,15 +42,15 @@ export default {
       treeList: [], //由fatherId组成的对象
       treeNeedNodeID: [], //tree组件所需要的nodeID
       System_Type: 1, //当前的tree展开类别
-       typeList: {
-        0: "手机app",
+      typeList: {
+        3: "手机app",
         1: "B/S 显示",
         4: "C/S 显示"
       }, //系统状态过滤
       typeListArr: [
         {
           name: "手机app",
-          value: 0
+          value: 3
         },
         {
           name: "B/S 显示",
@@ -93,56 +93,47 @@ export default {
   methods: {
     //获取模块列表
     getModularList() {
-      if (this.$store.state.system.modular.length) {
-        this.modularList = this.$store.state.system.modular;
-        this.loading = false;
-      } else {
-        this.loading = true;
-        Modular.getModular().then(res => {
-          this.FatherList = {};
-          this.treeList = {};
-          let resList = res.data.Data.Result;
-          _.forEach(resList, item => {
-            if (!this.FatherList[item.System_Type]) {
-              this.FatherList[item.System_Type] = {
-                iFunID: "0#" + item.System_Type
-              };
-              this.FatherList[item.System_Type].cFunName = this.typeList[
-                item.System_Type
-              ];
-              this.FatherList[item.System_Type];
-              this.FatherList[item.System_Type].System_Type = item.System_Type;
-            }
-            if (this.FatherList[item.System_Type][item.iFunFatherID]) {
-              this.FatherList[item.System_Type][item.iFunFatherID].push(item);
-            } else {
-              this.FatherList[item.System_Type][item.iFunFatherID] = [item];
-            }
-            if (this.treeList[item.iFunFatherID]) {
-              this.treeList[item.iFunFatherID].push(item);
-            } else {
-              this.treeList[item.iFunFatherID] = [item];
-            }
-          });
-          let modularList = _.cloneDeep(this.FatherList);
-          this.modularList = [
-            {
-              iFunID: -1,
-              cFunName: "智慧水务管理系统",
-              children: []
-            }
-          ];
-          _.forEach(modularList, (item, index) => {
-            this.ModularSerialize([item], item.System_Type);
-            this.modularList[0].children.push(item);
-          });
-          this.$store.dispatch("system/setState", {
-            name: "modular",
-            value: this.modularList
-          });
-          this.loading = false;
+      this.loading = true;
+      Modular.getModular().then(res => {
+        this.FatherList = {};
+        this.treeList = {};
+        let resList = res.data.Data.Result;
+        _.forEach(resList, item => {
+          if (!this.FatherList[item.System_Type]) {
+            this.FatherList[item.System_Type] = {
+              iFunID: "0#" + item.System_Type
+            };
+            this.FatherList[item.System_Type].cFunName = this.typeList[
+              item.System_Type
+            ];
+            this.FatherList[item.System_Type];
+            this.FatherList[item.System_Type].System_Type = item.System_Type;
+          }
+          if (this.FatherList[item.System_Type][item.iFunFatherID]) {
+            this.FatherList[item.System_Type][item.iFunFatherID].push(item);
+          } else {
+            this.FatherList[item.System_Type][item.iFunFatherID] = [item];
+          }
+          if (this.treeList[item.iFunFatherID]) {
+            this.treeList[item.iFunFatherID].push(item);
+          } else {
+            this.treeList[item.iFunFatherID] = [item];
+          }
         });
-      }
+        let modularList = _.cloneDeep(this.FatherList);
+        this.modularList = [
+          {
+            iFunID: -1,
+            cFunName: "智慧水务管理系统",
+            children: []
+          }
+        ];
+        _.forEach(modularList, (item, index) => {
+          this.ModularSerialize([item], item.System_Type);
+          this.modularList[0].children.push(item);
+        });
+        this.loading = false;
+      });
     },
     //treeData序列化
     ModularSerialize(arr, System_Type) {
@@ -151,14 +142,16 @@ export default {
           ? Number(item.iFunID.split("#")[0])
           : item.iFunID;
         if (this.FatherList[System_Type][iFunID]) {
-          item.children = this.FatherList[System_Type][iFunID];
+          // item.children = this.FatherList[System_Type][iFunID];
           let parent = {};
           parent.iFunID = iFunID;
           if (item.parent) {
             parent.parent = item.parent;
           }
-          _.forEach(item.children, child => {
+
+          item.children = _.map(this.FatherList[System_Type][iFunID], child => {
             child.parent = parent;
+            return child;
           });
           this.ModularSerialize(
             this.FatherList[System_Type][iFunID],
@@ -178,7 +171,7 @@ export default {
     },
     nodeparent(node) {
       if (node.parent) {
-        this.CheckedAllNodes.push(node.iFunID);
+        this.CheckedAllNodes.push(node.parent.iFunID);
         this.nodeparent(node.parent);
       }
     },

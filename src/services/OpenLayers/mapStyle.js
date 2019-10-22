@@ -19,27 +19,7 @@ export default {
         let scale = 0.06
         switch (styleName) {
 
-            case 'WaterMeterLayer':
 
-
-
-            case 'FirefightingwellLayer':
-
-            case 'FirehydrantLayer':
-
-            case 'ServicingwellLayer':
-
-            case 'ValveLayer':
-
-            case 'ValvewellLayer':
-
-            case 'WatermeterwellLayer':
-                return new Style({
-                    image: new Icon({
-                        scale: scale,
-                        src: require('@assets/toolIcon/' + styleName + '.png')
-                    })
-                })
             case 'businessLayers.polygonLayer':
                 return new Style({
                     stroke: new Stroke({
@@ -145,6 +125,29 @@ export default {
                         offset: [0, -4]
                     })
                 });
+            case 'pipe':
+                return new Style({
+                    //把点的样式换成ICON图标
+                    stroke: new Stroke({
+                        width: 2, color: [0, 196, 230, 1]
+                    })
+                });
+            case 'Ppipe':
+                return new Style({
+                    //把点的样式换成ICON图标
+                    stroke: new Stroke({
+                        width: 2, color: [255, 127, 127, 1]
+                    })
+                });
+            default:
+                return new Style({
+                    image: new Icon({
+                        scale: scale * 5,
+                        // anchor:[0.5,0.5],
+                        // size: [70,70],
+                        src: require('@assets/toolIcon/' + styleName + '.png')
+                    })
+                })
         }
     }
 }

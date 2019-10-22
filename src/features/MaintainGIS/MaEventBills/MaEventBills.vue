@@ -87,6 +87,7 @@ export default {
       eventOrderResultLength: 0,
       adminName: "", //登陆人姓名
       adminID: "", //登陆人id,
+      adminDeptID: "", //登陆人所在id
       num: 50, //每页50数据
       page: 1, //1页
       obj: {
@@ -107,7 +108,6 @@ export default {
   },
   computed: {
     entrustData() {
-      console.log(this.entrustData);
       return this.entrustData;
     }
   },
@@ -115,6 +115,14 @@ export default {
     this.SubmitResult();
     //初始化数据
     this.init();
+    this.$bus.emit("setBusinessLayerGroupVisible", true);
+  },
+  beforeDestroy() {
+    this.$bus.emit("removeInteractions");
+    this.$bus.emit("CloseModifyInteraction");
+    this.$bus.emit("OffPointermoveControl");
+    this.$bus.emit("setBusinessLayerGroupVisible", false);
+    //this.$bus.emit("setBusinessLayerGroupVisible", false); //开启业务图层
   },
   methods: {
     //初始化
@@ -162,7 +170,6 @@ export default {
     //是否显示详情弹窗
     detailBtn(row) {
       this.currentRow = row;
-      console.log(row);
       if (row.EventID) {
         this.$refs.detailLog.loadData(row.EventID);
       }
@@ -172,19 +179,26 @@ export default {
     },
     //切换数据/地图
     changeDialog(tab, event) {
-      console.log(tab, event);
     },
     //上报时间组件
     SubmitTime(startTime, endTime) {
       this.obj.SubmitStartTime = startTime;
       this.obj.SubmitEndTime = endTime;
-      this.SubmitResult();
+      if (this.obj.nowStatusSt == "无 效") {
+        this.SubmitWuXiaoResult();
+      } else {
+        this.SubmitResult();
+      }
     },
     //事件状态组件
     nowStatus(EventFormID, EventType) {
       this.obj.nowStatusSt = EventType;
       this.obj.nowStatusStID = EventFormID;
-      this.SubmitResult();
+      if (this.obj.nowStatusSt == "无 效") {
+        this.SubmitWuXiaoResult();
+      } else {
+        this.SubmitResult();
+      }
     },
     //事件状态组件传值
     maPlcSearch(source, dept, type, typeid, name, isSummit) {
@@ -194,7 +208,11 @@ export default {
       this.obj.evevtTypeSelectID = typeid; //事件类型id
       this.obj.eventContentName = name; //事件查找
       if (isSummit) {
-        this.SubmitResult();
+        if (this.obj.nowStatusSt == "无 效") {
+          this.SubmitWuXiaoResult();
+        } else {
+          this.SubmitResult();
+        }
       }
     },
     //查询数据
@@ -203,6 +221,7 @@ export default {
       let admin = JSON.parse(localStorage.getItem("iAdminID"));
       this.adminID = admin.iAdminID;
       this.adminName = admin.cAdminName;
+      this.adminDeptID = admin.iDeptID;
       let ExecPersonId = ""; //待处理人
       let num = this.num;
       let page = this.page;
@@ -222,9 +241,15 @@ export default {
         this.eventOrderResultLength = res.data.Data.TotalRows;
         for (var i in res.data.Data.Result) {
           res.data.Data.Result[i].ExecTime += "小时";
-          res.data.Data.Result[i].EventUpdateTime = res.data.Data.Result[i].EventUpdateTime.replace(/T/," ");
-          res.data.Data.Result[i].ExecUpDateTime = res.data.Data.Result[i].ExecUpDateTime.replace(/T/," ")
-          res.data.Data.Result[i].UpTime = res.data.Data.Result[i].UpTime.replace(/T/," ")
+          res.data.Data.Result[i].EventUpdateTime = res.data.Data.Result[
+            i
+          ].EventUpdateTime.replace(/T/, " ");
+          res.data.Data.Result[i].ExecUpDateTime = res.data.Data.Result[
+            i
+          ].ExecUpDateTime.replace(/T/, " ");
+          res.data.Data.Result[i].UpTime = res.data.Data.Result[
+            i
+          ].UpTime.replace(/T/, " ");
         }
         // 作废状态改变
         if (id) {
@@ -232,6 +257,53 @@ export default {
             return item.EventID == id;
           });
           temp[0].OperName2 = "无效";
+        }
+        this.columnList = TableData.Mai_EventBills_Columns;
+        this.entrustData = {
+          num: this.num,
+          page: this.page,
+          sum: this.eventOrderResultLength,
+          // sum:100,
+          // Result:disposeData.DataDispose
+          Result: this.eventOrderResult
+        };
+      });
+    },
+    //查询无效数据
+    SubmitWuXiaoResult(id) {
+      localStorage.setItem("getOrderParams", JSON.stringify(this.obj));
+      let admin = JSON.parse(localStorage.getItem("iAdminID"));
+      this.adminID = admin.iAdminID;
+      this.adminName = admin.cAdminName;
+      this.adminDeptID = admin.iDeptID;
+      let ExecPersonId = ""; //待处理人
+      let num = this.num;
+      let page = this.page;
+      EventManageForMaintain.getWuXiao(
+        this.obj.SubmitStartTime,
+        this.obj.SubmitEndTime,
+        this.obj.eventSourceSelect,
+        this.obj.evevtTypeSelectID,
+        "",
+        this.obj.deptDataSelect,
+        this.obj.eventContentName,
+        ExecPersonId,
+        num,
+        page
+      ).then(res => {
+        this.eventOrderResult = res.data.Data.Result;
+        this.eventOrderResultLength = res.data.Data.TotalRows;
+        for (var i in res.data.Data.Result) {
+          res.data.Data.Result[i].ExecTime += "小时";
+          res.data.Data.Result[i].EventUpdateTime = res.data.Data.Result[
+            i
+          ].EventUpdateTime.replace(/T/, " ");
+          res.data.Data.Result[i].ExecUpDateTime = res.data.Data.Result[
+            i
+          ].ExecUpDateTime.replace(/T/, " ");
+          res.data.Data.Result[i].UpTime = res.data.Data.Result[
+            i
+          ].UpTime.replace(/T/, " ");
         }
         this.columnList = TableData.Mai_EventBills_Columns;
         this.entrustData = {
@@ -268,32 +340,56 @@ export default {
     },
     //工单作废
     WorkorderInvalid() {
-      if (this.currentRow.OrderId) {
-        if (this.simple != this.currentRow.EventID) {
-          EventManageForMaintain.WorkorderInvalid(
-            this.currentRow.EventID,
-            this.currentRow.OrderId,
-            this.currentRow.OperId,
-            this.currentRow.DispatchPersonID
-          ).then(res => {
-            this.$message("作废成功");
-            this.simple = this.currentRow.EventID;
-            this.SubmitResult(this.currentRow.EventID);
-          });
+      if(!this.currentRow.EventID){
+        this.$message("请选择要作废的工单");
+        return;
+      }
+      if (!this.currentRow.OrderId) {
+        this.$message("此工单未分派,请重新选择");
+        return;
+      }
+      if (this.currentRow.OperId && this.simple != this.currentRow.EventID) {
+        if (this.currentRow.OperId > 1 && this.currentRow.IsValid != 4) {
+          this.$confirm("确认要作废此工单", "提示", {
+            confirmButtonText: "确定",
+            cancelButtonText: "取消",
+            type: "warning"
+          })
+            .then(() => {
+              EventManageForMaintain.WorkorderInvalid(
+                this.currentRow.EventID,
+                this.currentRow.OrderId,
+                this.adminID,
+                this.adminDeptID
+              ).then(res => {
+                this.$message({
+                  type: "success",
+                  message: "作废成功!"
+                });
+                this.simple = this.currentRow.EventID;
+                this.SubmitResult(this.currentRow.EventID);
+              });
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消作废"
+              });
+            });
         } else {
-          this.$message("请选择工单");
+          this.$message("此工单未分派,请重新选择");
         }
       } else {
-        this.$message("此工单未分派,请重新选择");
+        this.$message("此工单已作废,请重新选择");
       }
     },
     //单击行
     tableClick(row) {
       this.currentRow = row;
-      console.log(row);
     },
     //双击
     tableDbClick(row) {
+      console.log(row);
       this.currentRow = row;
       this.drawPoint(row);
     },
@@ -313,18 +409,19 @@ export default {
               });
             }
             objArray.push({
-              EventCode: data.EventCode,
-              DeptName: data.DispatchPersonDeptName,
+              EventCode: data.EventCode || "",
+              DeptName: data.DispatchPersonDeptName || "",
               // PName: data.PName,
-              PName: data.PersonName,
+              PName: data.PersonName || "",
+              PointName: data.EventTypeName || "",
               // ET1: data.ET1,
-              ET1: data.EventTypeName2,
-              EventFromName: data.EventFromName,
+              ET1: data.EventTypeName2 || "",
+              EventFromName: data.EventFromName || "",
               // HandlerLevelName: data.HandlerLevelName,
-              HandlerLevelName: data.UrgencyName,
-              eventAddress: data.EventAddress,
+              HandlerLevelName: data.UrgencyName || "",
+              eventAddress: data.EventAddress || "",
               eventDesc: data.EventDesc || "数据最后上传时间" + data.UpTime,
-              EventPictures: EventPictures
+              EventPictures: EventPictures || ""
             });
           }
         });
@@ -338,18 +435,19 @@ export default {
           });
         }
         objArray.push({
-          EventCode: data.EventCode,
-          DeptName: data.DispatchPersonDeptName,
+          EventCode: data.EventCode || "",
+          DeptName: data.DispatchPersonDeptName || "",
           // PName: data.PName,
-          PName: data.PersonName,
+          PName: data.PersonName || "",
+          PointName: data.EventTypeName || "",
           // ET1: data.ET1,
-          ET1: data.EventTypeName2,
-          EventFromName: data.EventFromName,
+          ET1: data.EventTypeName2 || "",
+          EventFromName: data.EventFromName || "",
           // HandlerLevelName: data.HandlerLevelName,
-          HandlerLevelName: data.UrgencyName,
-          eventAddress: data.EventAddress,
+          HandlerLevelName: data.UrgencyName || "",
+          eventAddress: data.EventAddress || "",
           eventDesc: data.EventDesc || "数据最后上传时间" + data.UpTime,
-          EventPictures: EventPictures
+          EventPictures: EventPictures || ""
         });
         this.$bus.emit("setCenter", ...pointArrayData);
       } else {

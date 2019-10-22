@@ -158,7 +158,6 @@ export default {
       }    
     },
     eventStatusFliter(el) {
-      console.log(el);
       let state = _.filter(this.eventState , item => {
         return item['OperName2'] ==el
       })
@@ -181,13 +180,13 @@ export default {
           OperName2: "上报",
           rank: 11111
         })
-        this.eventState.push({
-          OperId: 999999,
-          OperName: "完成",
-          OperName2: "完成",
-          rank: 8
-        })
-        console.log(this.eventState)
+        // this.eventState.push({
+        //   OperId: 999999,
+        //   OperName: "完成",
+        //   OperName2: "完成",
+        //   rank: 8
+        // })
+        // console.log(this.eventState)
       })
     },
     //合并表格
@@ -227,11 +226,12 @@ export default {
         this.currentPageNumber
       ).then(res=>{
         let eventOrderResult = res.data.Data.Result;
-        console.log(this.currentPageSize)
-        console.log("页码更新", res.data.Data.Result);
         let eventOrderResultLength = res.data.Data.TotalRows;
         for (var i in res.data.Data.Result) {
           res.data.Data.Result[i].ExecTime += "小时";
+          res.data.Data.Result[i].EventUpdateTime = res.data.Data.Result[i].EventUpdateTime.replace(/T/," ");
+          res.data.Data.Result[i].ExecUpDateTime = res.data.Data.Result[i].ExecUpDateTime.replace(/T/," ")
+          res.data.Data.Result[i].UpTime = res.data.Data.Result[i].UpTime.replace(/T/," ")
         }
         this.entrustData = {
           num: this.currentPageSize,
@@ -245,7 +245,7 @@ export default {
     },
     //切换行
     currentChange(row) {
-      console.log("切换行")
+      // console.log("切换行")
     },
     //详情按钮
     detailBtn(row) {
@@ -265,18 +265,19 @@ export default {
     },
     //双击行
     tableDbClick(row) {
-      this.$emit("tableDbClick",row);
+      let arr = Object.keys(row);
+      if(arr.length > 0){
+        this.$emit("tableDbClick",row);
+      }
     },
     //当前页数据变化
     onPageSizeChange(objvalue) {
       this.currentPageSize = objvalue;
-      console.log("每页",objvalue)
       this.getData();
     },
     // 分页相关
     onPageChange(objvalue) {
       this.currentPageNumber = objvalue;
-      console.log("第几页",objvalue)
       this.getData();
     },
     //导出数据

@@ -245,7 +245,10 @@ class MapDataOperation {
         }
 
         Promise.all(taskList).then(result => {
-            let resultFeatures = _.map(result, "features")[0];
+            let resultFeatures =[]
+            _.forEach(result, item =>{
+                resultFeatures.push(...item.features)
+            })
             let returnValue = _.map(resultFeatures, resultValue => {
                 return resultValue.attributes
             })
@@ -279,18 +282,40 @@ class MapDataOperation {
         } else {
             query.where = " 1=1 ";
         }
-        let queryTask = new this.modules.QueryTask(_layerUrl);
-        //进行组合开始
-        let SearchQuery = new Promise((resolve, reject) => {
-            queryTask.execute(query, handleQueryResult => {
-                resolve(handleQueryResult);
-            }, errorHandler => {
-                reject(errorHandler);
+        let taskList = []
+        if (_layerUrl instanceof Array) {
+            _.forEach(_layerUrl, objvalue => {
+                let queryTask = new this.modules.QueryTask(objvalue);
+                //进行组合开始
+                let SearchQuery = new Promise((resolve, reject) => {
+                    queryTask.execute(query, handleQueryResult => {
+                        resolve(handleQueryResult);
+                    }, errorHandler => {
+                        reject(errorHandler);
+                    });
+                });
+                taskList.push(SearchQuery);
             });
-        });
+        } else {
+            let queryTask = new this.modules.QueryTask(_layerUrl);
+            //进行组合开始
+            let SearchQuery = new Promise((resolve, reject) => {
+                queryTask.execute(query, handleQueryResult => {
+                    resolve(handleQueryResult);
+                }, errorHandler => {
+                    reject(errorHandler);
+                });
+            });
+            taskList.push(SearchQuery);
+        }
+
         //返回查询数据集合
-        SearchQuery.then(result => {
-            allDoneCallback(result.features);
+        Promise.all(taskList).then(result => {
+            let resultFeatures = []
+            _.forEach(result, item => {
+                resultFeatures.push(...item.features)
+            })
+            allDoneCallback(resultFeatures);
         }).catch(err => {
             console.log("数据查询错误", err);
         });
@@ -329,8 +354,13 @@ class MapDataOperation {
         _.forEach(featureCollection, objValue => {
             let queryTask = new Promise((resolve, reject) => {
                 //缓冲池
-                console.log(objValue.geometry)
-                let buffer = this.modules.geometryEngine.buffer([objValue.geometry], [1], "meters", true);
+                let buffer
+                if (MapConfigure.MapExtent.isCurved) {
+                    buffer = this.modules.geometryEngine.geodesicBuffer([objValue.geometry], [1], "meters", true);
+
+                } else {
+                    buffer = this.modules.geometryEngine.buffer([objValue.geometry], [1], "meters", true);
+                }
                 //空间查询条件
                 let query = this.modules.query();
                 query.outFields = ["*"];

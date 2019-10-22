@@ -1,6 +1,6 @@
 .DS_Store
 node_modules
-/zhengzhou
+/dist
 /server/public
 server/GisPlateformV1.0/GisPlateformV1.0/css/*
 server/GisPlateformV1.0/GisPlateformV1.0/fonts/*

@@ -3,7 +3,14 @@
     <TableFormTitle :titleName="'管网统计'" :flexible.sync="flexible"></TableFormTitle>
     <el-form label-width="78px" label-position="right" size="small">
       <el-row>
-        <el-col :span="8" :xs="24" :sm="24" :lg="8" :xl="8" v-if="$options.filters.btnTree('draw' ,$route.meta.iFunID)">
+        <el-col
+          :span="8"
+          :xs="24"
+          :sm="24"
+          :lg="8"
+          :xl="8"
+          v-if="$options.filters.btnTree('draw' ,$route.meta.iFunID)"
+        >
           <el-form-item label="形状：" class="choose_Icon_Wraper" label-width="49px">
             <svg
               class="icon"
@@ -11,7 +18,7 @@
               @click="mapSelectStatices('画圆')"
               :class="{active:shapeActive == '画圆'}"
             >
-              <use xlink:href="#icon-caozuoxingzhuang-2"></use>
+              <use xlink:href="#icon-caozuoxingzhuang-2" />
             </svg>
             <svg
               class="icon"
@@ -19,7 +26,7 @@
               @click="mapSelectStatices('长方形')"
               :class="{active:shapeActive == '长方形'}"
             >
-              <use xlink:href="#icon-caozuoxingzhuang-1"></use>
+              <use xlink:href="#icon-caozuoxingzhuang-1" />
             </svg>
             <svg
               class="icon"
@@ -27,7 +34,15 @@
               @click="mapSelectStatices('多边形')"
               :class="{active:shapeActive == '多边形'}"
             >
-              <use xlink:href="#icon-caozuoxingzhuang-"></use>
+              <use xlink:href="#icon-caozuoxingzhuang-" />
+            </svg>
+            <svg
+              class="icon"
+              aria-hidden="true"
+              @click="mapSelectStatices('线')"
+              :class="{active:shapeActive == '线'}"
+            >
+              <use xlink:href="#icon-caozuoxingzhuang_xian-"></use>
             </svg>
           </el-form-item>
         </el-col>
@@ -58,37 +73,52 @@
         </el-col>
       </el-row>
       <el-row type="flex" justify="end" class="form-btn-wrapper">
-          <el-button class="my-clean" size="mini" @click="clearGDataLayer" v-if="$options.filters.btnTree('clear' ,$route.meta.iFunID)">清空选区</el-button>
-          <el-button class="my-count" size="mini" @click="SearchStatices" v-if="$options.filters.btnTree('search' ,$route.meta.iFunID)">统计</el-button>
-          <el-button class="my-export" size="mini" @click="exportExcel" v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)">导出</el-button>
+        <el-button
+          class="my-clean"
+          size="mini"
+          @click="clearGDataLayer"
+          v-if="$options.filters.btnTree('clear' ,$route.meta.iFunID)"
+        >清空选区</el-button>
+        <el-button
+          class="my-count"
+          size="mini"
+          @click="SearchStatices"
+          v-if="$options.filters.btnTree('search' ,$route.meta.iFunID)"
+        >统计</el-button>
+        <el-button
+          class="my-export"
+          size="mini"
+          @click="exportExcel"
+          v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)"
+        >导出</el-button>
       </el-row>
     </el-form>
     <el-row class="tab-wraper">
       <el-tabs v-model="tabActiveName" type="card" @tab-click="chartChoosed">
         <el-tab-pane label="数据列表" name="first" style="padding-bottom:20px;">
           <el-row class="table-flex-wraper">
-          <div class="table-contain-wrapper">
-          <el-table
-            v-loading="loading"
-            class="exportTable"
-            :data="columnListAllData"
-            stripe
-            border
-            highlight-current-row
-            height="100%"
-            :show-summary ="showSummary"
-          >
-            <el-table-column
-              v-for="column in columnList"
-              :key="column.field"
-              :prop="column.field"
-              :label="column.text"
-              :width="column.width"
-              :type="column.type"
-              align="center"
-            ></el-table-column>
-          </el-table>
-          </div>
+            <div class="table-contain-wrapper">
+              <el-table
+                v-loading="loading"
+                class="exportTable"
+                :data="columnListAllData"
+                stripe
+                border
+                highlight-current-row
+                height="100%"
+                :show-summary="showSummary"
+              >
+                <el-table-column
+                  v-for="column in columnList"
+                  :key="column.field"
+                  :prop="column.field"
+                  :label="column.text"
+                  :width="column.width"
+                  :type="column.type"
+                  align="center"
+                ></el-table-column>
+              </el-table>
+            </div>
           </el-row>
         </el-tab-pane>
         <el-tab-pane label="数据图表" name="second">
@@ -111,7 +141,7 @@
               :class="column.value"
               :style="{ height: chartTypeValue == column.value ? 'calc(100vh - 260px)' : 0}"
             ></div>
-            <resize-observer @notify="handleResize"/>
+            <resize-observer @notify="handleResize" />
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -158,23 +188,23 @@ export default {
         {
           label: "按管径统计",
           value: "caliber",
-          easyTableName: "Count_Caliber",
+          easyTableName: "Count_Caliber"
         },
         {
           label: "按道路统计",
           value: "Installation_address",
-          easyTableName: "Count_Road",
+          easyTableName: "Count_Road"
         },
         {
           label: "按材质统计",
           value: "material_science",
           easyTableName: "Count_Material",
-          name:'material_science'
+          name: "material_science"
         },
         {
           label: "全设备统计",
           value: "all",
-          easyTableName: "Count_All",
+          easyTableName: "Count_All"
         }
       ], //选择表格类型下拉框数据（原菜单页面）
       chartType: [
@@ -212,8 +242,8 @@ export default {
       chartpie: null,
       chartline: null,
       chartbar: null,
-      columnListAllData: [],//表格内容列表
-      showSummary: false,//表格底部是否采用vue的合计
+      columnListAllData: [], //表格内容列表
+      showSummary: false //表格底部是否采用vue的合计
     };
   },
   mounted() {
@@ -227,7 +257,7 @@ export default {
   },
   beforeDestroy() {
     this.$bus.emit("clearGDataLayer"); //清除绘制过的图层数据信息
-    this.$bus.emit('clearGraphics') //取消绘制方法
+    this.$bus.emit("clearGraphics"); //取消绘制方法
   },
   computed: {
     //同步当前图层的表头信息
@@ -328,7 +358,7 @@ export default {
             return Number(o[item.outStatisticFieldName]);
           }
         );
-        sumObj[item.outStatisticFieldName+ "Percent"] = '100%'
+        sumObj[item.outStatisticFieldName + "Percent"] = "100%";
       });
       _.forEach(this.columnListData, column => {
         _.forEach(_GroupStaticesField, item => {
@@ -340,15 +370,17 @@ export default {
             ).toFixed(2) + "%";
         });
       });
-      this.columnListAllData = _.cloneDeep(this.columnListData)
-      let len =  parseInt((document.querySelector('div .exportTable').offsetHeight - 45)/41)
-      if(this.columnListData.length > len -1){
-        this.showSummary = true
-      }else{
-        this.showSummary = false
-        sumObj[this.attrDataValue] = '合计'
-        this.columnListAllData.push(sumObj)
-      }      
+      this.columnListAllData = _.cloneDeep(this.columnListData);
+      let len = parseInt(
+        (document.querySelector("div .exportTable").offsetHeight - 45) / 41
+      );
+      if (this.columnListData.length > len - 1) {
+        this.showSummary = true;
+      } else {
+        this.showSummary = false;
+        sumObj[this.attrDataValue] = "合计";
+        this.columnListAllData.push(sumObj);
+      }
       this.charInit();
     },
     //清空选区
@@ -394,7 +426,7 @@ export default {
         }
       });
     },
-    handleResize(){
+    handleResize() {
       if (this["chart" + this.chartTypeValue]) {
         this["chart" + this.chartTypeValue].resize();
       }
@@ -501,7 +533,7 @@ export default {
               name: "数量(个)",
               axisLine: {
                 lineStyle: {
-                   color: 'rgba(255,255,255,0.8)',
+                  color: "rgba(255,255,255,0.8)"
                 }
               }
             },
@@ -521,7 +553,7 @@ export default {
               min: 0,
               axisLine: {
                 lineStyle: {
-                   color: 'rgba(255,255,255,0.8)',
+                  color: "rgba(255,255,255,0.8)"
                 }
               }
             }
@@ -682,7 +714,7 @@ export default {
       GroupStaticesField,
       callBack,
       layerType
-      ) {
+    ) {
       this.columnListData = [];
       let _GroupStaticesField = GroupStaticesField || [
         {
@@ -706,7 +738,7 @@ export default {
       } else {
         pipeURL = FeatureLayerOperation.getLayerURLByName(this.layerDataValue);
       }
-      if ( this.attrDataValue == "all") {
+      if (this.attrDataValue == "all") {
         let layerTypeList = [];
         let taskList = [];
         _.forEach(layerName, layerItem => {
@@ -751,22 +783,22 @@ export default {
       } else {
         // this.loading = true
         this.featureQuery(
+          _GData,
+          _SearchCondition,
+          _GroupStaticesField,
+          _GroupField,
+          pipeURL,
+          resolve => {
+            this.featureQueryGroup(
               _GData,
               _SearchCondition,
               _GroupStaticesField,
               _GroupField,
               pipeURL,
-              resolve => {
-                  this.featureQueryGroup(
-                    _GData,
-                    _SearchCondition,
-                    _GroupStaticesField,
-                    _GroupField,
-                    pipeURL,
-                    callBack
-                  );
-              }
+              callBack
             );
+          }
+        );
       }
     },
     //查询layer是否有信息
@@ -777,7 +809,7 @@ export default {
       _GroupField,
       pipeURL,
       callBack
-      ) {
+    ) {
       this._MapDataOperation.featureQuery(_GData, "1=1", pipeURL, res => {
         if (this.attrDataValue == "all") {
           callBack(res);
@@ -795,8 +827,8 @@ export default {
         } else {
           if (this.attrDataValue != "all") {
             this.loading = false;
-            this.columnListData  = []
-            this.columnListDataRefresh()
+            this.columnListData = [];
+            this.columnListDataRefresh();
             this.$message({
               type: "warning",
               message: "此处没有数据",
@@ -817,7 +849,7 @@ export default {
       _GroupField,
       pipeURL,
       callBack
-     ) {
+    ) {
       this._MapDataOperation.featureQueryGroup(
         _GData,
         _SearchCondition,
@@ -845,7 +877,41 @@ export default {
     },
     //导出表格
     exportExcel() {
-      ExportExcel("div .exportTable", this.layerDataValue + "count");
+      let exportName;
+      if (this.attrDataValue === "all") {
+        exportName = "全设备统计";
+      } else {
+        _.some(this.layerData, group => {
+          if (group.children && _.isArray(group.children)) {
+            if (group.value === this.groupLayerDataValue[0]) {
+              _.some(group.children, item => {
+                if (item.value === this.layerDataValue) {
+                  exportName = group.label + item.label;
+                  return true;
+                }
+                return false;
+              });
+            }
+            return exportName;
+          } else {
+            if (group.value === this.layerDataValue) {
+              exportName = group.label;
+              return true;
+            }
+            return false;
+          }
+        });
+        _.some(this.attrData, item => {
+          if (item.value === this.attrDataValue) {
+            exportName += " - " + item.label;
+            return true;
+          } else {
+            return false;
+          }
+        });
+      }
+
+      ExportExcel("div .exportTable", exportName);
     }
   }
 };

@@ -1,11 +1,9 @@
 <template>
   <div class="table_style w700" :class="{flexible:flexible}">
-    <TableFormTitle 
-    :titleName = "'缓冲查询'" 
-    :flexible.sync="flexible"></TableFormTitle>
+    <TableFormTitle :titleName="'缓冲查询'" :flexible.sync="flexible"></TableFormTitle>
     <el-form label-width="83px" label-position="right">
-      <el-row >
-        <el-col  class="table-left" :xs="12" :sm="12" :lg="8" >
+      <el-row>
+        <el-col class="table-left" :xs="12" :sm="12" :lg="8">
           <layerSelect
             :layerGroupLen.sync="layerGroupLen"
             :layerData.sync="bufferData"
@@ -17,12 +15,12 @@
             @onGroupLayerSelectChange="onLayerSelectChange"
           ></layerSelect>
         </el-col>
-        
+
         <!-- <el-col :span="2" class="iconfont-yelleow choose-Icon-shape" :offset="1">
           <span class="iconfont icon-dian" @click="onPointBuffer"></span>
           <span class="iconfont icon-xiantiao-line" @click="onLineBuffer"></span>
-        </el-col> -->
-        <el-col  :xs="12" :sm="12" :lg="10" >
+        </el-col>-->
+        <el-col :xs="12" :sm="12" :lg="10">
           <el-form-item
             label="缓冲半径(米)："
             style="padding-left:20px"
@@ -34,56 +32,84 @@
         </el-col>
       </el-row>
       <el-row type="flex" justify="end">
-        <el-button class="my-search" size="mini" @click="equipmentSearch" style="margin-right:10px;" v-if="$options.filters.btnTree('eSearch' ,$route.meta.iFunID)">设备区域</el-button>
-          <el-popover
-              popper-class="buffer-popover"
-              placement="bottom-start"
-              width="10"
-              trigger="click">
-              <div class="choose-Icon-shape">
-                <span style="">请选择：</span>
-                <span>
-                  <svg
-                    class="icon"
-                    aria-hidden="true"
-                    @click="mapSelectStatices('画圆')"
-                    :class="{active:shapeActive == '画圆'}"
-                  >
-                    <use xlink:href="#icon-caozuoxingzhuang-2"></use>
-                  </svg>
-                </span>
-                <span>
-                  <svg
-                    class="icon"
-                    aria-hidden="true"
-                    @click="mapSelectStatices('长方形')"
-                    :class="{active:shapeActive == '长方形'}"
-                  >
-                    <use xlink:href="#icon-caozuoxingzhuang-1"></use>
-                  </svg>
-                </span>
-                <span>
-                  <svg
-                    class="icon"
-                    aria-hidden="true"
-                    @click="mapSelectStatices('多边形')"
-                    :class="{active:shapeActive == '多边形'}"
-                  >
-                    <use xlink:href="#icon-caozuoxingzhuang-"></use>
-                  </svg>
-                </span>                
-              </div>
-            <el-button slot="reference" class="my-search" size="mini" style="margin-right:10px;"  v-if="$options.filters.btnTree('sSearch' ,$route.meta.iFunID)">空间区域</el-button>
-          </el-popover>
-          <el-button class="my-search" size="mini" @click="bufferSearch"  v-if="$options.filters.btnTree('search' ,$route.meta.iFunID)">查询</el-button>
-          <el-button class="my-export" size="mini" @click="exportExcel"  v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)">导出</el-button>
-          <el-button class="my-del" size="mini" @click="bufferClean"  v-if="$options.filters.btnTree('clear' ,$route.meta.iFunID)">清除</el-button>
+        <el-button
+          class="my-search"
+          size="mini"
+          @click="equipmentSearch"
+          style="margin-right:10px;"
+          v-if="$options.filters.btnTree('eSearch' ,$route.meta.iFunID)"
+        >设备区域</el-button>
+        <el-popover
+          popper-class="buffer-popover"
+          placement="bottom-start"
+          width="10"
+          trigger="click"
+        >
+          <div class="choose-Icon-shape">
+            <span style>请选择：</span>
+            <span>
+              <svg
+                class="icon"
+                aria-hidden="true"
+                @click="mapSelectStatices('画圆')"
+                :class="{active:shapeActive == '画圆'}"
+              >
+                <use xlink:href="#icon-caozuoxingzhuang-2" />
+              </svg>
+            </span>
+            <span>
+              <svg
+                class="icon"
+                aria-hidden="true"
+                @click="mapSelectStatices('长方形')"
+                :class="{active:shapeActive == '长方形'}"
+              >
+                <use xlink:href="#icon-caozuoxingzhuang-1" />
+              </svg>
+            </span>
+            <span>
+              <svg
+                class="icon"
+                aria-hidden="true"
+                @click="mapSelectStatices('多边形')"
+                :class="{active:shapeActive == '多边形'}"
+              >
+                <use xlink:href="#icon-caozuoxingzhuang-" />
+              </svg>
+            </span>
+          </div>
+          <el-button
+            slot="reference"
+            class="my-search"
+            size="mini"
+            style="margin-right:10px;"
+            v-if="$options.filters.btnTree('sSearch' ,$route.meta.iFunID)"
+          >空间区域</el-button>
+        </el-popover>
+        <el-button
+          class="my-search"
+          size="mini"
+          @click="bufferSearch"
+          v-if="$options.filters.btnTree('search' ,$route.meta.iFunID)"
+        >查询</el-button>
+        <el-button
+          class="my-export"
+          size="mini"
+          @click="exportExcel"
+          v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)"
+        >导出</el-button>
+        <el-button
+          class="my-del"
+          size="mini"
+          @click="bufferClean"
+          v-if="$options.filters.btnTree('clear' ,$route.meta.iFunID)"
+        >清除</el-button>
       </el-row>
     </el-form>
     <GisTable
       :loading="loading"
       :tableHeight="`calc(100vh - 276px)`"
-      @doubleAnalysis ="doubleAnalysis"
+      @doubleAnalysis="doubleAnalysis"
       @TableRowClick="onTableRowClick"
       :layerListName="layerListName"
       :columnListData="columnListData"
@@ -117,15 +143,15 @@ export default {
   },
   data() {
     return {
-      visible:false,
-      flexible:false,//是否收缩左侧表格
-      eachLayer: [],//全部查询所需的图层信息
-      activeItem: {},//当前选中的图层信息
-      layerListName: [],//表格表头
+      visible: false,
+      flexible: false, //是否收缩左侧表格
+      eachLayer: [], //全部查询所需的图层信息
+      activeItem: {}, //当前选中的图层信息
+      layerListName: [], //表格表头
       layerGroupLen: 1, //layerData组别 是否为多组数据，若为多组渲染多组select
-      groupLayerDataValue: [],//多选select的值
-      loading: false,//表格加载
-      tabActiveName: "first",//tab选中的列名称
+      groupLayerDataValue: [], //多选select的值
+      loading: false, //表格加载
+      tabActiveName: "first", //tab选中的列名称
       columnListData: [], //空间数据查询出来的所有数据列
       layerData: [], //图层下拉框数据
       roadData: [], //道路下拉框数据
@@ -143,18 +169,18 @@ export default {
         startCompletion_date: "",
         endCompletion_date: "",
         sort: "caliber",
-        ordering: "asc",
+        ordering: "asc"
       },
       bufferRadius: 100, //缓冲区半径
       _GData: [], //绘制的点数据
       drawType: "", //当前缓存的线or点绘制类型
       bufferData: [], //缓冲区图层数据
-      seniorData: [] ,//非缓冲区图层数据
-      PID:[],
+      seniorData: [], //非缓冲区图层数据
+      PID: []
     };
   },
   created() {
-   // this.loading = true;
+    // this.loading = true;
   },
   mounted() {
     this.loadLayerData();
@@ -165,10 +191,10 @@ export default {
     });
   },
   beforeDestroy() {
-    if(this._GData){
+    if (this._GData) {
       this.$bus.emit("clearGDataLayer"); //清除绘制过的图层数据信息
     }
-    this.$bus.emit('clearGraphics') ////取消绘制方法
+    this.$bus.emit("clearGraphics"); ////取消绘制方法
   },
   methods: {
     doubleAnalysis(currentRow) {
@@ -185,7 +211,7 @@ export default {
       //   this.currentRow.coordinate_x,
       //   this.currentRow.coordinate_y
       // );
-      if(!currentRow.coordinate_x){
+      if (!currentRow.coordinate_x) {
         return;
       }
       let _GData = this._MapDataOperation.createPoint(
@@ -195,19 +221,13 @@ export default {
       this.AnalysisFnc(_GData);
     },
     AnalysisFnc(_GData) {
-      this.$bus.emit(
-        "bufferAnalysis",
-        this.layerDataValue,
-        _GData,
-        1,
-        res => {
-          _.forEach(res, item => {
-            this.PID.push(item.attributes.PID);
-          });
-          console.log('buffer',this.layerDataValue,this.PID,res);
-          //this.SquibSearchFnc();
-        }
-      );
+      this.$bus.emit("bufferAnalysis", this.layerDataValue, _GData, 1, res => {
+        _.forEach(res, item => {
+          this.PID.push(item.attributes.PID);
+        });
+        console.log("buffer", this.layerDataValue, this.PID, res);
+        //this.SquibSearchFnc();
+      });
     },
     loadLayerData() {
       let needLayer = FeatureLayerOperation.getNeedLayer();
@@ -236,9 +256,9 @@ export default {
           listViewColumn: "all"
         });
       }
-      this.layerDataValue = "all"
-      this.layerListName = 'all'
-      this.groupLayerDataValue[1] =  "all"
+      this.layerDataValue = "all";
+      this.layerListName = "all";
+      this.groupLayerDataValue[1] = "all";
       this.attRList =
         MapConfigure.FeatureLayerGroup[0].featureLayers[0].featureColumn;
       this.eachLayer = this.getEachLayer();
@@ -246,20 +266,20 @@ export default {
     //清除buffer在地图的展示
     bufferClean() {
       this.$bus.emit("clearGDataLayer"); //清除绘制过的图层数据信息
-      this.$bus.emit('clearGraphics') //取消绘制方法
+      this.$bus.emit("clearGraphics"); //取消绘制方法
       this._GData = null;
       //this.loading = true;
       this.drawType = "";
-      this.columnListData = []
+      this.columnListData = [];
       //this.bufferSearch();
     },
     //设备统计
-    equipmentSearch(){
+    equipmentSearch() {
       this.drawType = "设备";
       this.$bus.emit("clearGDataLayer"); //清除绘制过的图层数据信息
-      this._GData = null
+      this._GData = null;
       this.$bus.emit("getMapPoint", true, res => {
-        console.log(res)
+        console.log(res);
         this._GData = res;
         this.$bus.emit(
           "featureQueryTask",
@@ -296,7 +316,7 @@ export default {
     //地图框选统计
     mapSelectStatices(_drawType) {
       this.drawType = _drawType;
-      this._GData = null
+      this._GData = null;
       //条件组合
       this.$bus.emit("getStatisticsResult", _drawType, resultValue => {
         //this.loading = true;
@@ -335,26 +355,29 @@ export default {
         this._GData,
         this.bufferRadius,
         resultValue => {
-           let resData = _.map(resultValue, "attributes");
+          let resData = _.map(resultValue, "attributes");
           if (_.isFunction(callBack)) {
-            callBack(resData);;
-          }else{
+            callBack(resData);
+          } else {
             this.loading = false;
             this.columnListData = resData;
           }
           this.heightLight(resultValue, layer);
-        },false
+        },
+        false
       );
     },
     allBufferSearch() {
       if (this.layerDataValue == "all") {
-        this.layerListName = 'all'
+        this.layerListName = "all";
       } else {
-        this.layerListName = FeatureLayerOperation.getLayerFeatureByName(this.layerDataValue).listViewColumn
+        this.layerListName = FeatureLayerOperation.getLayerFeatureByName(
+          this.layerDataValue
+        ).listViewColumn;
       }
       if (this.layerDataValue === "all") {
         let resArray = [];
-        let eachLayerData = this.eachLayer
+        let eachLayerData = this.eachLayer;
         let taskList = [];
         _.forEach(eachLayerData, ele => {
           let queryTask = new Promise((resolve, reject) => {
@@ -371,38 +394,35 @@ export default {
         Promise.all(taskList)
           .then(result => {
             this.loading = false;
-            if(this.drawType == '管线'){
-              this.$bus.emit('addMapLine', this._GData)
-            }else if(this.drawType == '其他'){
-              this.$bus.emit('addMapPoint', this._GData)
+            if (this.drawType == "管线") {
+              this.$bus.emit("addMapLine", this._GData);
+            } else if (this.drawType == "其他") {
+              this.$bus.emit("addMapPoint", this._GData);
             }
-            let resArray = []
+            let resArray = [];
             _.forEach(result, item => {
               item.length && resArray.push(...item);
-            })
-            this.columnListData = resArray
+            });
+            this.columnListData = resArray;
           })
           .catch(err => {
             console.log("search全部查询部分", err);
           });
       } else {
         this.onBufferSearch();
-        if(this.drawType == '管线'){
-          this.$bus.emit('addMapLine', this._GData)
-        }else if(this.drawType == '其他'){
-          this.$bus.emit('addMapPoint', this._GData)
+        if (this.drawType == "管线") {
+          this.$bus.emit("addMapLine", this._GData);
+        } else if (this.drawType == "其他") {
+          this.$bus.emit("addMapPoint", this._GData);
         }
-        
       }
     },
     //高亮选中区域
     heightLight(resultValue, layer) {
-      if(layer){
-        this.activeItem = FeatureLayerOperation.getLayerFeatureByName(
-          layer
-        );
+      if (layer) {
+        this.activeItem = FeatureLayerOperation.getLayerFeatureByName(layer);
       }
-      
+
       if (this.activeItem.layerType == LayerType.PipeTypeNO) {
         // //展示线
         this.$bus.emit("pipeLineView", resultValue); //线高亮
@@ -415,9 +435,11 @@ export default {
     bufferSearch() {
       this.loading = true;
       if (this.layerDataValue == "all") {
-        this.layerListName = 'all'
+        this.layerListName = "all";
       } else {
-        this.layerListName = FeatureLayerOperation.getLayerFeatureByName(this.layerDataValue).listViewColumn
+        this.layerListName = FeatureLayerOperation.getLayerFeatureByName(
+          this.layerDataValue
+        ).listViewColumn;
       }
       if (this.drawType && this._GData) {
         this.allBufferSearch();
@@ -425,13 +447,13 @@ export default {
       }
       if (this.layerDataValue == "all") {
         let taskList = [];
-        let eachLayerData = this.eachLayer
+        let eachLayerData = this.eachLayer;
         _.forEach(eachLayerData, (ele, index) => {
           let queryTask = new Promise((resolve, reject) => {
             this.onSearch(ele.value, res => {
               _.forEach(res, item => {
                 item.allType = ele.label;
-               item.allTypeValue = ele.value;
+                item.allTypeValue = ele.value;
               });
               resolve(res);
             });
@@ -452,52 +474,68 @@ export default {
     },
     //点击选择事件
     onTableRowClick(row, column, event) {
-      let layer = this.layerDataValue
-      if(this.layerDataValue == 'all'){
-        layer = row.allTypeValue
+      let layer = this.layerDataValue;
+      if (this.layerDataValue == "all") {
+        layer = row.allTypeValue;
       }
-      this.$bus.emit(
-        "setMapLocation",
-        row.OBJECTID,
-        layer,
-        resultValue => {
-          console.log(resultValue);
-        }
-      );
+      this.$bus.emit("setMapLocation", row.OBJECTID, layer, resultValue => {
+        console.log(resultValue);
+      });
     },
     //导出表格
     exportExcel() {
+      let exportName;
+      _.some(this.bufferData, group => {
+        if (group.children && _.isArray(group.children)) {
+          if (group.value === this.groupLayerDataValue[0]) {
+            _.some(group.children, item => {
+              if (item.value === this.layerDataValue) {
+                exportName = group.label + item.label;
+                return true;
+              }
+              return false;
+            });
+          }
+          return exportName;
+        } else {
+          if (group.value === this.layerDataValue) {
+            exportName = group.label;
+            return true;
+          }
+          return false;
+        }
+      });
       //下载excel导出
-      ExportExcel("div .outDataSerchExcel", this.layerDataValue);
+      ExportExcel("div .outDataSerchExcel", exportName + " - 缓冲区查询");
     },
     //获取全部查询所需的图层
-    getEachLayer(){
-       let eachData = [];
-        if (this.layerGroupLen > 1) {
-          eachData = [];
-          _.forEach(this.seniorData, group => {
-            _.forEach(group.children, item => {
-              if (this.groupLayerDataValue[0] == group.value) {
-                if (_.indexOf(eachData, item.value) < 0) {
-                  eachData.push({
-                    value: item.value,
-                    label: item.label,
-                    layerType:item.type
-                  });
-                }
+    getEachLayer() {
+      let eachData = [];
+      if (this.layerGroupLen > 1) {
+        eachData = [];
+        _.forEach(this.seniorData, group => {
+          _.forEach(group.children, item => {
+            if (this.groupLayerDataValue[0] == group.value) {
+              if (_.indexOf(eachData, item.value) < 0) {
+                eachData.push({
+                  value: item.value,
+                  label: item.label,
+                  layerType: item.type
+                });
               }
-            });
+            }
           });
-        } else {
-          eachData = _.map(this.seniorData, item => {
-            return {
-              value: item.value,
-              label: item.label,
-              layerType:item.type
-            };
-          });
-        }
-        return eachData //所有的图层
+        });
+      } else {
+        eachData = _.map(this.seniorData, item => {
+          return {
+            value: item.value,
+            label: item.label,
+            layerType: item.type
+          };
+        });
+      }
+      return eachData; //所有的图层
     },
     //图层下拉选择
     onLayerSelectChange(objvalue) {
@@ -510,8 +548,8 @@ export default {
     },
     onSearch(layer, callBack) {
       this.loading = true;
-      layer =  _.isObject(layer) ? undefined : layer
-      this.MapDataSearch( '1=1', layer, callBack);
+      layer = _.isObject(layer) ? undefined : layer;
+      this.MapDataSearch("1=1", layer, callBack);
     },
     //调用数据查询和高级空间查询接口
     MapDataSearch(whereGIScondition, layer, callBack) {
@@ -544,49 +582,51 @@ export default {
 };
 </script>
 <style lang="stylus">
-.buffer-popover.el-popover{
+.buffer-popover.el-popover {
   padding: 0;
-  border-radius:2px;
+  border-radius: 2px;
   background: #2a2d33;
   border: solid 1px #565b66;
   height: 30px;
   padding-left: 10px;
-  box-shadow: 0px 4px 10px 0px 	rgba(0, 0, 0, 0.43);
-  .choose-Icon-shape{
-    span{
+  box-shadow: 0px 4px 10px 0px rgba(0, 0, 0, 0.43);
+
+  .choose-Icon-shape {
+    span {
       color: #cdd3d7;
       line-height: 30px;
-      cursor:pointer;
-      height:30px;
+      cursor: pointer;
+      height: 30px;
       display: inline-block;
     }
-    svg{
+
+    svg {
       line-height: 30px;
-      cursor:pointer;
+      cursor: pointer;
       width: 30px;
-      height:30px;
+      height: 30px;
       text-align: center;
       display: inline-block;
       vertical-align: middle;
-      &:hover{
+
+      &:hover {
         background: #354256;
         color: #fff;
       }
     }
-    .iconfont{
-      display:inline-block;
-      
+
+    .iconfont {
+      display: inline-block;
     }
   }
 
-  .popper__arrow{
+  .popper__arrow {
     border-bottom-color: #565b66;
-    &:after{
+
+    &:after {
       border-bottom-color: #2a2d33;
     }
   }
 }
-
- 
 </style>
 

@@ -42,6 +42,7 @@
 import _ from "lodash";
 //事件查询
 import EventManageForMaintain from "@api/Maintain/EventManageForMaintain";
+import config from "@config/config.js";
 export default {
   components: {},
   props: ["TitleName", "colorList", "stepDetail"],
@@ -76,7 +77,7 @@ export default {
       let OperId = this.stepDetail.OperId;
       if (OperId == 11) OperId = 1;
       this.color = this.colorList[OperId];
-      if (this.TitleName === "接受") {
+      if (this.TitleName === "接受" || this.TitleName === "延期退回") {
         return [
           [
             "接受部门：",
@@ -87,6 +88,17 @@ export default {
             this.stepDetail.ExecUpDateTime
           ]
         ];
+      } else if (this.TitleName === "无效") {
+        return [
+          [
+            "处理部门：",
+            this.stepDetail.ExecDetpName || "未知",
+            "处理人员：",
+            this.stepDetail.ExecPersonName || "未知",
+            "处理时间：",
+            this.stepDetail.ExecUpDateTime
+          ]
+        ];
       } else if (
         this.TitleName == "审核" ||
         this.TitleName == "作废" ||
@@ -94,10 +106,11 @@ export default {
         this.TitleName == "完工" ||
         this.TitleName === "处置" ||
         this.TitleName === "分派" ||
-        this.TitleName === "到场" || 
-        this.TitleName === "延期申请" || 
-        this.TitleName === "延期确认" || 
-        this.TitleName === "退单" || 
+        this.TitleName === "到场" ||
+        this.TitleName === "延期申请" ||
+        this.TitleName === "延期确认" ||
+        this.TitleName === "退单" ||
+        // this.TitleName === "无效" ||
         this.TitleName === "完成"
       ) {
         return [
@@ -123,10 +136,29 @@ export default {
       }
     },
     MaDialogImgAndReply() {
-      if (this.TitleName == "到场" || this.TitleName == "处置" || this.TitleName == "完工") {
+      if (
+        this.TitleName == "到场" ||
+        this.TitleName == "处置" ||
+        this.TitleName == "完工"
+      ) {
         return {
-          "上报图片：": [this.stepDetail.Pictures],
+          "上报图片：": this.imgExcel(this.stepDetail.Pictures),
+          // "上报图片：": ["http://114.98.235.14:9819/upload/EventsImg/2019/9/5/2019090514152873.jpeg"],
           "处理回复：": this.stepDetail.OperRemarks
+        };
+      }else if (this.TitleName == "延期申请") {
+        return {
+          "延期时间：": this.stepDetail.PostponeTime,
+          "延期内容：": this.stepDetail.OperRemarks
+        };
+      }else if(this.TitleName == "退单" || this.TitleName == "延期确认" || this.TitleName == "延期退回"){
+        return {
+          "退单内容：": this.stepDetail.OperRemarks
+        };
+      } else if (this.TitleName == "审核") {
+        return {
+          "反馈内容：": this.stepDetail.OperRemarks,
+          "满意度：": this.stepDetail.Satisfaction
         };
       } else {
         return false;
@@ -136,6 +168,17 @@ export default {
   methods: {
     isarray(val) {
       return _.isArray(val);
+    },
+    imgExcel(img) {
+      let EventPictures = [];
+      if (img) {
+        EventPictures = img.split("|");
+        let temp = [];
+        _.forEach(EventPictures,element => {
+          temp.push(config.apiPath.systemUrl + element)
+        });
+        return temp;
+      }
     }
   }
 };
@@ -145,7 +188,8 @@ export default {
   font-size: 14px;
   color: #333;
 }
+
 .dialog-table-lable {
-  width: 82px!important;
+  width: 82px !important;
 }
 </style>

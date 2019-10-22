@@ -66,8 +66,9 @@ namespace GisPlateform.CommonTools
                     {
                         return e.ToString();
                     }
-                    return eventPictures;
+                    
                 }
+                return eventPictures;
             }
             return null;
         }
