@@ -4,6 +4,7 @@
       <el-scrollbar style="min-width:200px;">
         <el-tree
           highlight-current
+          class="black"
           :data="deptList"
           :props="defaultProps"
           @node-click="handleNodeClick"
@@ -19,7 +20,7 @@
               plain
               size="mini"
               @click="addDept"
-              v-if="$options.filters.btnTree('/api/Department/Post' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Department/Post' ,$route.name)"
             >
               <i class="iconfont icon-xinzeng"></i>新增
             </el-button>
@@ -27,7 +28,7 @@
               class="my-tableout"
               size="mini"
               @click="editDept"
-              v-if="$options.filters.btnTree('/api/Department/Put' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Department/Put' ,$route.name)"
             >
               <i class="iconfont icon-bianji"></i>编辑
             </el-button>
@@ -35,7 +36,7 @@
               class="my-tableout"
               size="mini"
               @click="delDept"
-              v-if="$options.filters.btnTree('/api/Department/Delete' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Department/Delete' ,$route.name)"
             >
               <i class="iconfont icon-shanchu"></i>删除
             </el-button>
@@ -62,8 +63,8 @@
         <el-form-item label="上级部门：">
           <el-input v-model="nodeName" disabled></el-input>
         </el-form-item>
-        <el-form-item label="部门名称：" prop="cAdminTel">
-          <el-input v-model="formValue.cDepName" placeholder="请输入部门名称"></el-input>
+        <el-form-item label="部门名称：" prop="cDepName">
+          <el-input v-model="formValue.cDepName" placeholder="请输入部门名称"  v-filter-special-char></el-input>
         </el-form-item>
         <el-form-item label="部门电话：" prop="cDepTel">
           <el-input v-model="formValue.cDepTel" placeholder="请输入部门电话"></el-input>
@@ -73,7 +74,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button class="my-dialog-cancel" @click="dialogVisible = false">取 消</el-button>
+        <el-button class="my-dialog-cancel" @click="editFormSubmitCancle">取 消</el-button>
         <el-button class="my-dialog-submit" @click="editFormSubmit" :loading="sunBtnLoad">确 定</el-button>
       </div>
     </el-dialog>
@@ -82,7 +83,9 @@
  
 <script>
 import Dept from "@api/SystemSetting/Department";
+import DepartmentUserCycle from "@api/Inspection/DepartmentUserCycle";
 import SysTable from "@features/SystemSetting/components/SysTable";
+
 export default {
   name: "Department",
   components: { SysTable },
@@ -90,21 +93,24 @@ export default {
     return {
       rules: {
         cDepName: [
-          { required: true, message: "请输入部门名称", trigger: "blur" }
+          { required: true, message: "请输入部门名称", trigger: "blur" },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ],
         cDepTel: [
           {
-            pattern: /^1[34578]\d{9}$/,
+            pattern: /^1[345678]\d{9}$/,
             message: "请输入正确的手机号",
             trigger: "blur"
-          }
+          },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ],
         cDepEmail: [
           {
             type: "email",
             message: "请输入正确的邮箱地址",
             trigger: ["blur"]
-          }
+          },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ]
       },
       deptList: [],
@@ -161,15 +167,11 @@ export default {
           this.DeptSerialize(this.deptList);
           this.tableData = this.FatherList[this.nodeID];
           this.loading = false;
-          this.$store.dispatch('system/SetDeptListFnc' , this.deptList)
+          this.$store.dispatch("system/SetDeptListFnc", this.deptList);
         })
         .catch(() => {
           this.loading = false;
-          this.$message({
-            type: "error",
-            message: "获取数据失败",
-            showClose: true
-          });
+          this.$myMessage("error", "获取数据失败");
         });
     },
     //treeData序列化
@@ -196,58 +198,44 @@ export default {
     //删除按钮点击
     delDept() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要删除的数据",
-          showClose: true
-        });
+        this.$myMessage("warning", "请选择需要删除的部门");
         return;
       }
-      this.$confirm("确定删除么")
-        .then(() => {
-          if (this.currentRow.iDeptID === 1) {
-            this.$message({
-              type: "error",
-              message: "禁止删除系统分类",
-              showClose: true
-            });
-            return;
-          }
-          this.loading = true;
-          Dept.delDept(this.currentRow.iDeptID)
+
+      if (this.currentRow.iDeptID === 1) {
+        this.$myMessage("error", "禁止删除系统分类");
+        return;
+      }
+      this.loading = true;
+      DepartmentUserCycle.GetUserComboboxListNoDelete(
+        this.currentRow.iDeptID
+      ).then(res => {
+        if (res.data.Data.Result.length) {
+          this.loading = false;
+          this.$myMessage("error", "该部门下存在用户，不允许删除");
+        } else {
+          this.$confirm("确定删除么")
             .then(() => {
-              this.loading = false;
-              this.$message({
-                type: "success",
-                message: "成功删除数据",
-                showClose: true
-              });
-              this.getDeptList();
+              Dept.delDept(this.currentRow.iDeptID)
+                .then(() => {
+                  this.loading = false;
+                  this.$myMessage("success", "删除部门成功");
+                  this.getDeptList();
+                })
+                .catch(() => {
+                   this.loading = false;
+                });
             })
             .catch(() => {
-              this.$message({
-                type: "error",
-                message: "删除数据失败",
-                showClose: true
-              });
+              this.$myMessage("warning", "取消删除部门");
             });
-        })
-        .catch(() => {
-          this.$message({
-            type: "warning",
-            message: "取消删除数据",
-            showClose: true
-          });
-        });
+        }
+      });
     },
     //编辑按钮点击
     editDept() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要编辑的数据",
-          showClose: true
-        });
+        this.$myMessage("warning", "请选择需要编辑的部门");
         return;
       }
       this.formValue = _.assign({}, this.currentRow);
@@ -269,7 +257,16 @@ export default {
       this.formValue.iFunFatherID = this.nodeID;
     },
     handleClose(done) {
-      done();
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        done();
+      });
+    },
+    editFormSubmitCancle() {
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        this.dialogVisible = false;
+      });
     },
     //新增修改提交
     editFormSubmit() {
@@ -283,15 +280,12 @@ export default {
             .then(res => {
               this.dialogVisible = false;
               this.sunBtnLoad = false;
+              this.$myMessage("success", "编辑部门成功");
               this.getDeptList();
             })
             .catch(() => {
               this.dialogVisible = false;
               this.sunBtnLoad = false;
-              this.$message({
-                type: "error",
-                message: "编辑数据失败，请重试"
-              });
             });
           return;
         } else {
@@ -299,15 +293,12 @@ export default {
             .then(res => {
               this.sunBtnLoad = false;
               this.dialogVisible = false;
+              this.$myMessage("success", "新增部门成功");
               this.getDeptList();
             })
             .catch(() => {
               this.sunBtnLoad = false;
               this.dialogVisible = false;
-              this.$message({
-                type: "error",
-                message: "新增数据失败，请重试"
-              });
             });
         }
       });

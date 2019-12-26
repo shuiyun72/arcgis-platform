@@ -4,7 +4,21 @@
   border-color: $radiusBorderColor;
 }
 
+ .el-radio__input.is-checked .el-radio__inner{
+   border-color: #0091da;
+   }
+
 .el-radio.is-checked .el-radio__inner::after {
+  background-color: #0091da;
+  width: 6px;
+  height: 6px;
+}
+
+.light-radio .el-radio.is-checked .el-radio__inner {
+  border-color: #0091da !important;
+}
+
+.light-radio .el-radio.is-checked .el-radio__inner::after {
   background-color: #0091da;
   width: 6px;
   height: 6px;
@@ -45,10 +59,6 @@
     position: absolute;
     top: 1px;
     right: 0;
-  }
-
-  .el-input__suffix, .el-range__close-icon {
-    display: none !important;
   }
 }
 
@@ -294,5 +304,16 @@
 .selectTreeScroll {
   .el-scrollbar__wrap {
     overflow-x: hidden;
+  }
+}
+
+// 复选框
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  background: url('~@assets/toolIcon/UI/treeCheck.png') #0d85de no-repeat;
+  background-size: 70% 70%;
+  background-position: center;
+
+  &:after {
+    display: none;
   }
 }

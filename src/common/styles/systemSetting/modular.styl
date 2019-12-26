@@ -7,71 +7,21 @@
         // padding-left: 0px;
     }
 
-    .el-scrollbar__wrap {
-         padding: 10px 0;
-        overflow-x: hidden;
+    .scrollbar-moMdular-wrapper {
+        height: 100%;
 
-        .el-scrollbar__view {
+        .el-scrollbar {
             height: 100%;
-            background: #2f3239;
-            
 
-            .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content {
-                color: #fff;
-                background: rgba(65, 69, 76, 0.8);
-            }
+            .el-scrollbar__wrap {
+                padding: 10px 0;
+                overflow-x: hidden;
 
-            .el-tree {
-                background: #2f3239;
-                color: #ebeef5;
-                min-height: 100%;
-                border-right: 1px dashed #58647b;
-
-                .el-tree-node__expand-icon {
-                    color: #ebeef5;
-
-                    &.is-leaf {
-                        color: transparent;
-                    }
-                }
-
-                .el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content, .el-tree-node__content:hover, .el-tree-node:focus>.el-tree-node__content {
-                    color: #fff;
-                    background: rgba(65, 69, 76, 0.8);
-
-                    .el-tree-node__expand-icon {
-                        color: #fff;
-
-                        &.is-leaf {
-                            color: transparent;
-                        }
-                    }
+                .el-scrollbar__view {
+                    height: 100%;
+                    background: #2f3239;
                 }
             }
-        }
-    }
-
-}
-
-.modularDialog {
-    .el-checkbox__input.is-indeterminate .el-checkbox__inner {
-        background: #0d85de;
-
-        &:before {
-            height: 4px;
-            top: 4px;
-            width: 120%;
-            left: -8%;
-        }
-    }
-
-    .el-checkbox__input.is-checked .el-checkbox__inner {
-        background: url('~@assets/toolIcon/treeCheck.png') #0d85de no-repeat;
-        background-size: 70% 70%;
-        background-position: center;
-
-        &:after {
-            display: none;
         }
     }
 }

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import config from '@config/config.js'
-let systemUrl = config.apiPath.systemUrl
+let systemUrl = config.apiPath.insURL
 
 export default {
     loginSystem: (query) => {

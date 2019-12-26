@@ -146,6 +146,9 @@ export default {
         bottom: 0,
         containLabel: true
       };
+      chartPie.tooltip = {
+        formatter: "人员 ：{b} <br/> 数量 ： {c} ({d}%)"
+      }
       chartPie.series[0].data = _.map(this.squareQueryRawTableData, item => {
         return {
           name: item.PersonName,
@@ -178,6 +181,7 @@ export default {
       chartBar.xAxis[0].data = _.map(this.squareQueryRawTableData, item => {
         return item.PersonName;
       });
+      chartBar.xAxis[0].axisLabel = { rotate : 45 };
       chartBar.series[0].data = _.map(this.squareQueryRawTableData, item => {
         return item.ECount;
       });

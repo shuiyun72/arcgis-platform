@@ -23,6 +23,10 @@ myBtn(color = 2px, fontColor = #fff) {
   myBtn(#69957b);
 }
 
+.el-button.my-tianjia {
+  myBtn(#946c5f);
+}
+
 .el-button.my-filter-show {
   myBtn(#69957b);
 }
@@ -55,6 +59,10 @@ myBtn(color = 2px, fontColor = #fff) {
   myBtn(#688f89);
 }
 
+.el-button.my-choose {
+  myBtn(#5d807a);
+}
+
 .el-button.my-analysis {
   myBtn(#688f89);
 }
@@ -65,6 +73,10 @@ myBtn(color = 2px, fontColor = #fff) {
 
 .el-button.my-count {
   myBtn(#688c8f);
+}
+
+.el-button.my-setting {
+  myBtn(#828282);
 }
 
 .el-button.my-regionIns {
@@ -111,6 +123,14 @@ myBtn(color = 2px, fontColor = #fff) {
   myBtn(#69957b);
 }
 
+.el-button.my-restore {
+  myBtn(#557d8c);
+}
+
+.el-button.my-submit {
+  myBtn(#0091da);
+}
+
 .el-button.password-submit {
   myBtn(#0d85de);
   font-size: 18px;
@@ -144,7 +164,7 @@ myBtn(color = 2px, fontColor = #fff) {
   }
 }
 
-.el-button.my-tableout {
+my-tableout() {
   background: transparent;
   color: #afbcc4;
   border-color: #58647b;
@@ -162,6 +182,7 @@ myBtn(color = 2px, fontColor = #fff) {
   &.active {
     background: #53678e;
     border-color: #58647b;
+    color: #fff;
   }
 
   &:hover, &:focus {
@@ -173,6 +194,10 @@ myBtn(color = 2px, fontColor = #fff) {
       color: #fff;
     }
   }
+}
+
+.el-button.my-tableout {
+  my-tableout();
 }
 
 my-table-icon(color) {
@@ -200,6 +225,27 @@ my-table-icon(color) {
 
 .el-button.my-table-detail {
   my-table-icon(#0b9fd0);
+}
+
+.el-button.my-tableout-cancel {
+  my-tableout();
+  width: 70px;
+  height: 30px;
+  line-height: 30px;
+}
+
+.el-button.my-tableout-submit {
+  width: 70px;
+  height: 30px;
+  line-height: 30px;
+  padding: 0;
+  background-color: #0080c1;
+  color: #fff;
+  border: none;
+
+  &:hover {
+    background-color: #0099c1;
+  }
 }
 
 .my-add-point {
@@ -253,4 +299,16 @@ my-table-icon(color) {
 .my-radio {
   margin-right: 10px;
   line-height: 30px;
+}
+
+.addColor {
+  color: #31b167;
+}
+
+.editColor {
+  color: #e17308;
+}
+
+.delColor {
+  color: #d3474a;
 }

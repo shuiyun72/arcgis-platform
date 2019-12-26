@@ -19,7 +19,7 @@ namespace GisPlateformV1_0
                 .EnableSwagger(c =>
                     {
                         c.CustomProvider((defaultProvider) => new SwaggerControllerDescProvider(defaultProvider, GetXmlCommentsPath()));
-                        c.SingleApiVersion("v1", "Master");
+                        c.SingleApiVersion("v1", "Xixian");
                         c.IncludeXmlComments(GetXmlCommentsPath());
                         c.OperationFilter<GlobalHttpHeaderFilter>();
                     })

@@ -3,26 +3,204 @@
   padding: 1% 0 0 1%;
   box-sizing: border-box;
   height: $data_kpiH;
-  
-  .el-scrollbar{
-    height :100%
+
+  .flexWrapper {
+    flex-wrap: wrap;
   }
-  .el-scrollbar__wrap{
+
+  .el-scrollbar {
+    height: 100%;
+  }
+
+  .el-scrollbar__wrap {
     overflow-x: auto;
     padding-top: 3px;
     padding-left: 3px;
   }
-  @media (min-width: 1160px) {
-    .col-md-12 {
-      width: 50%;
-      float: left;
-    }
+}
 
-    .right-md-12 {
-      margin-left: 0;
+.easy-card {
+  margin: 0 20px 20px 0;
+  padding: 30px 20px;
+  color: #ffffff;
+  position: relative;
+  width: 100%;
+  min-width: 210px;
+  flex: 1;
+
+  .line-border {
+    span {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+
+      &:nth-child(1) {
+        top: -3px;
+        left: -3px;
+        border-top: 1px solid #00c3aa;
+        border-left: 1px solid #00c3aa;
+      }
+
+      &:nth-child(2) {
+        top: -3px;
+        right: -3px;
+        border-top: 1px solid #00c3aa;
+        border-right: 1px solid #00c3aa;
+      }
+
+      &:nth-child(3) {
+        bottom: -3px;
+        right: -3px;
+        border-bottom: 1px solid #00c3aa;
+        border-right: 1px solid #00c3aa;
+      }
+
+      &:nth-child(4) {
+        bottom: -3px;
+        left: -3px;
+        border-bottom: 1px solid #00c3aa;
+        border-left: 1px solid #00c3aa;
+      }
     }
   }
-  .el-col {
-    height: initial;
+
+  .bg-icon {
+    position: absolute;
+    z-index: 0;
+    right: 2px;
+    bottom: -5px;
+    color: #1499b4;
+    opacity: 0.69;
+
+    .iconfont {
+      font-size: 160px;
+    }
+  }
+
+  &.bg1 {
+    background-image: linear-gradient(90deg, #00c3aa 0%, #01aed5 100%);
+  }
+
+  &.bg2 {
+    background-image: linear-gradient(90deg, #e3870a 0%, #e2640b 100%);
+  }
+
+  &.bg3 {
+    background-image: linear-gradient(90deg, #2665e1 0%, #4501d6 100%);
+  }
+
+  &.bg4 {
+    background-image: linear-gradient(90deg, #e12076 0%, #b9024c 100%);
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+
+    p:nth-child(1) {
+      font-size: 20px;
+    }
+
+    p:nth-child(2) {
+      font-size: 48px;
+      padding: 10px 0;
+    }
+
+    p:nth-child(3) {
+      font-size: 16px;
+    }
+  }
+}
+
+.statistics-card {
+  overflow: hidden;
+  position: relative;
+  margin: 0 20px 20px 0;
+  background-color: #2f3239;
+  box-shadow: 8px 0.7px 18px 0px rgba(69, 69, 70, 0.07);
+  border: solid 1px #3b3d44;
+  width: 100%;
+  min-width: 250px;
+  flex: 1;
+
+  .title-line {
+    position: absolute;
+    left: 0;
+    top: 50px;
+    width: 100%;
+    z-index: 1;
+    border: none;
+    border-bottom: solid 1px #3b3d44;
+  }
+
+  .header {
+    text-align: left;
+    padding: 0 4px 20px;
+    color: #fff;
+    font-size: 16px;
+    position: absolute;
+    top: 20px;
+    z-index: 1;
+
+    &:before {
+      content: '';
+      display: inline-block;
+      margin: 0 6px;
+      vertical-align: text-top;
+      width: 4px;
+      height: 16px;
+      background-color: #3790f1;
+      background-image: -webkit-gradient(linear, left bottom, left top, from(#3790f1), to(#33c2fd));
+      background-image: linear-gradient(0deg, #3790f1 0%, #33c2fd 100%);
+      border-radius: 2px;
+    }
+  }
+
+  .content {
+    background-color: #2f3239;
+    overflow: hidden;
+  }
+}
+
+.roundness-card {
+  height: 266px;
+  background-color: #2f3239;
+  box-shadow: 8px 0.7px 18px 0px rgba(69, 69, 70, 0.07);
+  border: solid 1px #3b3d44;
+  overflow: hidden;
+  margin: 0 20px 20px 0;
+  width: 100%;
+  min-width: 250px;
+  flex: 1;
+
+  .header {
+    text-align: left;
+    padding: 16px 10px;
+    color: #eee;
+    font-size: 16px;
+    letter-spacing: 0.8px;
+
+    .title-left {
+      margin: 0 6px;
+      vertical-align: text-top;
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background-color: #3790f1;
+      background-image: linear-gradient(0deg, #3790f1 0%, #33c2fd 100%);
+      border-radius: 2px;
+    }
+  }
+
+  .content {
+    border-top: solid 1px #3b3d44;
+
+    .char-wraper {
+    }
+
+    .gauge1, .gauge2 {
+      position: relative;
+      top: 6px;
+    }
   }
 }

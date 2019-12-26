@@ -18,7 +18,7 @@ export const UserManage_Columns = [
 	{ field: "iIsLocked", text: "是否锁定",formatter: function (row, column, cellValue, index) {
 		return cellValue ? '是' : '否'
 	}, align: "center", fixed: false },
-	{ field: "dExpireDate", text: "过期日期", align: "center", fixed: false },
+	//{ field: "dExpireDate", text: "过期日期", align: "center", fixed: false },
 	{ field: "iIsAllowChangePWD", text: "密码修改",formatter: function (row, column, cellValue, index) {
 		return cellValue ? '允许' : '不允许'
 	}, align: "center", fixed: false },
@@ -55,6 +55,9 @@ export const RoleManage_Columns = [
 	{ field: "isSuperAdmin", text: "是否是超级管理员",formatter: function (row, column, cellValue, index) {
 		return cellValue ? '是' : '否'
 	}, align: "center", fixed: false },
+	{ field: "IsInspector", text: "是否是巡检员",formatter: function (row, column, cellValue, index) {
+		return cellValue ? '是' : '否'
+	}, align: "center", fixed: false }
 ]
 
 //上传

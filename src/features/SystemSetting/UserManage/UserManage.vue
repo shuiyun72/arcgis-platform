@@ -2,7 +2,7 @@
   <div class="table_style">
     <el-row type="flex" class="modularWrapper">
       <el-col class="table-flex-wraper">
-        <el-form label-width="70px" label-position="right" size="mini" gutter="20px">
+        <el-form label-width="80px" label-position="right" size="mini" gutter="20px">
           <el-row>
             <el-col span="6" :lg="4">
               <el-form-item label="部门：" label-width="46px">
@@ -20,8 +20,8 @@
               </el-form-item>
             </el-col>
             <el-col span="6" :lg="4">
-              <el-form-item label="姓名：">
-                <el-input v-model="GetformValue.userName"></el-input>
+              <el-form-item label="用户查找：" @keyup.enter.native="getUserList">
+                <el-input v-model="GetformValue.userName" placeholder="姓名、工号、联系方式"></el-input>
               </el-form-item>
             </el-col>
             <el-col span="5" :lg="2">
@@ -30,7 +30,7 @@
                   class="my-search"
                   size="mini"
                   @click="getUserList"
-                  v-if="$options.filters.btnTree('/api/User/Get' ,$route.meta.iFunID)"
+                  v-if="$options.filters.btnTree('/api/User/Get' ,$route.name)"
                 >查询</el-button>
               </el-row>
             </el-col>
@@ -44,7 +44,7 @@
               plain
               size="mini"
               @click="addUser"
-              v-if="$options.filters.btnTree('/api/User/Post' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/User/Post' ,$route.name)"
             >
               <i class="iconfont icon-xinzeng"></i>新增
             </el-button>
@@ -52,7 +52,7 @@
               class="my-tableout"
               size="mini"
               @click="editUser"
-              v-if="$options.filters.btnTree('/api/User/Put' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/User/Put' ,$route.name)"
             >
               <i class="iconfont icon-bianji"></i>编辑
             </el-button>
@@ -60,7 +60,7 @@
               class="my-tableout"
               size="mini"
               @click="delUser"
-              v-if="$options.filters.btnTree('/api/User/Delete' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/User/Delete' ,$route.name)"
             >
               <i class="iconfont icon-shanchu"></i>删除
             </el-button>
@@ -68,13 +68,14 @@
               class="my-tableout"
               size="mini"
               @click="resertUserPassWard"
-              v-if="$options.filters.btnTree('/api/User/ResetPassword' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/User/ResetPassword' ,$route.name)"
             >
               <i class="iconfont icon-chushihuamima"></i>初始化密码
             </el-button>
           </el-row>
         </div>
         <SysTable
+          :departDialog="true"
           :tableData="tableData"
           :loading="loading"
           :layerListName="'UserManage_Columns'"
@@ -100,14 +101,10 @@
     >
       <el-form :model="formValue" label-width="100px" size="small" :rules="rules" ref="formDialog">
         <el-form-item label="用户名称：" prop="cAdminName">
-          <el-input v-model="formValue.cAdminName" placeholder="请输入用户名称"></el-input>
+          <el-input v-model="formValue.cAdminName" placeholder="请输入用户名称" v-filter-special-char></el-input>
         </el-form-item>
         <el-form-item label="工号：" prop="CJobNumber">
-          <el-input-number
-            v-model="formValue.CJobNumber"
-            placeholder="请输入工号"
-            controls-position="right"
-          ></el-input-number>
+          <el-input v-filter-special-char v-model="formValue.CJobNumber" placeholder="请输入工号"></el-input>
         </el-form-item>
         <el-form-item label="所属部门：" prop="iDeptID">
           <DeptSelect
@@ -119,13 +116,6 @@
         </el-form-item>
         <el-form-item label="所属岗位：" prop="iRoleID">
           <RoleSelect :selectValue.sync="formValue.iRoleID" :allState="false"></RoleSelect>
-        </el-form-item>
-        <el-form-item label="级别：">
-          <el-radio-group v-model="formValue.Level">
-            <el-radio :label="1">基层</el-radio>
-            <el-radio :label="2">中层</el-radio>
-            <el-radio :label="3">高层</el-radio>
-          </el-radio-group>
         </el-form-item>
         <el-form-item label="性别：" v-show="!dialogtype">
           <el-radio-group v-model="formValue.cAdminSex">
@@ -149,17 +139,9 @@
             inactive-color="#ff4949"
           ></el-switch>
         </el-form-item>
-        <el-form-item label="过期时间：" prop="dExpireDate">
-          <el-date-picker
-            value-format="yyyy-MM-dd"
-            v-model="formValue.dExpireDate"
-            type="date"
-            placeholder="选择日期"
-          ></el-date-picker>
-        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button class="my-dialog-cancel" @click="dialogVisible = false">取 消</el-button>
+        <el-button class="my-dialog-cancel" @click="editFormSubmitCancle">取 消</el-button>
         <el-button class="my-dialog-submit" @click="editFormSubmit" :loading="sunBtnLoad">确 定</el-button>
       </div>
     </el-dialog>
@@ -169,6 +151,12 @@
       @modularDialogSubmit="modularDialogSubmit"
       :nodeID="dialognodeID"
     ></modularDialog>
+    <DepartDialog
+      :modulaBtnVisable.sync="modulaBtnVisable"
+      :modularDialogVisable.sync="departDialogVisable"
+      @departDialogSubmit="departDialogSubmit"
+      :nodeID="iDeptIDs"
+    />
   </div>
 </template>
  
@@ -187,18 +175,28 @@ import DeptSelect from "@common/components/form/DeptSelect";
 import RoleSelect from "@common/components/form/RoleSelect";
 import SelectTree from "@common/components/SelectTree";
 import modularDialog from "@features/SystemSetting/components/modularDialog";
+import DepartDialog from "@features/SystemSetting/components/DepartDialog";
 export default {
-  components: { modularDialog, SelectTree, SysTable, DeptSelect, RoleSelect },
+  components: {
+    modularDialog,
+    SelectTree,
+    SysTable,
+    DeptSelect,
+    RoleSelect,
+    DepartDialog
+  },
   data() {
     return {
       departAllList: [],
       selectValue: "",
       rules: {
         cAdminName: [
-          { required: true, message: "请输入用户名称", trigger: "blur" }
+          { required: true, message: "请输入用户名称", trigger: "blur" },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ],
         CJobNumber: [
-          { required: true, message: "请输入工号", trigger: "blur" }
+          { required: true, message: "请输入工号", trigger: "blur" },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ],
         iRoleID: [{ required: true, message: "请选择岗位", trigger: "blur" }],
         iDeptID: [{ required: true, message: "请选择部门", trigger: "blur" }],
@@ -208,7 +206,8 @@ export default {
             pattern: /^1[34578]\d{9}$/,
             message: "请输入正确的手机号",
             trigger: "blur"
-          }
+          },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ],
         dExpireDate: [
           { required: true, message: "请选择过期时间", trigger: "blur" }
@@ -218,7 +217,8 @@ export default {
             type: "email",
             message: "请输入正确的邮箱地址",
             trigger: ["blur"]
-          }
+          },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ]
       },
       modularList: [],
@@ -251,6 +251,7 @@ export default {
         cAdminTel: undefined,
         iIsLocked: false,
         iIsAllowChangePWD: true,
+        // IsAssignment: true,//是否可分派部门
         dExpireDate: undefined,
         cAdminEmail: undefined
       }, //添加弹窗信息
@@ -262,10 +263,12 @@ export default {
       },
       RoleList: [], //岗位数据
       modularDialogVisable: false, //功能模块弹窗
+      departDialogVisable: false, //部门权限
       dialognodeID: [], //功能模块tree弹窗选中值
       loading: true, //表格加载
       sunBtnLoad: false, //form提交加载
-      modulaBtnVisable: false //弹窗权限确定按钮加载状态
+      modulaBtnVisable: false, //弹窗权限确定按钮加载状态
+      iDeptIDs: []
     };
   },
   created() {
@@ -314,11 +317,7 @@ export default {
     //初始化密码
     resertUserPassWard() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要初始化密码的人员",
-          showClose: true
-        });
+        this.$myMessage("warning", "请选择需要初始化密码的用户");
         return;
       }
       this.$confirm("确定要初始化" + this.currentRow.cAdminName + "的密码么")
@@ -329,74 +328,44 @@ export default {
               this.sunBtnLoad = false;
               this.$message({
                 type: "success",
-                message: "成功初始化密码",
+                message: "成功初始化密码,初始化密码为123456",
                 showClose: true
               });
               this.getUserList();
             })
             .catch(() => {
-              this.$message({
-                type: "error",
-                message: "初始化密码失败",
-                showClose: true
-              });
+              this.$myMessage("error", "初始化密码失败");
             });
         })
         .catch(() => {
-          this.$message({
-            type: "warning",
-            message: "取消初始化密码",
-            showClose: true
-          });
+          this.$myMessage("warning", "取消初始化密码");
         });
     },
     //删除操作
     delUser() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要删除的数据",
-          showClose: true
-        });
+        this.$myMessage("warning", "请选择需要删除的用户");
         return;
       }
       this.$confirm("确定删除么")
         .then(() => {
-          this.sunBtnLoad = true;
           User.delUser(this.currentRow.iAdminID)
             .then(() => {
-              this.sunBtnLoad = false;
-              this.$message({
-                type: "success",
-                message: "成功删除数据",
-                showClose: true
-              });
+              this.$myMessage("success", "成功删除用户");
               this.getUserList();
             })
             .catch(() => {
-              this.$message({
-                type: "error",
-                message: "删除数据失败",
-                showClose: true
-              });
+              this.loading = false;
             });
         })
         .catch(() => {
-          this.$message({
-            type: "warning",
-            message: "取消删除数据",
-            showClose: true
-          });
+          this.$myMessage("warning", "取消删除用户");
         });
     },
     //编辑用户按钮点击
     editUser() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要编辑的数据",
-          showClose: true
-        });
+        this.$myMessage("warning", "请选择需要编辑的用户");
         return;
       }
       this.formValue = _.assign({}, this.currentRow);
@@ -404,6 +373,9 @@ export default {
       this.formValue.iIsAllowChangePWD = Boolean(
         this.formValue.iIsAllowChangePWD
       );
+      // this.formValue.IsAssignment = Boolean(
+      //   this.formValue.IsAssignment
+      // );
       this.dialogVisible = true;
       this.dialogtype = 1;
     },
@@ -422,12 +394,22 @@ export default {
         cAdminEmail: undefined,
         iIsLocked: false,
         iIsAllowChangePWD: true,
+        // IsAssignment: true,
         dExpireDate: undefined
       }; //添加弹窗信息
     },
     //弹窗关闭
     handleClose(done) {
-      done();
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        done();
+      });
+    },
+    editFormSubmitCancle() {
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        this.dialogVisible = false;
+      });
     },
     //修改提交
     editFormSubmit() {
@@ -441,11 +423,7 @@ export default {
             .then(res => {
               this.sunBtnLoad = false;
               this.dialogVisible = false;
-              this.$message({
-                type: "success",
-                message: "修改用户成功",
-                showClose: true
-              });
+              this.$myMessage("success", "修改用户成功");
               this.getUserList();
             })
             .catch(res => {
@@ -457,11 +435,7 @@ export default {
             .then(res => {
               this.sunBtnLoad = false;
               this.dialogVisible = false;
-              this.$message({
-                type: "success",
-                message: "新增用户成功",
-                showClose: true
-              });
+              this.$myMessage("success", "新增用户成功");
               this.getUserList();
             })
             .catch(res => {
@@ -471,22 +445,23 @@ export default {
       });
     },
     //权限管理模块打开
-    modularDialogOpen(row) {
-      System.getUserAuthority(row.iAdminID).then(res => {
-        let dialognodeID = res.data.Data.Result;
-        this.dialognodeID = _.map(dialognodeID, "iFunID");
-      });
-      this.modularDialogVisable = true;
+    modularDialogOpen(row, type) {
+      if (type === "modular") {
+        System.getUserAuthority(row.iAdminID).then(res => {
+          let dialognodeID = res.data.Data.Result;
+          this.dialognodeID = _.map(dialognodeID, "iFunID");
+        });
+        this.modularDialogVisable = true;
+      } else {
+        this.iDeptIDs = row.iDeptIDs ? row.iDeptIDs.split(",") : [];
+        this.departDialogVisable = true;
+      }
       this.modulaBtnVisable = false;
     },
     //权限管理模块提交
     modularDialogSubmit(functionIds) {
       if (!functionIds.length) {
-        this.$message({
-          type: "error",
-          message: "权限不能为空",
-          showClose: true
-        });
+        this.$myMessage("error", "权限不能为空");
         this.modulaBtnVisable = false;
         return;
       }
@@ -499,15 +474,26 @@ export default {
         .then(res => {
           this.modulaBtnVisable = false;
           this.modularDialogVisable = false;
-          this.$message({
-            type: "success",
-            message: "修改权限成功",
-            showClose: true
-          });
+          this.$myMessage("success", "修改权限成功");
           this.getUserList();
         })
         .catch(() => {
           this.modulaBtnVisable = false;
+        });
+    },
+    //部门权限修改
+    departDialogSubmit(departID) {
+      let currentRow = this.currentRow;
+      currentRow.iDeptIDs = departID;
+      User.editUser(currentRow)
+        .then(res => {
+          this.modulaBtnVisable = false;
+          this.departDialogVisable = false;
+          this.$myMessage("success", "修改部门权限成功");
+          this.getUserList();
+        })
+        .catch(res => {
+          this.sunBtnLoad = false;
         });
     }
   }

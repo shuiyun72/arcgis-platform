@@ -51,7 +51,7 @@ OpenLayer地图基础数据操作
 class BaseMap {
 
     constructor() {
-        this._DefaultProjection = "EPSG:3857";
+        this._DefaultProjection = "EPSG:" + MapConfigure.MapExtent.SpatialReference;
         //定义坐标系
         _.forEach(MapConfigure.CoordinateDefinition, InfoValue => {
             if (InfoValue.IsDeFault) {
@@ -62,46 +62,47 @@ class BaseMap {
         register(proj4); //坐标注册
         this._Projection = getProjection(this._DefaultProjection);
         this._Projection.setExtent([MapConfigure.MapExtent.XMin, MapConfigure.MapExtent.YMin, MapConfigure.MapExtent.XMax, MapConfigure.MapExtent.YMax]);
+        //this._Projection.setExtent([344577.88, 2381397.91, 617340.63, 5036050.38]);
         this._ProjectionExtent = this._Projection.getExtent();
         this.select = new Select({
-                active: false
-            }),
-            this.mapInstance = {
-                map: undefined,
-                groups: {
-                    tileLayerGroup: undefined,
-                    vectorLayerGroup: undefined,
-                    businessLayerGroup: undefined,
-                    tempLayerGroup: undefined,
-                    spatialSearchLayerGroup: undefined
-                },
-                businessLayers: {
-                    polygonLayer: new Vectorlayer(),
-                    lineStringLayer: new Vectorlayer(),
-                    pointLayer: new Vectorlayer(),
-                    monitorLayer: new Vectorlayer({
-                        source: new VectorSource()
-                    }),
-                },
-                tempLayers: {
-                    drawAndModifyLayer: new Vectorlayer(),
-                    bufferLayr: new Vectorlayer()
-                },
-                spatialSearchLayers: {},
-                overlay: undefined,
-                interactions: {
-                    select: this.select,
-                    modify: new Modify({
-                        active: false,
-                        features: this.select.getFeatures()
-                    }),
-                    snap: new Snap({
-                        source: new VectorSource()
-                    })
-                },
+            active: false
+        });
+        this.mapInstance = {
+            map: undefined,
+            groups: {
+                tileLayerGroup: undefined,
+                vectorLayerGroup: undefined,
+                businessLayerGroup: undefined,
+                tempLayerGroup: undefined,
+                spatialSearchLayerGroup: undefined
+            },
+            businessLayers: {
+                polygonLayer: new Vectorlayer(),
+                lineStringLayer: new Vectorlayer(),
+                pointLayer: new Vectorlayer(),
+                monitorLayer: new Vectorlayer({
+                    source: new VectorSource()
+                }),
+            },
+            tempLayers: {
+                drawAndModifyLayer: new Vectorlayer(),
+                bufferLayr: new Vectorlayer()
+            },
+            spatialSearchLayers: {},
+            overlay: undefined,
+            interactions: {
+                select: this.select,
+                modify: new Modify({
+                    active: false,
+                    features: this.select.getFeatures()
+                }),
+                snap: new Snap({
+                    source: new VectorSource()
+                })
+            },
 
 
-            }
+        }
 
     }
 
@@ -119,17 +120,20 @@ class BaseMap {
         let businessLayersGroup = []
         let spatialSearchLayerGroup = []
 
-        //遥感图加载
-        let _SatellLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlSatell), "SatellLayer", false);
-        _tileLayers.push(_SatellLayer);
+        //遥感图加载 
+        // let _SatellLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlSatell), "SatellLayer", true);
+        // _tileLayers.push(_SatellLayer);
+        // _tileLayers.push(this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlCADVector), "CADVectorLayer", true));
 
+        let _VectorLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlPipeLine), "VectorLayer", true);
+        _vectorLayers.push(_VectorLayer);
         //街道图加载
-        let _StreetLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlStreet), "StreetLayer", false);
+        let _StreetLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlStreet), "StreetLayer", true);
         _tileLayers.push(_StreetLayer);
 
-        //地形图加载
-        let _TerrainLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlTerrain), "TerrainLayer", true);
-        _tileLayers.push(_TerrainLayer);
+        // //地形图加载
+        // let _TerrainLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlTerrain), "TerrainLayer", true);
+        // _tileLayers.push(_TerrainLayer);
 
         groups.tileLayerGroup = new LayerGroup({
             layers: _tileLayers
@@ -147,12 +151,16 @@ class BaseMap {
 
         //管网数据加载==>管线，阀门，消防栓等
         _.forEach(MapConfigure.LayerConfiguration, ObjValue => {
-            let _VectorLayer = this.createVectorlayer(this.createVectorSource(ObjValue.layerIndex), ObjValue.layerName, true);
-            _vectorLayers.push(_VectorLayer);
+            // let _VectorLayer = this.createVectorlayer( new Vectorlayer({
+            //     url:MapConfigure.url.urlPipeLine + "/" + ObjValue.layerIndex + "?f=pjson"
+            // }))
+
+            // let _VectorLayer = this.createVectorlayer(this.createVectorSource(ObjValue.layerIndex), ObjValue.layerName, true);
+            // _vectorLayers.push(_VectorLayer);
             //空间查询
             if (ObjValue.isSpatialSearch) {
                 this.mapInstance.spatialSearchLayers[ObjValue.layerName] = new Vectorlayer({
-                    style: mapStyle.getStyle(ObjValue.layerName)
+                    style: mapStyle.getStyle(ObjValue.IconName)
                 })
             }
         });
@@ -198,9 +206,9 @@ class BaseMap {
             view: new View({
                 projection: this._Projection,
                 extent: this._ProjectionExtent || undefined,
-                center: getCenter(this._ProjectionExtent),
-                zoom: 3.3,
-                minZoom:3
+                center: [MapConfigure.MapCenter.Center_X, MapConfigure.MapCenter.Center_Y],
+                zoom: MapConfigure.MapCenter.Center_Zoom,
+                minZoom: MapConfigure.MapCenter.Min_Zoom || 3
             })
         });
         return this;
@@ -268,7 +276,7 @@ class BaseMap {
         let esrijsonFormat = new EsriJSON();
         let vectorSource = new VectorSource({
             loader: (extent, resolution, projection) => {
-                // let Extent4490 = transformExtent(extent, "EPSG:4547", "EPSG:4490");
+                // let Extent4490 = transformExtent(extent, "EPSG:4326", "EPSG:4490");
                 // let url = '/9/query/?f=json&' +
                 //     'returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=' +
                 //     encodeURIComponent('{"xmin":' + Extent4490[0] + ',"ymin":YMin: ' + Extent4490[1] + ',"xmax":XMax: ' + Extent4490[2] + ',"ymax":YMax: ' + Extent4490[3] + ',"spatialReference":{"wkid":4490}}') +
@@ -299,11 +307,12 @@ class BaseMap {
                     console.log(err);
                 });
             },
+            // url: MapConfigure.url.urlPipeLine + "/" + _layerURL + "?f=pjson",
             strategy: tileStrategy(createXYZ({
                 tileSize: 512
             }))
         });
-        console.log('createVectorSource', vectorSource.getFeatures())
+        // console.log('createVectorSource', vectorSource.getFeatures())
         return vectorSource;
     }
 
@@ -313,7 +322,7 @@ class BaseMap {
      * @param {矢量图层编号} _layerURL 
      * @param {坐标对象} CoordinatesArray
      */
-    async createSpatialSearchVectorSource(_layerURL, CoordinatesArray,extent) {
+    async createSpatialSearchVectorSource(_layerURL, CoordinatesArray, extent) {
         let geometryStr = {
             // "rings": [
             //     [
@@ -324,11 +333,11 @@ class BaseMap {
             //         [524553.1905414565, 3958482.028005024]
             //     ]
             // ],
-             "rings":CoordinatesArray,
+            "rings": CoordinatesArray,
             "_ring": 0,
             "spatialReference": {
-                "wkid": 4547,
-                "latestWkid": 4547
+                "wkid": MapConfigure.MapExtent.SpatialReference,
+                "latestWkid": MapConfigure.MapExtent.SpatialReference
             },
             "cache": {
                 "_extent": {
@@ -337,8 +346,8 @@ class BaseMap {
                     "xmax": extent[2],
                     "ymax": extent[3],
                     "spatialReference": {
-                        "wkid": 4547,
-                        "latestWkid": 4547
+                        "wkid": MapConfigure.MapExtent.SpatialReference,
+                        "latestWkid": MapConfigure.MapExtent.SpatialReference
                     }
                 },
                 "_partwise": null
@@ -347,22 +356,23 @@ class BaseMap {
         //_layerURL = 9
         let url = '/' + _layerURL + '/query/?f=json&' +
             'returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=' + JSON.stringify(geometryStr) +
-            '&geometryType=esriGeometryPolygon&inSR=4547&outFields=*' +
-            '&outSR=4547';
+            '&geometryType=esriGeometryPolygon&inSR=' + MapConfigure.MapExtent.SpatialReference + '&outFields=*' +
+            '&outSR=' + MapConfigure.MapExtent.SpatialReference;
 
         let esrijsonFormat = new EsriJSON();
-        
-       return mapRequest.GetGisReset(url).then(resultValue => {
+
+        return mapRequest.GetGisReset(url).then(resultValue => {
             let sourceData = JSON.parse(resultValue.data);
             let features = esrijsonFormat.readFeatures(sourceData, {
-                featureProjection: this._Projection
+                featureProjection: this._Projection,
+                dataProjection: this._Projection,
             });
             //console.log('createSpatialSearchVectorSource', features);
             return features
         }).catch(err => {
             console.log(err);
         });
-        
+
     }
 
     // /**

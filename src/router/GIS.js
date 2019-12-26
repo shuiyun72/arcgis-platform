@@ -1,7 +1,7 @@
 import HomeDataMain from "@features/Home/HomeDataMain.vue";
 export default {
   path: "/GIStwo",
-  component:(res) => require(['@features/Home/components/twoCol'], res),
+  component: (res) => require(['@features/Home/components/twoCol'], res),
   children: [{
     path: "/GIS",
     name: "GIS",
@@ -13,7 +13,18 @@ export default {
       {
         path: "DataCount",
         name: "DataCount",
-        component: (res) => require(['@features/GIS/DataCount'], res)
+        component: (res) => require(['@features/GIS/DataCount/'], res),
+        children: [
+          {
+            path: 'fastCount',
+            name: 'fastCount',
+            component: (res) => require(['@features/GIS/DataCount/fastCount'], res),
+          }, {
+            path: 'customCount',
+            name: 'customCount',
+            component: (res) => require(['@features/GIS/DataCount/customCount'], res),
+          }
+        ]
       },
       {
         path: "DeviceShow",
@@ -39,11 +50,6 @@ export default {
         }]
       },
       {
-        path: "DeviceManagement",
-        name: "DeviceManagement",
-        component: (res) => require(['@features/GIS/DeviceManagement'], res)
-      },
-      {
         path: "PipeAnalysis",
         name: "PipeAnalysis",
         components: {
@@ -57,27 +63,23 @@ export default {
           path: 'GuanFa',
           name: 'GuanFa',
           component: (res) => require(['@features/GIS/PipeAnalysis/GuanFa'], res)
-        }, {
-          path: 'LianTongXing',
-          name: 'LianTongXing',
-          component: (res) => require(['@features/GIS/PipeAnalysis/LianTongXing'], res)
-        }, {
-          path: 'HuoZai',
-          name: 'HuoZai',
-          component: (res) => require(['@features/GIS/PipeAnalysis/HuoZai'], res)
-        }, {
+        },
+        // {
+        //   path: 'LianTongXing',
+        //   name: 'LianTongXing',
+        //   component: (res) => require(['@features/GIS/PipeAnalysis/LianTongXing'], res)
+        // },
+        {
           path: 'HengDuanMian',
           name: 'HengDuanMian',
           component: (res) => require(['@features/GIS/PipeAnalysis/HengDuanMian'], res)
-        }, {
-          path: 'ZongDuanMian',
-          name: 'ZongDuanMian',
-          component: (res) => require(['@features/GIS/PipeAnalysis/ZongDuanMian'], res)
-        }, {
-          path: 'ChaiQian',
-          name: 'ChaiQian',
-          component: (res) => require(['@features/GIS/PipeAnalysis/ChaiQian'], res)
-        }]
+        },
+        // {
+        //   path: 'ZongDuanMian',
+        //   name: 'ZongDuanMian',
+        //   component: (res) => require(['@features/GIS/PipeAnalysis/ZongDuanMian'], res)
+        // }
+        ]
       },
       {
         path: "DataKPI",

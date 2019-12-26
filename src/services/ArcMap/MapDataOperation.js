@@ -105,7 +105,11 @@ class MapDataOperation {
         }
         //构造查询条件
         let query = new this.modules.query();
-        query.outFields = [_GroupField];
+        if (_GroupField && _GroupField instanceof Array) {
+            query.outFields = _GroupField
+        } else {
+            query.outFields = [_GroupField];
+        }
         query.returnGeometry = false;
         query.where = "1=1";
         query.groupByFieldsForStatistics = [_GroupField];
@@ -204,6 +208,7 @@ class MapDataOperation {
             gisField.push(objValue.outStatisticFieldName);
         });
         query.outFields = gisField; //输出字段
+        query.orderByFields = _GroupField//排序字段
         query.outStatistics = outStatistics; //统计字段
         //添加空间数据
         if (!_.isNull(_GData)) {
@@ -245,7 +250,10 @@ class MapDataOperation {
         }
 
         Promise.all(taskList).then(result => {
-            let resultFeatures = _.map(result, "features")[0];
+            let resultFeatures = []
+            _.forEach(result, item => {
+                resultFeatures.push(...item.features)
+            })
             let returnValue = _.map(resultFeatures, resultValue => {
                 return resultValue.attributes
             })
@@ -263,7 +271,7 @@ class MapDataOperation {
      * @param {*} _layerUrl         选择图层
      * @param {*} allDoneCallback   回调函数
      */
-    featureQuery(_GData, _SearchCondition, _layerUrl, allDoneCallback) {
+    featureQuery(_GData, _SearchCondition, _layerUrl, allDoneCallback , errorCallback) {
         //声明空间数据查询条件
         let query = this.modules.query();
         query.outFields = ["*"];
@@ -279,20 +287,43 @@ class MapDataOperation {
         } else {
             query.where = " 1=1 ";
         }
-        let queryTask = new this.modules.QueryTask(_layerUrl);
-        //进行组合开始
-        let SearchQuery = new Promise((resolve, reject) => {
-            queryTask.execute(query, handleQueryResult => {
-                resolve(handleQueryResult);
-            }, errorHandler => {
-                reject(errorHandler);
+        let taskList = []
+        if (_layerUrl instanceof Array) {
+            _.forEach(_layerUrl, objvalue => {
+                let queryTask = new this.modules.QueryTask(objvalue);
+                //进行组合开始
+                let SearchQuery = new Promise((resolve, reject) => {
+                    queryTask.execute(query, handleQueryResult => {
+                        resolve(handleQueryResult);
+                    }, errorHandler => {
+                        reject(errorHandler);
+                    });
+                });
+                taskList.push(SearchQuery);
             });
-        });
+        } else {
+            let queryTask = new this.modules.QueryTask(_layerUrl);
+            //进行组合开始
+            let SearchQuery = new Promise((resolve, reject) => {
+                queryTask.execute(query, handleQueryResult => {
+                    resolve(handleQueryResult);
+                }, errorHandler => {
+                    reject(errorHandler);
+                });
+            });
+            taskList.push(SearchQuery);
+        }
+
         //返回查询数据集合
-        SearchQuery.then(result => {
-            allDoneCallback(result.features);
+        Promise.all(taskList).then(result => {
+            let resultFeatures = []
+            _.forEach(result, item => {
+                resultFeatures.push(...item.features)
+            })
+            allDoneCallback(resultFeatures);
         }).catch(err => {
             console.log("数据查询错误", err);
+            errorCallback(err)
         });
     }
 
@@ -324,11 +355,18 @@ class MapDataOperation {
         //执行任务列表
         let taskList = []
         let FeaturequeryTask = new this.modules.QueryTask(layerURL); //构建图层查询任务
+        let handleQueryResultAll = [] //两端的管线
         //管线图加载
         _.forEach(featureCollection, objValue => {
             let queryTask = new Promise((resolve, reject) => {
                 //缓冲池
-                let buffer = this.modules.geometryEngine.buffer([objValue.geometry], [1], "meters", true);
+                let buffer
+                if (MapConfigure.MapExtent.isCurved) {
+                    buffer = this.modules.geometryEngine.geodesicBuffer([objValue.geometry], [1], "meters", true);
+
+                } else {
+                    buffer = this.modules.geometryEngine.buffer([objValue.geometry], [1], "meters", true);
+                }
                 //空间查询条件
                 let query = this.modules.query();
                 query.outFields = ["*"];
@@ -339,20 +377,21 @@ class MapDataOperation {
                 FeaturequeryTask.execute(query, handleQueryResult => {
                     let ResultValue = [];
                     if (handleQueryResult.features.length > 0) {
+                        handleQueryResultAll.push(handleQueryResult.features[0])
                         let coordition = handleQueryResult.features[0].geometry.paths[0][0];
                         let coordition1 = handleQueryResult.features[0].geometry.paths[0][1];
 
-                        ResultValue.push(this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
-                            wkid: MapConfigure.MapExtent.SpatialReference
-                        })));
-
-                        ResultValue.push(this.modules.Point(coordition1[0], coordition1[1], new this.modules.SpatialReference({
-                            wkid: MapConfigure.MapExtent.SpatialReference
-                        })));
-
-                        // ResultValue = this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
+                        // ResultValue.push(this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
                         //     wkid: MapConfigure.MapExtent.SpatialReference
-                        // }));
+                        // })));
+
+                        // ResultValue.push(this.modules.Point(coordition1[0], coordition1[1], new this.modules.SpatialReference({
+                        //     wkid: MapConfigure.MapExtent.SpatialReference
+                        // })));
+
+                        ResultValue = this.modules.Point(coordition[0], coordition[1], new this.modules.SpatialReference({
+                            wkid: MapConfigure.MapExtent.SpatialReference
+                        }));
                     }
                     resolve(ResultValue);
                 }, errorHandler => {
@@ -365,16 +404,16 @@ class MapDataOperation {
         Promise.all(taskList).then(result => {
             let features = [];
             _.forEach(result, objValue => {
-                if(_.isArray(objValue)){
+                if (_.isArray(objValue)) {
                     _.forEach(objValue, dOBJValue => {
                         let graphic = new this.modules.graphic(dOBJValue, pointSymbol);
                         features.push(graphic);
                     });
-                }else{
+                } else {
                     let graphic = new this.modules.graphic(objValue, pointSymbol);
                     features.push(graphic);
                 }
-                
+
             });
             let featureSet = new this.modules.FeatureSet();
             featureSet.features = features;
@@ -383,9 +422,15 @@ class MapDataOperation {
             };
             //连通分析执行
             GPServices.execute(params, resultValue => {
-                let distinctValue = _.map(resultValue, objvalue => {
-                    return objvalue.value.features;
+                // resultValue.push(...handleQueryResultAll)
+                let distinctValue = []
+                _.forEach(resultValue, objvalue => {
+                    distinctValue.push(...objvalue.value.features)
                 });
+                _.forEach(distinctValue, objvalue => {
+                    objvalue.attributes.OBJECTID = objvalue.attributes.PID
+                });
+                distinctValue.push(...handleQueryResultAll)
                 allDoneCallback instanceof Function && allDoneCallback(distinctValue);
             }, err => {
                 allDoneCallback instanceof Function && allDoneCallback([]);

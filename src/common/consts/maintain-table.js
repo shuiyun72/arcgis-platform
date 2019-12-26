@@ -34,12 +34,18 @@
   export const Mai_EventBills_Columns = [
     // { name: "上报时间", value: "UpTime", field: 'UpTime' },
 	{ text: "上报类型", value: "EventFromName", field: 'EventFromName' },
+	// { text: "工单编号", value: "OrderCode", width: 100, field: 'OrderCode' },
 	{ text: "事件编号", value: "EventCode", width: 100, field: 'EventCode' },
-	{ text: "处理时间", value: "ExecTime", field: 'ExecTime' },
-	{ text: "紧急状态", value: "UrgencyId", field: 'UrgencyId' },
-	{ text: "事件状态", value: "OperId", field: 'OperId' },
+	{ text: "处理时间", value: "ExecTime", field: "ExecTime" },
+	// { text: "紧急状态", value: "UrgencyId", field: 'UrgencyId' },
+	{ text: "紧急状态", value: "UrgencyName", field: 'UrgencyName' },
+	// { text: "事件状态", value: "OperId", field: 'OperId' },
+	{ text: "事件状态", value: "IsValidName", field: 'IsValidName' },
 	{
-		text: "事件类型", value: "EventTypeName", field: '8', templet: function (row) {
+		// text: "事件类型", value: "EventTypeName", field: '8', templet: function (row) {
+		// 	return `<span class="el-tag">${row.EventTypeName}</span>`
+		// }
+		text: "事件类型", value: "EventTypeName", field: 'EventTypeName', templet: function (row) {
 			return `<span class="el-tag">${row.EventTypeName}</span>`
 		}
 	},
@@ -47,8 +53,10 @@
 	{ text: "上报人", value: "PersonName", field: 'PersonName' },
 	{ text: "步骤处理人", value: "ExecPersonName", field: 'ExecPersonName' },
 	{ text: "处理单位", value: "ExecDetpName", field: 'ExecDetpName' },
-	{ text: "联系人", value: "LinkMan", field: 'LinkMan' },
-	{ text: "联系电话", value: "LinkCall", width: 96, field: 'LinkCall' },
+	// { text: "联系人", value: "LinkMan", field: 'LinkMan' },
+	{ text: "保修人", value: "LinkMan", field: 'LinkMan' },
+	// { text: "联系电话", value: "LinkCall", width: 96, field: 'LinkCall' },
+	{ text: "保修电话", value: "LinkCall", width: 96, field: 'LinkCall' },
 	{ text: "更新时间", value: "EventUpdateTime", field: 'EventUpdateTime' }
  ]
 
@@ -57,12 +65,13 @@
  export const Mai_WaitDoneBills_Columns = [
    // { name: "上报时间", value: "UpTime", field: 'UpTime' },
 	{ text: "上报类型", value: "EventFromName", field: 'EventFromName' },
+	//{ text: "工单编号", value: "OrderCode", width: 100, field: 'OrderCode' },
 	{ text: "事件编号", value: "EventCode", width: 100, field: 'EventCode' },
 	{ text: "处理时间", value: "ExecTime", field: 'ExecTime' },
-	{ text: "紧急状态", value: "UrgencyId", field: 'UrgencyId' },
-	{ text: "事件状态", value: "OperId", field: 'OperId' },
+	{ text: "紧急状态", value: "UrgencyName", field: 'UrgencyName' },
+	{ text: "事件状态", value: "IsValidName", field: 'IsValidName' },
 	{
-		text: "事件类型", value: "EventTypeName", field: '8', templet: function (row) {
+		text: "事件类型", value: "EventTypeName", field: 'EventTypeName', templet: function (row) {
 			return `<span class="el-tag">${row.EventTypeName}</span>`
 		}
 	},

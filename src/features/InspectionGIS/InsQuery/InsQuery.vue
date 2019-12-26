@@ -3,10 +3,6 @@
     <div id="mapx" class="mapx" style="width:100%;height:100%;position: relative;">
       <resize-observer @notify="handleResize" />
     </div>
-    <!-- <div v-if="routeName == 'InsOverView'" class="InsOverView">
-      <ins-over-view></ins-over-view>
-    </div>-->
-
     <div id="popup">
       <MapDialog
         v-if="dialogShow == 'MapDialog'"
@@ -21,7 +17,6 @@
 </template>
 <script>
 // import axios from "axios";
-import InsOverView from "@features/InspectionGIS/InsOverView";
 import BaseMap from "@services/OpenLayers/BaseMap";
 import MapNavigate from "@services/OpenLayers/MapNavigate";
 import MapConfigure from "@common/consts/OpenLayersConfig/MapConfigure";
@@ -31,7 +26,6 @@ import { setTimeout } from "timers";
 
 export default {
   components: {
-    InsOverView,
     MapDialog,
     mapLayer
   },
@@ -55,8 +49,8 @@ export default {
     this.$bus.on("endEditFeature", this.endEditFeature);
     this.$bus.on("setEditFeatureState", this.setEditFeatureState); //开启或结束编辑 value > ture/false
     this.$bus.on("setSpatialSearchOnMap", this.setSpatialSearchOnMap);
-    this.$bus.on("OffPointermoveControl", this.OffPointermoveControl);
-    this.$bus.on("onPointermoveControl", this.onPointermoveControl);
+    this.$bus.on("OffPointermoveControl", this.OffPointermoveControl);//关闭开启鼠标hover点显示信息
+    this.$bus.on("onPointermoveControl", this.onPointermoveControl);//开启鼠标hover点显示信息
 
     this.$bus.on(
       "setSpatialSearchLayerGroupDisplay",
@@ -84,8 +78,8 @@ export default {
     this.$bus.off("endEditFeature", this.removeInteendEditFeatureractions);
     this.$bus.off("setEditFeatureState", this.setEditFeatureState); //开启或结束编辑 value > ture/false
     this.$bus.off("setSpatialSearchOnMap", this.setSpatialSearchOnMap);
-    this.$bus.off("onPointermoveControl", this.onPointermoveControl);
-    this.$bus.on("OffPointermoveControl", this.OffPointermoveControl);
+    this.$bus.off("onPointermoveControl", this.onPointermoveControl);//开启鼠标hover点显示信息
+    this.$bus.on("OffPointermoveControl", this.OffPointermoveControl);//关闭开启鼠标hover点显示信息
 
     this.$bus.off(
       "setSpatialSearchLayerGroupDisplay",
@@ -174,12 +168,14 @@ export default {
       }
     },
     handleResize() {
-      this.resizeMapNavigate();
+      this.resizeMapNavigate()
     },
+    //关闭鼠标hover点显示信息
     OffPointermoveControl() {
       console.log("off");
       this.MapMethods.OffPointermoveControl();
     },
+    //开启鼠标hover点显示信息
     onPointermoveControl() {
       console.log("on");
       this.MapMethods.onPointermoveControl();
@@ -282,7 +278,6 @@ export default {
         parseInt(document.querySelector(".mapWraperWidthResize").clientWidth);
       height =
         height || parseInt(document.querySelector(".main-body").clientHeight);
-      console.log("InsQueryResizeMapNavigate", width);
       this.MapMethods.resizeMapNavigate(width, height);
     },
     /**设置矢量图层是否显示
@@ -326,28 +321,21 @@ export default {
      * @param {点数组} point
      * @param {间隔} interValTime
      * @param {动作} action |start|stop|pause|clear|
-     * @param {定时器Id} interVal
+     * @param {回调函数} callBack
      * {}
      */
     plotAnimateControl(
       point,
       interValTime,
       action,
-      interValId,
       callBack,
-      index
     ) {
-      let a = this.MapMethods.plotAnimateControl(
+      this.MapMethods.plotAnimateControl(
         point,
         interValTime,
         action,
-        interValId,
-        index
+        callBack
       );
-      // console.log(a)
-      if (callBack) {
-        callBack(a);
-      }
     },
     /**在地图上绘制Polygon(geomArray和nameArray的数目和顺序都要一致)
      *

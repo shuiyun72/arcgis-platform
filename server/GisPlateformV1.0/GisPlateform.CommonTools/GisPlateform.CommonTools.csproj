@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="CalculateCycle.cs" />
     <Compile Include="CurveHeng.cs" />
+    <Compile Include="FileFactory.cs" />
     <Compile Include="ImageFactory.cs" />
     <Compile Include="Sha1Helper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

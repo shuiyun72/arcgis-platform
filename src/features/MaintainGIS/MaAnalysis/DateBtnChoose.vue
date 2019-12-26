@@ -89,7 +89,6 @@ export default {
   created() {
     this.onLoadData();
     this.GetData();
-    console.log(this.labelWidth);
   },
   methods: {
     onLoadData() {

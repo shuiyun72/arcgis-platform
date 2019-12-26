@@ -20,7 +20,7 @@
         </el-col>
         <el-col :span="3" :offset="1">
           <el-button class="my-search" size="mini" @click="GetData" 
-          v-if="$options.filters.btnTree('/api/InspectionStatistics/GetEventTypeTable' ,$route.meta.iFunID) && $options.filters.btnTree('/api/InspectionStatistics/GetEventTypePieChart' ,$route.meta.iFunID)">查询</el-button>
+          v-if="$options.filters.btnTree('/api/InspectionStatistics/GetEventTypeTable' ,$route.name) && $options.filters.btnTree('/api/InspectionStatistics/GetEventTypePieChart' ,$route.name)">查询</el-button>
         </el-col>
       </el-row>
     </el-form>
@@ -45,6 +45,8 @@ import { ExportExcel } from "@util";
 import TableFormTitle from "@common/components/TableFormTitle";
 import InsTable from "@features/InspectionGIS/components/InsTable";
 import InsChart from "@features/InspectionGIS/InsAnalysis/components/InsChart.vue";
+import utilData from "@util/utilData";
+
 export default {
   components: {
     TableFormTitle,
@@ -56,11 +58,14 @@ export default {
       loading:false,
       flexible:false,//是否收缩左侧表格
       squareQueryRawTableData: [], //搜索结果数据
-      dataValue: ["2001-01-02", "2019-05-22"]
+      dataValue: ["2018-01-01", "2026-12-31"]
     };
   },
   props: ["loading"],
   created() {
+    let current = utilData.getCurrentDate();
+    let dataTime = utilData.myformatStr(current);
+    this.dataValue = ["2001-01-02",dataTime];
     this.GetData();
   },
   // updated(){
@@ -68,9 +73,16 @@ export default {
   // },
   methods: {
     GetData() {
+         debugger;
       this.loading = true;
-      let _startTime = this.dataValue[0];
-      let _endTime = this.dataValue[1];
+      let _startTime = this.dataValue && this.dataValue[0];
+      let _endTime = this.dataValue &&  this.dataValue[1];
+   
+      if(_startTime ==null || _endTime == null){
+          this.$myMessage("warning", "请选择时间");
+          this.loading = false;
+          return;
+      }
       InspectionStatistics.EventTypeExcel(_startTime, _endTime).then(res => {
         this.loading = false;
         this.squareQueryRawTableData = res.data.Data.Result;

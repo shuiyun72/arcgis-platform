@@ -9,7 +9,7 @@
           :selectLayerValue.sync="selectLayerValue"
           @searchFnc="choosePipe"
           :listViewColumn.sync="listViewColumn"
-          v-if="$options.filters.btnTree('choose' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('choose' ,$route.name)"
         ></AnalysisSelect>
         <template v-for="item in btnList">
           <el-button
@@ -18,7 +18,7 @@
             :key="item.text"
             :class="item.class"
             @click="btnChange(item.text)"
-            v-if="$options.filters.btnTree(item.model ,$route.meta.iFunID)"
+            v-if="$options.filters.btnTree(item.model ,$route.name)"
           >
             <i class="iconfont" :class="item.icon"></i>
             {{item.text}}
@@ -58,7 +58,8 @@ export default {
   },
   data() {
     return {
-      listViewColumn:'',//表格表头
+      loading: false,
+      listViewColumn: "", //表格表头
       flexible: false, //是否收缩左侧表格
       gpJoinAnalysisData: [],
       selectLayerValue: [], //选中图层
@@ -76,12 +77,12 @@ export default {
         {
           text: "导出",
           class: "my-export",
-          model:'export'
+          model: "export"
         },
         {
           text: "清除",
           class: "my-clean",
-           model:'clear'
+          model: "clear"
         }
       ]
     };
@@ -102,7 +103,7 @@ export default {
       this.layerData = FeatureLayerOperation.getLayer(LayerType.PipeTypeNO);
       this.selectLayerValue.push(this.layerData[0].id);
       this.selectLayerValue.push(this.layerData[0].children[0].id);
-      this.listViewColumn = this.layerData[0].children[0].listViewColumn
+      this.listViewColumn = this.layerData[0].children[0].listViewColumn;
     },
     btnChange(val) {
       switch (val) {
@@ -129,11 +130,10 @@ export default {
           GPResult => {
             this.loading = false;
             this.gpJoinAnalysisData = GPResult;
-
+            this.ConnectivitySearchFnc();
+            console.log(GPResult);
             //获取数据
-            if (GPResult.length > 0) {
-              this.ConnectivitySearchFnc();
-            } else {
+            if (GPResult.length === 0) {
               this.$message({
                 type: "warning",
                 message: "两点之间没有连通的管线",
@@ -145,8 +145,8 @@ export default {
       });
     },
     ConnectivitySearchFnc() {
-      this.$bus.emit("pipeLineView", this.gpJoinAnalysisData[0]); //高亮管线
-      this.ConnectedDataTotal = _.map(this.gpJoinAnalysisData[0], "attributes");
+      this.$bus.emit("pipeLineView", this.gpJoinAnalysisData); //高亮管线
+      this.ConnectedDataTotal = _.map(this.gpJoinAnalysisData, "attributes");
     },
     clearResult() {
       this.ConnectedDataTotal = [];

@@ -42,10 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventOperation\IEventFromDAL.cs" />
     <Compile Include="EventOperation\IEventManageDAL.cs" />
     <Compile Include="EventOperation\IEventStartForMaintainDAL.cs" />
     <Compile Include="IAttendanceRecordDAL.cs" />
     <Compile Include="ICellphoneManageDAL.cs" />
+    <Compile Include="ICurrentPositonDAL.cs" />
     <Compile Include="IDepartmentDAL.cs" />
     <Compile Include="InspectionMonitor\IMonitorDAL.cs" />
     <Compile Include="InspectionPlan\IPlanLineDAL.cs" />

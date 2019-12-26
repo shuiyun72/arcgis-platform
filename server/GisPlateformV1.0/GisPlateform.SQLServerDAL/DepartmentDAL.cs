@@ -25,18 +25,59 @@ namespace GisPlateform.SQLServerDAL
 
         public MessageEntity Add(P_Department department)
         {
+            if (IsExist(department))
+            {
+                return MessageEntityTool.GetMessage(ErrorType.NotUnique, "已存在相同部门名称");
+            }
             base.InsertEntity(department, ConnectionFactory.DBConnNames.GisPlateform, out MessageEntity messageEntity);
             return messageEntity;
         }
 
         public MessageEntity Delete(P_Department department)
         {
+            if (IsExistUser(department))
+            {
+                return MessageEntityTool.GetMessage(ErrorType.OprationError, "", "该部门下存在用户,不允许删除");
+            }
             base.DeleteEntity(department, ConnectionFactory.DBConnNames.GisPlateform, out MessageEntity messageEntity);
             return messageEntity;
         }
-        
+        /// <summary>
+        /// 该部门下是否存在用户
+        /// </summary>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        public bool IsExistUser(P_Department department)
+        {
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                try
+                {
+                    string sql = $@"select count(0) as count from P_Admin p where p.iDeptID = {department.iDeptID}";
+                    List<dynamic> pointcc = conn.Query<dynamic>(sql).ToList();
+                    if (pointcc[0].count > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+
+            }
+        }
         public MessageEntity Update(P_Department department)
         {
+            if (IsExist(department))
+            {
+                return MessageEntityTool.GetMessage(ErrorType.NotUnique, "已存在相同部门名称");
+            }
             base.UpdateEntity(department, ConnectionFactory.DBConnNames.GisPlateform, out MessageEntity messageEntity);
             return messageEntity;
         }
@@ -57,6 +98,31 @@ namespace GisPlateform.SQLServerDAL
                     errorMsg = e.Message;
                     return null;
                 }
+            }
+        }
+        public bool IsExist(P_Department department)
+        {
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                try
+                {
+                    string sql = $@"select count(0) as count from P_Department p where p.iDeptID <> {department.iDeptID}  and p.cDepName = '{department.cDepName} '";
+                    List<dynamic> pointcc = conn.Query<dynamic>(sql).ToList();
+                    if (pointcc[0].count > 0)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    return false;
+                }
+
             }
         }
     }

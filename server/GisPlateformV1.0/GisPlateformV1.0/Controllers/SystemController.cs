@@ -98,10 +98,26 @@ namespace GisPlateformV1_0.Controllers
             {
                 return MessageEntityTool.GetMessage(ErrorType.OprationError, "", "密码不能为空");
             }
-
+            //验证用户是否输入密码错误超过4次
+            var isDayFee = base.CommonDAL.IsDayFeezing(loginContent, out string errMsg1);
+            //密码输错超过4次 不允许登录
+            if (isDayFee)
+            {
+                return MessageEntityTool.GetMessage(ErrorType.OprationError, "", "已限制登录，请在10分钟后重试!");
+            }
             var admin = base.CommonDAL.GetUserInfo(loginContent, password, out string errorMsg);
             if (admin != null && admin.cAdminName != null)
             {
+                #region 验证用户是否锁定
+                //验证用户是否锁定，锁定不允许登录
+                var islocked = base.CommonDAL.IsLocked(loginContent, out string errMsg2);
+                //密码输错超过4次 不允许登录
+                if (islocked)
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, "", "已限制登录,用户账户已被锁定");
+                }
+                
+                #endregion
                 admin.cAdminPassWord = "";
                 admin.Token = CreateAuthention(admin);
                 var funcs = base.CommonDAL.GetUserAuthority(admin.iAdminID.ToString(), systemType, out string userAuthorityErrorMsg);
@@ -112,11 +128,14 @@ namespace GisPlateformV1_0.Controllers
                 }
 
                 var result = MessageEntityTool.GetMessage(1, admin, true, "登陆成功", 1);
-
+                //插入密码错误日冻结表中
+                var funcssucess = base.CommonDAL.InsertDayFeezing(loginContent,"1");
                 return result;
             }
             else if (string.IsNullOrEmpty(errorMsg))
             {
+                //插入密码错误日冻结表中
+                var funcs = base.CommonDAL.InsertDayFeezing(loginContent,"0");
                 return MessageEntityTool.GetMessage(ErrorType.NoLogin, "", "用户名或密码错误");
             }
             else

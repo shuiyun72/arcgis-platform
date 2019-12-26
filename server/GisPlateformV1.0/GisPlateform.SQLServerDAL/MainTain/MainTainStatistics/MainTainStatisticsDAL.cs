@@ -33,7 +33,7 @@ where E.DeleteStatus=0 and  1=1 ");
             }
             if (endTime != null)
             {
-                endTime = Convert.ToDateTime(endTime + " 23:59:59");
+                endTime = DateTime.Parse(endTime.ToString()).AddDays(1);
                 sql += $" and UpTime<='{endTime}' ";
             }
             sql += " group by p.PersonName";
@@ -51,7 +51,7 @@ where E.DeleteStatus=0 and  1=1 ");
             }
             if (endTime != null)
             {
-                endTime = Convert.ToDateTime(endTime + " 23:59:59");
+                endTime = DateTime.Parse(endTime.ToString()).AddDays(1);
                 sql += $" and UpTime<='{endTime}' ";
             }
             sql += " group by EF.EventFromName ";
@@ -86,7 +86,7 @@ where E.DeleteStatus=0 and  1=1 ");
             }
             if (endTime != null)
             {
-                endTime = Convert.ToDateTime(endTime + " 23:59:59");
+                endTime = DateTime.Parse(endTime.ToString()).AddDays(1);
                 sql += $" and UpTime<='{endTime}' ";
             }
             sql += " )  DataStatic   group by  EventFromId,EventFromName , CONVERT (varchar(100), UpTime, 23) Order by  LineDate asc";
@@ -122,7 +122,7 @@ where E.DeleteStatus=0 and  1=1 ");
             }
             if (endTime != null)
             {
-                endTime = Convert.ToDateTime(endTime + " 23:59:59");
+                endTime = DateTime.Parse(endTime.ToString()).AddDays(1);
                 sql += $" and UpTime<='{endTime}' ";
             }
             sql += ")  DataStatic   group by   CONVERT (varchar(100), UpTime, 23) Order by  LineDate asc";
@@ -159,7 +159,7 @@ where E.DeleteStatus=0 and  1=1 ");
             }
             if (endTime != null)
             {
-                endTime = Convert.ToDateTime(endTime + " 23:59:59");
+                endTime = DateTime.Parse(endTime.ToString()).AddDays(1);
                 sql += $" and UpTime<='{endTime}' ";
             }
             sql += " )  DataStatic   group by  EventFromId,EventFromName , CONVERT (varchar(100), UpTime, 23) ) Line";

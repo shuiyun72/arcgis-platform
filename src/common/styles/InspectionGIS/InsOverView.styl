@@ -1,6 +1,6 @@
 .isCollapse .InsOverView .inspectiongis_fixed {
-  left: 50px+$leftBarWidth;
-  transition: left .5s ease;
+  left: 50px + $leftBarWidth;
+  transition: left 0.5s ease;
 }
 
 .InsOverView {
@@ -10,12 +10,18 @@
   height: 0;
   width: 0 !important;
 
+  .el-button {
+    background: #367bc7;
+    border: none;
+    color: white;
+  }
+
   .inspectiongis_fixed {
     z-index: 1;
     position: relative;
     top: 10px;
     left: 70px;
-    transition: left .5s ease;
+    transition: left 0.5s ease;
 
     .overview-card {
       width: 370px;
@@ -177,4 +183,55 @@
       }
     }
   }
+}
+
+.Pipe_Query_container {
+  position: relative;
+}
+
+.picker-date-overview {
+  .el-radio-button--mini .el-radio-button__inner {
+    padding: 7px 10px;
+  }
+
+  .el-date-editor.el-input {
+    margin-top: 6px;
+    width: 120px;
+    margin-right: 8px;
+  }
+
+  .el-date-editor .el-input__icon {
+    top: -6px;
+  }
+
+  .el-input--prefix .el-input__inner {
+    padding-left: 10px;
+  }
+}
+
+.InsOverView .inspectiongis_fixed {
+  left: 60px;
+}
+
+.InsOverView .inspectiongis_fixed.flexible .control-show-btn {
+  position: fixed;
+  bottom: 10px;
+}
+
+.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+  color: #fff;
+  background-color: #367bc7;
+  border-color: #367bc7;
+}
+
+.InsOverView .inspectiongis_fixed .overview-card .car-list-wrapper .btn-item {
+  padding: 0px 3px;
+}
+
+.picker-date-overview .el-date-editor.el-input {
+  width: 137px;
+}
+
+.picker-date-overview .el-radio-button--mini .el-radio-button__inner {
+  padding: 7px 12px;
 }

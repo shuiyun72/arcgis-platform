@@ -61,10 +61,10 @@
         </el-col>
       </el-row>
       <el-row type="flex" justify="end">
-        <el-button class="my-search" size="mini" @click="GetData(1)"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/GetPlanManageInfo' ,$route.meta.iFunID)">查询</el-button>
-        <el-button class="my-reset" size="mini" @click="initData"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/GetPlanManageInfo' ,$route.meta.iFunID)">重置</el-button>
-        <el-button class="my-task-sell" size="mini" @click="taskDistribution"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/AssignTask' ,$route.meta.iFunID)">任务派发</el-button>
-        <el-button class="my-del" size="mini" @click="delData"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/Delete' ,$route.meta.iFunID)">批量删除</el-button>
+        <el-button class="my-search" size="mini" @click="GetData(1)"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/GetPlanManageInfo' ,$route.name)">查询</el-button>
+        <el-button class="my-reset" size="mini" @click="initData"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/GetPlanManageInfo' ,$route.name)">重置</el-button>
+        <el-button class="my-task-sell" size="mini" @click="taskDistribution"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/AssignTask' ,$route.name)">任务派发</el-button>
+        <el-button class="my-del" size="mini" @click="delData"  v-if="$options.filters.btnTree('/api/InspectionPlan/TaskManage/Delete' ,$route.name)">批量删除</el-button>
       </el-row>
     </el-form>
     <multi-line-table
@@ -98,6 +98,8 @@ import MultiLineTable from "@features/InspectionGIS/InsPlan/components/MultiLine
 import TableFormTitle from "@common/components/TableFormTitle";
 import InsTable from "@features/InspectionGIS/components/InsTable";
 import { debug } from 'util';
+import utilData from "@util/utilData";
+
 export default {
   components: {
     MultiLineTable,
@@ -160,12 +162,27 @@ export default {
   created() {
     this.onLoadData();
   },
+  mounted(){
+    let queryDate = this.$route.query.date;
+    if(queryDate && queryDate == 1){
+      let current = utilData.getCurrentDate();
+      let data = utilData.myformatStr(current);
+      this.startTime = data;
+      this.endTime  = data;
+    }else
+    if(queryDate && queryDate == 4){
+      let data = utilData.getMonth();
+      this.startTime = data.begin;
+      this.endTime = data.over;
+    }
+    this.GetData();
+  },
   methods: {
     currentChange(row){
       this.currentRow = row
     },
     onLoadData() {
-      User.AdminNameData(null, 86).then(res => {
+      User.AdminNameData(19).then(res => {
         this.iAdminIDList = res.data.Data.Result;
         this.iAdminIDList.unshift({
           iAdminID: 'all',
@@ -177,7 +194,6 @@ export default {
       this.isAssignedValue = this.isAssignedList[0].value;
       this.startTime = "";
       this.endTime = "";
-      this.GetData();
     },
     initData() {
       this.iAdminIDValue = 'all';
@@ -262,6 +278,11 @@ export default {
       }
       this.$confirm("确定要分派该任务么").then(() => {
         InspectionPlan.PatrolTaskAssign(TaskIds).then(res => {
+          this.$message({
+            type: "success",
+            message: "任务派发成功",
+            showClose: true
+          });
           this.GetData();
         });
       });
@@ -278,6 +299,11 @@ export default {
       }
       this.$confirm("确定要删除该任务么").then(() => {
         InspectionPlan.PatrolTaskDel(TaskIds).then(res => {
+          this.$message({
+            type: "info",
+            message: "任务删除成功",
+            showClose: true
+          });
           this.GetData(1);
         });
       });

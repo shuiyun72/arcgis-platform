@@ -36,7 +36,7 @@
         <!-- 添加修改关键点 -->
         <el-form label-width="50px" size="small" v-show="dialogType == '添加关键点'">
           <el-form-item label="名称：">
-            <el-input :placeholder="请输入标题" v-model="AreaPointName"  @keyup.enter.native="SubmitArea"></el-input>
+            <el-input :placeholder="请输入标题" v-model="AreaPointName"  @keyup.enter.native="SubmitArea"  maxlength="15"></el-input>
           </el-form-item>
         </el-form>
         <!-- 添加巡检路线 -->

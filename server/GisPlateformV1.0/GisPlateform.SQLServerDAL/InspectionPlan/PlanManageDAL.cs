@@ -19,7 +19,14 @@ namespace GisPlateform.SQLServerDAL.InspectionPlan
 
             using (IDbConnection conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
             {
+                string sql = $@"select count(0) as count from L_PLAN p where  p.planName='{ planName}'";
+                List<dynamic> pointcc = conn.Query<dynamic>(sql).ToList();
+                if (pointcc[0].count > 0)
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.NotUnique, "不能添加相同计划名称");
+                }
                 IDbTransaction transaction = conn.BeginTransaction();
+
                 try
                 {
                     if (equipmentList != null && equipmentList.Count > 0)
@@ -92,7 +99,7 @@ namespace GisPlateform.SQLServerDAL.InspectionPlan
                 { sqlwhere += $" and lp.BoolNormalPlan ={isNomalPlan} "; }
             }
 
-            string sql = $@"( SELECT   lp.PlanId,lp.PlanName,lp.PlanTypeId,lpt.PlanTypeName,lp.PlanAreaId,lpa.PlanAreaName,lp.EquipmentList,lp.EquipmentListName as EquipmentName
+            string sql = $@"( SELECT   lpl.PlanLineId,lp.PlanId,lp.PlanName,lp.PlanTypeId,lpt.PlanTypeName,lp.PlanAreaId,lpa.PlanAreaName,lp.EquipmentList,lp.EquipmentListName as EquipmentName
                                                         ,lp.PlanPath,lp.PlanCycleId,lpc.PlanCycleName,'1' as PlanState,
                                                 		case lp.MoveType when 2 then '步行'  when 1 then '车巡' end as MoveType,
                                                 		case lp.BoolFeedBack when 1 then '需反馈' when 0 then '仅到位' end as BoolFeedBack,
@@ -124,12 +131,12 @@ namespace GisPlateform.SQLServerDAL.InspectionPlan
 
                 try
                 {
-                    string strSqlSelect = string.Format(@" select count(0) [count] from  L_Task lt where lt.PlanId = {0} and lt.TaskState = 1 and lt.ProraterId = {1} and ((lt.VisitStarTime >= '{2}' and lt.VisitStarTime <='{3}') or (lt.VisitStarTime <='{2}' and lt.VisitOverTime >='{3}') or (lt.VisitOverTime >= '{2}' and lt.VisitOverTime <='{3}')) ", task.PlanId, task.ProraterId, task.VisitStarTime, task.VisitOverTime);
+                    string strSqlSelect = string.Format(@" select count(0) [count] from  L_Task lt where lt.PlanId = {0} and lt.TaskState = 1 and ((lt.VisitStarTime >= '{2}' and lt.VisitStarTime <='{3}') or (lt.VisitStarTime <='{2}' and lt.VisitOverTime >='{3}')or (lt.VisitStarTime >='{2}' and lt.VisitOverTime <='{3}') or (lt.VisitOverTime >= '{2}' and lt.VisitOverTime <='{3}')) ", task.PlanId, task.ProraterId, task.VisitStarTime, task.VisitOverTime);
                     dynamic dtSelect = conn.Query<dynamic>(strSqlSelect).FirstOrDefault();
                     //当该计划已经对某人进行时间段内分派后直接返回
                     if (dtSelect.count > 0)
                     {
-                        return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该时间段内{task.ProraterName}已经有任务", "提示");
+                        return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该计划已被分派，不能多次分派", "提示");
                     }
                     string sqlSelectCycle = string.Format(@" select lpc.PlanCycleTime,lpc.PlanCycleUnit,lpc.PlanCycleHz,lp.StartStopInfo,lp.BoolNormalPlan from L_PLAN lp 
                                                          left join   L_PLANCYCLE lpc on lpc.PlanCycleId = lp.PlanCycleId where 1=1 and lpc.PlanDeleteState=1 and lp.PlanId = '{0}' ", task.PlanId);

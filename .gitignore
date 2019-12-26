@@ -4,7 +4,9 @@ node_modules
 /server/public
 server/GisPlateformV1.0/GisPlateformV1.0/css/*
 server/GisPlateformV1.0/GisPlateformV1.0/fonts/*
-server/GisPlateformV1.0/GisPlateformV1.0/img/*
+server/GisPlateformV1.0/GisPlateformV1.0/img/*.png
+server/GisPlateformV1.0/GisPlateformV1.0/img/*.gif
+server/GisPlateformV1.0/GisPlateformV1.0/img/*.svg
 server/GisPlateformV1.0/GisPlateformV1.0/js/*
 server/GisPlateformV1.0/GisPlateformV1.0/upload/EventsImg
 # backend ignore files
@@ -32,3 +34,4 @@ yarn-error.log*
 server/GisPlateformV1.0/GisPlateformV1.0/Properties/PublishProfiles/FolderProfile.pubxml.user
 server/GisPlateformV1.0/GisPlateformV1.0/GisPlateformV1.0.csproj.user
 server/GisPlateformV1.0/GisPlateformV1.0/Properties/PublishProfiles/FolderProfile.pubxml
+server/GisPlateformV1.0/GisPlateformV1.0/precache-manifest.*.js

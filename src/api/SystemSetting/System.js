@@ -19,8 +19,15 @@ export default {
             }
         })
     },
+    CreateAuthention: (query) => {
+        return instance.post('/System/CreateAuthentionNew', {
+            iAdminID: query._id,
+            cAdminName: query.name,
+            cAdminSex: query.sex,
+            cAdminTel: query.mobile,
+        })
+    },
 
-    
 
 
 

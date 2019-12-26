@@ -6,7 +6,7 @@
       <el-row class="tab-btn-wraper">
         <AnalysisSelect
           :btnMessage="{text:'选择横断面',icon:'icon-mian',type:'warning'}"
-          v-if="$options.filters.btnTree('choose' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('choose' ,$route.name)"
           :layerData="layerData"
           :selectLayerValue.sync="selectLayerValue"
           :listViewColumn.sync="listViewColumn"
@@ -18,7 +18,7 @@
             :key="item.text"
             :class="item.class"
             @click="btnChange(item.text)"
-            v-if="$options.filters.btnTree(item.model ,$route.meta.iFunID)"
+            v-if="$options.filters.btnTree(item.model ,$route.name)"
           >
             <i class="iconfont" :class="item.icon"></i>
             {{item.text}}
@@ -94,6 +94,7 @@ export default {
     this._MapDataOperation.init().then(() => {});
   },
   mounted() {
+    this.myChart = echarts.init(document.querySelector(".my-chart"));
     this.chartInit();
   },
   beforeDestroy() {
@@ -102,7 +103,8 @@ export default {
   },
   data() {
     return {
-      listViewColumn:'',//表格表头
+      myChart: "", //图表对象
+      listViewColumn: "", //表格表头
       ContourList: null, //高程数组列表
       layerListName: E_hd_Columns,
       flexible: false, //是否收缩左侧表格
@@ -128,18 +130,18 @@ export default {
         {
           text: "导出",
           class: "my-export",
-          model:'export'
+          model: "export"
         },
         {
           text: "清除",
           class: "my-clean",
-          model:'clear'
+          model: "clear"
         }
       ]
     };
   },
   methods: {
-    //调用数据查询和高级空间查询接口
+    //调用数据查询和高级空间查询接口 高程数据
     MapDataSearch(callBack) {
       this.loading = true;
       let pipeURL = MapConfigure.SpatialAnalysisURL.dgxService;
@@ -236,7 +238,7 @@ export default {
         ],
         series: [
           {
-            name: "line",
+            name: "linePoint",
             type: "line",
             smooth: true,
             showAllSymbol: true,
@@ -296,7 +298,13 @@ export default {
           }
         ]
       };
-      echarts.init(document.querySelector(".my-chart")).setOption(option, true);
+      this.myChart.setOption(option, true);
+      this.myChart.off("click");
+      this.myChart.on("click", params => {
+        if (params.seriesName === "linePoint") {
+          this.onPipeRowClick(this.TransectionTotal[params.dataIndex]);
+        }
+      });
     },
     onPipeRowClick(row, column, event) {
       this.$bus.emit(
@@ -313,13 +321,10 @@ export default {
       this.layerData = FeatureLayerOperation.getLayer(LayerType.PipeTypeNO);
       this.selectLayerValue.push(this.layerData[0].id);
       this.selectLayerValue.push(this.layerData[0].children[0].id);
-      this.listViewColumn = this.layerData[0].children[0].listViewColumn
+      this.listViewColumn = this.layerData[0].children[0].listViewColumn;
     },
     btnChange(val) {
       switch (val) {
-        case "分析结果":
-          this.TransectionAnalysisResult();
-          break;
         case "清除":
           this.clearFireAnalysis();
           break;
@@ -341,7 +346,6 @@ export default {
       this.$bus.emit("getMapLine", resultValue => {
         this.Gdata = resultValue;
         //通过空间数据信息，获取管网数据列表
-
         this.MapDataSearch();
       });
     },
@@ -364,7 +368,6 @@ export default {
               startingpoint_elevation: currentValue.startingpoint_elevation
             };
           });
-          //this.TransectionAnalysisResult(); //分析结果展示
           this.loading = false;
           if (!this.TransectionData.length) {
             this.$message({
@@ -375,19 +378,6 @@ export default {
           }
         }
       );
-    },
-    //空间分析结果展示
-    TransectionAnalysisResult() {
-      if (!_.isNull(this.TransectionData)) {
-        SpatialSearch.getTransectionAnalysis(this.TransectionData).then(
-          objValue => {
-            if (objValue.data.Flag) {
-              this.ChartImgUrl = "http://" + objValue.data.Data.Result;
-              console.log("横断面分析图片", this.ChartImgUrl);
-            }
-          }
-        );
-      }
     },
     clearFireAnalysis() {
       this.ChartImgUrl = "";

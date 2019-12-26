@@ -5,11 +5,12 @@
           class="table-state-btn"
           size="mini"
           v-for="item in EventStatus"
-          :key="item.name"
-          :class="{active:EventStatusSelect==item.name}"
-          @click="nowStatus(item.name)"
+          :key="item.OperName2"
+          :class="{active:EventStatusSelect==item.OperName2}"
+          @click="nowStatus(item.OperId,item.OperName2)"
         >
-          {{item.name}}(<span>{{item.num}}</span>)
+          {{item.OperName2}}
+          <!-- {{item.OperName2}}(<span>{{item.num}}</span>) -->
         </el-button>
     </el-form-item>
   </el-row>
@@ -42,15 +43,29 @@ export default {
     onLoadData() {
       this.EventStatusSelect = "全部";
     },
-    nowStatus(state){
-      this.EventStatusSelect = state;
-      this.$emit("nowStatus",state)
+    nowStatus(EventFromID,EventType){
+      this.EventStatusSelect = EventType;
+      this.$emit("nowStatus",EventFromID,EventType)
     }
   },
   computed: {},
   created() {
     MaApiStatus.GetStatusForMantain().then(res => {
-      console.log(res.data.Data.Result);
+      this.EventStatus = res.data.Data.Result;
+      let obj = {
+        OperId: "",
+        OperName: "全 部",
+        OperName2: "全 部",
+        rank: 0
+      };
+      let inVailid = {
+        OperId: 0,
+        OperName: "无 效",
+        OperName2: "无 效",
+        rank: 0
+      };
+      this.EventStatus.unshift(obj);
+      this.EventStatus.push(inVailid);
       //this.FlowPath = res
     });
   },
@@ -58,7 +73,8 @@ export default {
   components: {}
 };
 </script>
-<style lang="stylus">
-
-
+<style lang="stylus" scoped>
+.MaintainGIS .event_status_btn .table-state-btn {
+    width:66px;
+}
 </style>

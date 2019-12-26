@@ -9,6 +9,9 @@ export default {
       default: HomeDataMain,
       OpenLMap: (res) => require(['@features/InspectionGIS/InsQuery'], res)
     },
+    redirect: {
+      name: 'MaOverView'
+    },
     children: [
       {
         path: "MaOverView",
@@ -26,9 +29,25 @@ export default {
         component: (res) => require(['@features/MaintainGIS/MaAnalysis'], res)
       },
       {
-        path: "MaSelfDispose",
-        name: "MaSelfDispose",
-        component: (res) => require(['@features/MaintainGIS/MaSelfDispose'], res)
+        path: "MaSelf",
+        name: "MaSelf",
+        component: (res) => require(['@features/MaintainGIS/MaSelfDispose'], res),
+        children: [{
+          path: 'MaSelfDispose',
+          name: 'MaSelfDispose',
+          //待办处理
+          component: (res) => require(['@features/MaintainGIS/MaSelfDispose/MaSelfDispose'], res),
+        }, {
+          path: 'WorkListEventStart',
+          name: 'WorkListEventStart',
+          //发起事件
+          component: (res) => require(['@features/MaintainGIS/MaSelfDispose/WorkListEventStart'], res),
+        }, {
+          path: 'OwnWordListExecuted',
+          name: 'OwnWordListExecuted',
+          //已办工单
+          component: (res) => require(['@features/MaintainGIS/MaSelfDispose/OwnWordListExecuted'], res),
+        }]
       },
       {
         path: "MaBillsReview",

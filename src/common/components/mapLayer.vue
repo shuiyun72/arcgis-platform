@@ -8,7 +8,7 @@
       <span></span>
       <span></span>
     </div>
-    
+
   </div>
 </template>
 <script>
@@ -24,40 +24,41 @@ export default {
 };
 </script>
 <style lang="stylus" scoped>
-  $bgColor = #fff;
+$bgColor = #fff;
 .layer-wraper {
   width: 1px;
   height: 1px;
   position: relative;
-  bottom:20px;
-  left:-4px;
+  bottom: 20px;
+  left: -4px;
 
   .sanjiao {
-    
+
     position: relative;
-    & span{
+
+    & span {
       display: block;
-      position: relative;
+      position: absolute;
       left: -10px;
+      top: 0;
       content: '';
       width: 0px;
       height: 0px;
-      border-left: 14px solid transparent;
-      border-top: 20px solid $bgColor;
-      border-right: 14px solid transparent;
-      border-bottom: none;
+      border-width: 16px 12px 0;
+      border-style: solid;
+      border-color: #fff transparent transparent;
       z-index: 2;
     }
-    & span:nth-child(2){
+
+    & span:nth-child(2) {
       left: -11px;
-      z-index:1;
+      z-index: 1;
       position: absolute;
-      top:0;
-      border-left: 15px solid transparent;
-     border-top: 22px solid #000;
-      border-right: 15px solid transparent;
+      top: 0;
+      border-width: 17px 13px 0;
+      border-style: solid;
+      border-color: #667e86 transparent transparent;
     }
-    
   }
 
   .layer-content {
@@ -74,16 +75,19 @@ export default {
       background: #347f8a;
       color: #fff;
     }
-    .layer-message{
+
+    .layer-message {
       color: #000;
-      padding: 8px 10px;
+      padding: 2px 10px;
     }
-    & > div{
+
+    & > div {
       line-height: 30px;
       padding: 0 10px;
-      span{
-        color:red;
-        font-weight:bolder;
+
+      span {
+        color: red;
+        font-weight: bolder;
       }
     }
   }

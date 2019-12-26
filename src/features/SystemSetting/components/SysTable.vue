@@ -45,10 +45,22 @@
         align="center"
         fixed="right"
         width="140px"
-        v-if="$options.filters.btnTree('/api/FunPurview/RefreshFunPurview' ,$route.meta.iFunID) && modularDialog"
+        v-if="$options.filters.btnTree('modular' ,$route.name) && modularDialog"
       >
         <template slot-scope="{row}">
-          <span class="my-detail" @click="modularDialogOpen(row)">功能权限</span>
+          <span class="my-detail" @click="modularDialogOpen(row, 'modular')">功能权限</span>
+        </template>
+      </el-table-column>
+       <el-table-column
+        prop="iDeptIDs"
+        label="部门权限"
+        align="center"
+        fixed="right"
+        width="140px"
+        v-if="$options.filters.btnTree('depart' ,$route.name) && modularDialog"
+      >
+        <template slot-scope="{row}">
+          <span class="my-detail" @click="modularDialogOpen(row , 'depart')">部门权限</span>
         </template>
       </el-table-column>
     </el-table>
@@ -102,8 +114,8 @@ export default {
       this.$emit("onPageSizeChange",objvalue);
     },
     //权限
-    modularDialogOpen(row) {
-      this.$emit("modularDialogOpen", row);
+    modularDialogOpen(row , type) {
+      this.$emit("modularDialogOpen", row , type);
     }
   }
 };

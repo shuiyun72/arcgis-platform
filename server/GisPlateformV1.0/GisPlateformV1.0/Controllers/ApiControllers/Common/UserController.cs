@@ -48,9 +48,48 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.Common
             }
         }
         /// <summary>
+        /// 查询用户列表(排除已删除用户)
+        /// </summary>
+        /// <param name="deptId">部门id</param>
+        /// <param name="roleId">角色id</param>
+        /// <returns></returns>
+        public MessageEntity GetUserComboboxListNoDelete(string deptId = "", string roleId = "")
+        {
+            var result = base.CommonDAL.GetUserInfoListByDeptIdNoDelete(deptId, roleId, out string errMsg);
+
+            if (string.IsNullOrEmpty(errMsg))
+            {
+                return MessageEntityTool.GetMessage(result.Count, result, true, "", result.Count);
+            }
+            else
+            {
+                return MessageEntityTool.GetMessage(ErrorType.SqlError);
+            }
+        }
+
+        /// <summary>
+        /// 查询用户列表(只选择有分派权限的用户)
+        /// </summary>
+        /// <param name="deptId">部门id</param>
+        /// <param name="roleId">角色id</param>
+        /// <returns></returns>
+        public MessageEntity GetUserComboboxListAssigment(string deptId = "", string roleId = "")
+        {
+            var result = base.CommonDAL.GetUserComboboxListAssigment(deptId, roleId, out string errMsg);
+
+            if (string.IsNullOrEmpty(errMsg))
+            {
+                return MessageEntityTool.GetMessage(result.Count, result, true, "", result.Count);
+            }
+            else
+            {
+                return MessageEntityTool.GetMessage(ErrorType.SqlError);
+            }
+        }
+        /// <summary>
         /// 获取所有用户
         /// </summary>
-        /// <param name="userName">用户名 模糊查询</param>
+        /// <param name="userName">用户名工号 电话 模糊查询</param>
         /// <param name="roleId">角色id</param>
         /// <param name="deptId">部门id</param>
         /// <param name="sort">cAdminName</param>
@@ -61,7 +100,7 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.Common
         public MessageEntity Get(string userName = "", int? roleId = null, int? deptId = null, string sort = "cAdminName", string ordering = "desc", int num = 20, int page = 1)
         {
             var result = base.CommonDAL.GetUsers(userName, roleId, deptId, sort, ordering, num, page);
-
+          
             return result;
 
         }
@@ -148,7 +187,14 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.Common
             //旧密码输入错误
             if (adminmodel == null)
             {
-                return MessageEntityTool.GetMessage(ErrorType.FieldError, "", "旧密码验证错误");
+                return MessageEntityTool.GetMessage(ErrorType.OprationError, "", "原密码验证错误");
+            }
+            //是否允许修改密码验证
+            var isallow= base.CommonDAL.IsAllowChangePWD(admin, out string errMsg1);
+            //不允许
+            if (!isallow)
+            {
+                return MessageEntityTool.GetMessage(ErrorType.OprationError, "", "用户不允许修改密码");
             }
             #endregion
 
@@ -200,6 +246,13 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.Common
         /// <param name="iAdminID"></param>
         public MessageEntity Delete(int iAdminID)
         {
+            //首先判断是否是超级管理面admin  保留一个用户不被删除
+            var isAllowDelete= base.CommonDAL.IsAllowDelete(iAdminID, out string errorMsg);
+            //不允许删除
+            if (isAllowDelete)
+            {
+                return MessageEntityTool.GetMessage(ErrorType.OprationError, "", "超级管理员不允许删除");
+            }
             return base.CommonDAL.DeleteUser(iAdminID);
         }
 

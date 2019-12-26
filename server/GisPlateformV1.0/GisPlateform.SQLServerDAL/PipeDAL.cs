@@ -448,7 +448,34 @@ WHERE 1 = 1 {1}  {2}";
       ,equipment_type
       ,Enabled
       ,Shape ";
-            string query = " SELECT LineID,NodesPID,LinesPID,NodesPID2 FROM NetWorkAnalystResult  WHERE LineID IN @ids";
+            string vavleHoleField = @" OBJECTID
+      ,equipment_number
+      ,material_science
+      ,caliber
+      ,elevation
+      ,depth
+      ,Installation_address
+      ,management_unit
+      ,completion_date
+      ,laying_age
+      ,embedding_mode
+      ,coordinate_x
+      ,coordinate_y
+      ,Interface_form
+      ,remarks
+      ,coversize
+      ,coverMaterial
+      ,businessarea
+      ,switchtype
+      ,switchingstate
+      ,equipment_type
+      ,Enabled
+      ,Shape ";
+            string query = @" SELECT [LineID]
+      ,[LinesPID]
+      ,[NodesPID]
+      ,[NodesPID2]
+      ,[NodesPID3] FROM NetWorkAnalystResult  WHERE LineID IN @ids";
             try
             {
                 using (IDbConnection conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GISDB))
@@ -457,6 +484,7 @@ WHERE 1 = 1 {1}  {2}";
                     string vavleQuerySql = "";
                     string pipeQuerySql = "";
                     string vavleWellQuerySql = "";
+                    string vavleHoleQUerySql = "";
                     int i = 1;
                     foreach (var valueAndPipe in valueAndPipeList)
                     {
@@ -467,18 +495,18 @@ WHERE 1 = 1 {1}  {2}";
                                 if (valueAndPipe.NodesPID != null && valueAndPipe.NodesPID != "")
                                 {
                                     vavleQuerySql = $@"SELECT   {vavleField}  FROM VALVE WHERE PID in ({valueAndPipe.NodesPID}) ";
-
-
                                 }
                                 if (valueAndPipe.LinesPID != null && valueAndPipe.LinesPID != "")
                                 {
-                                    pipeQuerySql = $@"SELECT  {pipeField} FROM PIPE WHERE PID in ({valueAndPipe.LinesPID}) ";
-
+                                    pipeQuerySql = $@"SELECT  {pipeField} FROM PIPELINE WHERE PID in ({valueAndPipe.LinesPID}) ";
                                 }
                                 if (valueAndPipe.NodesPID2 != null && valueAndPipe.NodesPID2 != "")
                                 {
                                     vavleWellQuerySql = $@"SELECT  {vavleWellField} FROM VALVEWELL WHERE PID in ({valueAndPipe.NodesPID2}) ";
-
+                                }
+                                if (valueAndPipe.NodesPID3 != null && valueAndPipe.NodesPID3 != "")
+                                {
+                                    vavleHoleQUerySql = $@"SELECT  {vavleHoleField} FROM VALVEHOLE WHERE PID in ({valueAndPipe.NodesPID3}) ";
                                 }
                             }
                             else
@@ -489,12 +517,15 @@ WHERE 1 = 1 {1}  {2}";
                                 }
                                 if (valueAndPipe.LinesPID != null && valueAndPipe.LinesPID != "")
                                 {
-                                    pipeQuerySql += $@" union all  SELECT {pipeField} FROM PIPE WHERE PID in ({valueAndPipe.LinesPID}) ";
+                                    pipeQuerySql += $@" union all SELECT {pipeField} FROM PIPELINE WHERE PID in ({valueAndPipe.LinesPID}) ";
                                 }
                                 if (valueAndPipe.NodesPID2 != null && valueAndPipe.NodesPID2 != "")
                                 {
-                                    vavleWellQuerySql += $@" union all  SELECT  {vavleWellField} FROM VALVEWELL WHERE PID in ({valueAndPipe.NodesPID2}) ";
-
+                                    vavleWellQuerySql += $@" union  all SELECT {vavleWellField} FROM VALVEWELL WHERE PID in ({valueAndPipe.NodesPID2}) ";
+                                }
+                                if (valueAndPipe.NodesPID3 != null && valueAndPipe.NodesPID3 != "")
+                                {
+                                    vavleHoleQUerySql += $@" union all SELECT {vavleWellField} FROM VALVEHOLE WHERE PID in ({valueAndPipe.NodesPID3}) ";
                                 }
                             }
                             i++;
@@ -514,6 +545,11 @@ WHERE 1 = 1 {1}  {2}";
                     {
                         var vavleWellInfo = conn.Query<dynamic>(vavleWellQuerySql).ToList();
                         result.Add("vavleWellInfo", vavleWellInfo);
+                    }
+                    if (!string.IsNullOrEmpty(vavleHoleQUerySql))
+                    {
+                        var valvesInfo = conn.Query<dynamic>(vavleHoleQUerySql).ToList();
+                        result.Add("valveholesInfo", valvesInfo);
                     }
                 }
             }
@@ -552,12 +588,12 @@ WHERE 1 = 1 {1}  {2}";
             return $"/upload/ChartImages/regular.png?{number}";
         }
 
-        public Pipe Get(string latitude, string longitude,out string errMessge)
+        public Pipe Get(string latitude, string longitude, out string errMessge)
         {
             errMessge = "";
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GISDB))
             {
-                
+
                 string query = $@"SELECT TOP(1) *,
        geometry::STGeomFromText('POINT({latitude} {longitude})', 4547).STDistance(Shape) AS distance
 FROM [PIPE]
@@ -565,7 +601,7 @@ WHERE Shape IS NOT NULL
 ORDER BY distance;";
                 try
                 {
-                    var b = conn.Query<Pipe>(query, new { latitude , longitude }).SingleOrDefault();
+                    var b = conn.Query<Pipe>(query, new { latitude, longitude }).SingleOrDefault();
                     return b;
                 }
                 catch (Exception e)

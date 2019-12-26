@@ -7,6 +7,9 @@ import AppUpload from './AppUpload'
 export default [{
   path: "/",
   component: (res) => require(['@features/Home'], res),
+  redirect: {
+    name: 'GIS'
+  },
   meta: {},
   children: [
     Gis,

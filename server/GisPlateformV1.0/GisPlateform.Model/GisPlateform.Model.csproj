@@ -67,10 +67,12 @@
     <Compile Include="PipeInspectionBase_Gis_OutSide\L_PlanLine.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\L_PlanType.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\L_Task.cs" />
+    <Compile Include="PipeInspectionBase_Gis_OutSide\L_Task_CompleteDetail.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\L_WorkTimeInterval.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\M_Event.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\M_EventType.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\L_PlanArea.cs" />
+    <Compile Include="PipeInspectionBase_Gis_OutSide\M_WorkOrder_Oper_History.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\PlanLineDetail.cs" />
     <Compile Include="PipeInspectionBase_Gis_OutSide\PointAreaInfo.cs" />
     <Compile Include="PointTable.cs" />

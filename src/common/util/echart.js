@@ -426,7 +426,7 @@ export const ChartPieGIS = {
         }
     },
     tooltip: {
-        formatter: "类别 ：{b} <br/> 数量: {c} ({d}%)"
+        formatter: "类别 ：{b} <br/> 数量: {c} ({d}%)",
     },
     // toolbox: {
     //     show: true,
@@ -545,7 +545,7 @@ ChartPieLight.series[2].data = [{
         }
     }
 }]
-//饼形图
+//饼形图KPI
 export const ChartPie = {
     color: KPIPieColor,
     title: {
@@ -553,7 +553,8 @@ export const ChartPie = {
         x: 'center'
     },
     tooltip: {
-        formatter: "类别 ：{b} <br/> 数量: {c} ({d}%)"
+        formatter: "类别 ：{b} <br/> 数量: {c} ({d}%)",
+        position: {right: 4, top: 4}
     },
     toolbox: {
         show: true,
@@ -570,7 +571,7 @@ export const ChartPie = {
     series: [{
         name: "口径",
         type: "pie",
-        radius: "65%",
+        radius: "50%",
         center: ['50%', '60%'],
         animate: true,
         data: [{

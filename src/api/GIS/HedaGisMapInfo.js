@@ -11,15 +11,15 @@ export default {
                 let typeInfo = {
                     ld: {
                         name: '漏点',
-                        icon:'dingwei.png'
+                        icon:'baselayer/dingwei.png'
                     },
                     bg: {
                         name: '爆管',
-                        icon:'dingweiend.png'
+                        icon:'baselayer/dingweiend.png'
                     },
                     yh: {
                         name: '隐患',
-                        icon:'dingweistart.png'
+                        icon:'baselayer/dingweistart.png'
                     },
                 }
                 let resData = res.data.Response.datas

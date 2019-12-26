@@ -6,7 +6,7 @@
           <el-row>
             <el-col span="6" :lg="4">
               <el-form-item label="岗位：" prop="FormcRoleName">
-                <el-input placeholder="请输入岗位名称" v-model="FormcRoleName"></el-input>
+                <el-input placeholder="请输入岗位名称" v-model="FormcRoleName" v-filter-special-char  @keyup.enter.native="getRoleList"></el-input>
               </el-form-item>
             </el-col>
             <el-col span="4">
@@ -15,7 +15,7 @@
                   class="my-search"
                   size="mini"
                   @click="getRoleList"
-                  v-if="$options.filters.btnTree('/api/Role/Get' ,$route.meta.iFunID)"
+                  v-if="$options.filters.btnTree('/api/Role/Get' ,$route.name)"
                 >查询</el-button>
               </div>
             </el-col>
@@ -28,7 +28,7 @@
               plain
               size="mini"
               @click="addRole"
-              v-if="$options.filters.btnTree('/api/Role/Post' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Role/Post' ,$route.name)"
             >
               <i class="iconfont icon-xinzeng"></i>新增
             </el-button>
@@ -36,7 +36,7 @@
               class="my-tableout"
               size="mini"
               @click="editRole"
-              v-if="$options.filters.btnTree('/api/Role/Put' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Role/Put' ,$route.name)"
             >
               <i class="iconfont icon-bianji"></i>编辑
             </el-button>
@@ -44,7 +44,7 @@
               class="my-tableout"
               size="mini"
               @click="delRole"
-              v-if="$options.filters.btnTree('/api/Role/Delete' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Role/Delete' ,$route.name)"
             >
               <i class="iconfont icon-shanchu"></i>删除
             </el-button>
@@ -71,18 +71,25 @@
     >
       <el-form label-width="100px" ref="formDialog" size="small" :rules="rules" :model="formValue">
         <el-form-item label="岗位名称：" prop="cRoleName">
-          <el-input v-model="formValue.cRoleName" placeholder="请输入岗位名称"></el-input>
+          <el-input v-model="formValue.cRoleName" placeholder="请输入岗位名称" v-filter-special-char></el-input>
         </el-form-item>
-        <el-form-item label="超级管理员：" prop="cRoleName">
+        <el-form-item label="超级管理员：">
           <el-switch
             v-model="formValue.isSuperAdmin"
             active-color="#13ce66"
             inactive-color="#ff4949"
           ></el-switch>
         </el-form-item>
+        <el-form-item label="是否巡检员：" prop="cRoleName">
+          <el-switch
+            v-model="formValue.IsInspector"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button class="my-dialog-cancel" @click="dialogVisible = false">取 消</el-button>
+        <el-button class="my-dialog-cancel" @click="editFormSubmitCancle">取 消</el-button>
         <el-button class="my-dialog-submit" @click="editFormSubmit" :loading="sunBtnLoad">确 定</el-button>
       </div>
     </el-dialog>
@@ -114,7 +121,8 @@ export default {
     return {
       rules: {
         cRoleName: [
-          { required: true, message: "请输入岗位名称", trigger: "blur" }
+          { required: true, message: "请输入岗位名称", trigger: "blur" },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
         ]
       },
       modularList: [],
@@ -132,7 +140,8 @@ export default {
       FormcRoleName: "", //查询岗位的筛选字段
       formValue: {
         cRoleName: "",
-        isSuperAdmin: false
+        isSuperAdmin: false,
+        IsInspector:false
       }, //弹窗变量
       modularDialogVisable: false, //功能模块弹窗
       dialognodeID: [], //功能模块tree弹窗选中值
@@ -164,11 +173,7 @@ export default {
     //删除按钮点击
     delRole() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要删除的数据",
-          showClose: true
-        });
+        this.$myMessage('warning','请选择需要删除的岗位');
         return;
       }
       this.$confirm("确定删除么")
@@ -177,39 +182,24 @@ export default {
           Role.delRole(this.currentRow.iRoleID)
             .then(() => {
               this.loading = true;
-              this.$message({
-                type: "success",
-                message: "成功删除数据",
-                showClose: true
-              });
+              this.$myMessage('success','删除岗位成功');
               this.getRoleList();
             })
             .catch(() => {
-              this.$message({
-                type: "error",
-                message: "删除数据失败",
-                showClose: true
-              });
+               this.loading = false;
             });
         })
         .catch(() => {
-          this.$message({
-            type: "warning",
-            message: "取消删除数据",
-            showClose: true
-          });
+          this.$myMessage('warning','取消删除岗位');
         });
     },
     //编辑按钮点击
     editRole() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要编辑的数据",
-          showClose: true
-        });
+        this.$myMessage('warning','请选择需要编辑的数据');
         return;
       }
+      this.currentRow.IsInspector = this.currentRow.IsInspector == 0 ? false :true;
       this.formValue = _.assign({}, this.currentRow);
       this.dialogVisible = true;
       this.dialogtype = 1;
@@ -220,7 +210,8 @@ export default {
       this.dialogtype = 0;
       this.formValue = {
         cRoleName: "",
-        isSuperAdmin: false
+        isSuperAdmin: false,
+        IsInspector:false
       };
     },
     //提交修改新增
@@ -231,16 +222,13 @@ export default {
         }
 
         this.sunBtnLoad = true;
-        if (this.dialogtype) {
-          Role.editRole(this.formValue)
+        this.formValue.IsInspector = this.formValue.IsInspector ? 1 :0;
+        if (!this.dialogtype) {
+          Role.addRole(this.formValue)
             .then(res => {
               this.dialogVisible = false;
               this.sunBtnLoad = false;
-              this.$message({
-                type: "success",
-                message: "新增用户成功",
-                showClose: true
-              });
+              this.$myMessage('success','新增岗位成功');
               this.getRoleList();
             })
             .catch(res => {
@@ -248,15 +236,11 @@ export default {
             });
           return;
         } else {
-          Role.addRole(this.formValue)
+          Role.editRole(this.formValue)
             .then(res => {
               this.sunBtnLoad = false;
               this.dialogVisible = false;
-              this.$message({
-                type: "success",
-                message: "编辑用户成功",
-                showClose: true
-              });
+              this.$myMessage('success','编辑岗位成功');
               this.getRoleList();
             })
             .catch(res => {
@@ -265,9 +249,17 @@ export default {
         }
       });
     },
-    //关闭修改新增弹窗
     handleClose(done) {
-      done();
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        done();
+      });
+    },
+    editFormSubmitCancle() {
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        this.dialogVisible = false;
+      });
     },
     //权限管理模块打开
     modularDialogOpen(row) {
@@ -283,11 +275,7 @@ export default {
     //权限管理模块提交
     modularDialogSubmit(functionIds) {
       if (!functionIds.length) {
-        this.$message({
-          type: "error",
-          message: "权限不能为空",
-          showClose: true
-        });
+        this.$myMessage('error','权限不能为空');
         this.modulaBtnVisable = false;
         return;
       }

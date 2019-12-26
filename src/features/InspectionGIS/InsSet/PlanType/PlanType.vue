@@ -4,7 +4,7 @@
     <el-form >
     <el-row>
       <el-col :span="8" :xs="12" :sm="12" :lg="8">
-      <el-form-item label="类别：" label-width="56px" class="formItemNone">
+      <el-form-item label="计划类别：" label-width="70px" class="formItemNone">
         <el-select v-model="attRListValue" size="mini" @change="AttrChange">
           <el-option
             v-for="item in attRList"
@@ -19,13 +19,13 @@
     </el-row>
     <div class="table-btn-control">
       <el-row type="flex" justify="start">
-      <el-button class="my-tableout" plain size="mini" @click="addItem" v-if="$options.filters.btnTree('/api/PlanType/Post' ,$route.meta.iFunID)">
-        <i class="iconfont icon-xinzeng"></i>新增
+      <el-button class="my-tableout" plain size="mini" @click="addItem" v-if="$options.filters.btnTree('/api/PlanType/Post' ,$route.name)">
+        <i class="iconfont icon-xinzeng"></i>新增计划
       </el-button>
-      <el-button class="my-tableout" size="mini" @click="editItem" v-if="$options.filters.btnTree('/api/PlanType/Put' ,$route.meta.iFunID)">
-        <i class="iconfont icon-bianji"></i>编辑
+      <el-button class="my-tableout" size="mini" @click="editItem" v-if="$options.filters.btnTree('/api/PlanType/Put' ,$route.name)">
+        <i class="iconfont icon-bianji"></i>编辑计划
       </el-button>
-      <el-button class="my-tableout" size="mini" @click="delItem" v-if="$options.filters.btnTree('/api/PlanType/Delete' ,$route.meta.iFunID)">
+      <el-button class="my-tableout" size="mini" @click="delItem" v-if="$options.filters.btnTree('/api/PlanType/Delete' ,$route.name)">
         <i class="iconfont icon-shanchu"></i>删除
       </el-button>
     </el-row>
@@ -41,7 +41,10 @@
       class="myDialog"
       >
       <el-form label-width="120px" size="small">
-        <el-form-item label="计划类型：">
+        <el-form-item label="类别名称：">
+          <el-input v-model="formValue.PlanTypeName" @change="PlanTypeNameC"></el-input>
+        </el-form-item>
+        <el-form-item label="类型名称：">
           <el-select v-model="formValue.ParentTypeId">
             <el-option
               v-for="item in attRList"
@@ -50,9 +53,6 @@
               :value="item.PlanTypeId"
             ></el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="计划类别：">
-          <el-input v-model="formValue.PlanTypeName"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -108,6 +108,18 @@ export default {
     this.GetData();
   },
   methods: {
+    PlanTypeNameC(){
+      this.formValue.PlanTypeName = this.formValue.PlanTypeName.replace(/\s+/g, '');
+      let isTrueE = /^[A-Za-z0-9\u4e00-\u9fa5]{0,20}$/.test(this.formValue.PlanTypeName);
+      if(!isTrueE){
+        this.$message({
+          type: "error",
+          message: "类别名称不合法",
+          showClose: true
+        });
+        this.formValue.PlanTypeName = "";
+      }
+    },
     //初始化数据
     onLoadData() {
       PlanType.PlanTypeLoad().then(res => {
@@ -141,6 +153,7 @@ export default {
       let _PlanTypeName = this.formValue.PlanTypeName;
       let _ParentTypeId = this.formValue.ParentTypeId;
       let _PlanTypeId = this.formValue.PlanTypeId;
+      let _iAdminID = JSON.parse(sessionStorage.getItem("store")).iAdminID;
       if (!_PlanTypeName) {
         this.$message({
           type: "error",
@@ -165,7 +178,7 @@ export default {
         return;
       }
       //新增提交方法
-      PlanType.PlanTypeAdd(_PlanTypeName, _ParentTypeId).then(res => {
+      PlanType.PlanTypeAdd(_PlanTypeName, _ParentTypeId,_iAdminID).then(res => {
         this.dialogVisible = false;
         this.$message({
           type: "success",
@@ -183,13 +196,13 @@ export default {
     addItem() {
       this.formValueSet();
       this.dialogVisible = true;
-      this.dialogTitle = "新增";
+      this.dialogTitle = "新增计划";
     },
     //修改编辑按钮，显示弹窗
     editItem() {
       if (this.currentRow) {
         this.dialogVisible = true;
-        this.dialogTitle = "编辑";
+        this.dialogTitle = "编辑计划";
         this.formValueSet(this.currentRow);
       } else {
         this.$message({

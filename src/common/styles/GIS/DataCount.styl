@@ -1,36 +1,35 @@
-.count-style{
-
-  .form-btn-wrapper{
+.count-style {
+  .form-btn-wrapper {
     z-index: 2;
     position: absolute;
-    right:0;
+    right: 0;
   }
 
   .choose_Icon_Wraper {
     text-align: left;
 
-    .el-form-item__content{
+    .el-form-item__content {
       .icon {
-        width:30px;
-        height:30px;
+        width: 30px;
+        height: 30px;
         vertical-align: sub;
         fill: currentColor;
         overflow: hidden;
         margin-right: 4px;
       }
-        
+
+      .imgIcon {
+        width: 30px;
+        vertical-align: sub;
+      }
     }
   }
 
   .el-table__footer-wrapper .el-table__footer tr td {
     background: #3b414a;
-    color:#00a5f8;
+    color: #00a5f8;
   }
-
-
 }
-
-
 
 // 图表选择行样式
 .chartChoose {
@@ -40,29 +39,31 @@
   padding-right: 20px;
 }
 
-.charWraper{
-  boxSizing:border-box;
-  padding:0 10px;
+.charWraper {
+  boxSizing: border-box;
+  padding: 0 10px;
   background-color: $tableBgColor;
   border: none;
   position: relative;
 }
 
-.choose-chat-type{
+.choose-chat-type {
   position: absolute;
   top: 2px;
   right: 22px;
-  color:#afbcc4;
+  color: #afbcc4;
   z-index: 1;
-  span{
+
+  span {
     width: 30px;
     height: 30px;
-    line-height:30px;
-    .iconfont{
-      font-size:21px;
+    line-height: 30px;
+
+    .iconfont {
+      font-size: 21px;
     }
-    &.active,
-    &:hover{
+
+    &.active, &:hover {
       color: #fff;
     }
   }

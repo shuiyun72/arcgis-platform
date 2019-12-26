@@ -1,4 +1,7 @@
 // import Vue from "vue/dist/vue.min.js";
+import 'babel-polyfill'
+// require('es6-promise').polyfill();
+// require('es6-promise/auto');
 import Vue from "@vue";
 import App from "./App.vue";
 import router from "./router";
@@ -6,9 +9,9 @@ import store from "./store";
 import "./registerServiceWorker";
 //添加全局过滤器
 import filters from "./filter/filters";
-Object.keys(filters).forEach(key => {  
-  Vue.filter(key, filters[key])  
-}) 
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])
+})
 import VueBus from '@/vue-bus/EventBus';
 Vue.use(VueBus);
 Vue.config.productionTip = false;
@@ -21,16 +24,16 @@ Vue.use(ElementUI)
 
 //引入tooltip插件
 var tooltip = require('tooltip')
-let config  = {
+let config = {
   showDelay: 10,
   style: {
     padding: 6,
-    'font-size':'12px',
+    'font-size': '12px',
     'z-index': 2500,
-    background:'#2f3239',
+    background: '#2f3239',
     color: '#fff',
     'border-radius': '2px',
-    border:'none',
+    border: 'none',
     'margin-left': '-15px',
   }
 }
@@ -56,6 +59,18 @@ import './permission'
 
 // 引入自定义指令
 import '@util/directives.js';
+
+
+
+//对message进行自定义
+Vue.prototype.$myMessage = (type , msg) => {
+  ElementUI.Message({
+    type: type,
+    message: msg,
+    duration: 1000,
+    showClose: true,
+  })
+}
 
 
 new Vue({

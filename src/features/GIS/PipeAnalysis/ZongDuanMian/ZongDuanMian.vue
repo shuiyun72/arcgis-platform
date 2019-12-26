@@ -7,7 +7,7 @@
           :btnMessage="{text:'选择管点',icon:'icon-dingwei',type:'warning'}"
           :layerData="layerData"
           :selectLayerValue.sync="selectLayerValue"
-          v-if="$options.filters.btnTree('choose' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('choose' ,$route.name)"
           :listViewColumn.sync="listViewColumn"
           @searchFnc="choosePipe"
         ></AnalysisSelect>
@@ -16,7 +16,7 @@
             size="mini"
             :key="item.text"
             :class="item.class"
-            v-if="$options.filters.btnTree(item.model ,$route.meta.iFunID)"
+            v-if="$options.filters.btnTree(item.model ,$route.name)"
             @click="btnChange(item.text)"
           >
             <i class="iconfont" :class="item.icon"></i>
@@ -31,7 +31,7 @@
     <el-row class="tab-wraper">
       <el-tabs v-model="tabActiveName" type="card">
         <el-tab-pane label="数据图表" name="first" class="chart-tab">
-          <el-scrollbar style="height: calc(100vh - 256px);"  v-loading="loading">
+          <el-scrollbar style="height: calc(100vh - 256px);" v-loading="loading">
             <div class="my-chart" style="height: 400px; width:600px;"></div>
             <div class="my-table">
               <div class="my-line">
@@ -103,8 +103,9 @@ export default {
   },
   data() {
     return {
-      loading:false,
-      listViewColumn:'',//表格表头
+      myChart: "", //图表对象
+      loading: false,
+      listViewColumn: "", //表格表头
       layerListName: E_zd_Columns,
       tabActiveName: "first", //tab选中值
       flexible: false, //是否收缩左侧表格
@@ -125,12 +126,12 @@ export default {
         {
           text: "导出",
           class: "my-export",
-          model:'export'
+          model: "export"
         },
         {
           text: "清除",
           class: "my-clean",
-          model:'clear'
+          model: "clear"
         }
       ],
       ContourList: [], //高程数据
@@ -143,6 +144,7 @@ export default {
     this.loadData();
   },
   mounted() {
+    this.myChart = echarts.init(document.querySelector(".my-chart"));
     this._MapDataOperation = new MapDataOperation();
     this._MapDataOperation.init(); //初始化
     this.chartInit();
@@ -152,7 +154,7 @@ export default {
     this.$bus.emit("clearGraphics"); //取消绘制方法
   },
   methods: {
-    //调用数据查询和高级空间查询接口
+    //调用数据查询和高级空间查询接口 获取高程数据
     MapDataSearch(Gdata, finish) {
       let pipeURL = MapConfigure.SpatialAnalysisURL.dgxService;
       //let pipeURL = FeatureLayerOperation.getLayerURLByName(this.selectLayerValue[1]);
@@ -184,7 +186,6 @@ export default {
             item.SHAPE_Length = item["length"];
           });
           this.tableLayerData.unshift(...ConnectedDataTotal);
-          console.log(this.tableLayerData);
           this.chartInit();
         },
         0.1
@@ -203,7 +204,7 @@ export default {
       });
       //  if(lineData.length > 6){
       //    lineData.split(0,7)
-      //  } 
+      //  }
       this.TransectionDataLen = lineData.length > 10 ? lineData.length : 10;
       let option = {
         color: ["#03B700"],
@@ -271,10 +272,10 @@ export default {
         ],
         series: [
           {
-            name: "line",
+            name: "linePoint",
             type: "line",
             smooth: true,
-            animation:false,
+            animation: false,
             showAllSymbol: true,
             symbol: "circle",
             lineStyle: {
@@ -287,7 +288,7 @@ export default {
           },
           {
             name: "line",
-            animation:false,
+            animation: false,
             barCategoryGap: "10px",
             type: "bar",
             barGap: "-100%",
@@ -302,7 +303,7 @@ export default {
           },
           {
             name: "dotted",
-            animation:false,
+            animation: false,
             type: "pictorialBar",
             symbol: "rect",
             itemStyle: {
@@ -318,7 +319,7 @@ export default {
           },
           {
             name: "line",
-            animation:false,
+            animation: false,
             type: "line",
             barGap: "-100%",
             lineStyle: {
@@ -335,15 +336,20 @@ export default {
           }
         ]
       };
-      echarts.init(document.querySelector(".my-chart")).setOption(option, true);
+      this.myChart.setOption(option, true);
+      this.myChart.off("click");
+      this.myChart.on("click", params => {
+        if (params.seriesName === "linePoint") {
+          this.onTableRowClick(this.tableLayerData[params.dataIndex]);
+        }
+      });
     },
     loadData() {
       this.layerData = FeatureLayerOperation.getLayer(LayerType.PipeTypeNO);
       this.selectLayerValue.push(this.layerData[0].id);
       this.selectLayerValue.push(this.layerData[0].children[0].id);
-      this.listViewColumn = this.layerData[0].children[0].listViewColumn
+      this.listViewColumn = this.layerData[0].children[0].listViewColumn;
       // this.layerData =[{children:[]}]
-      // console.log(layerData)
       // _.forEach(layerData , group  => {
       //   group.children[0].label = group.label
       //   this.layerData[0].children.push(...group.children)
@@ -364,6 +370,7 @@ export default {
           break;
       }
     },
+    //选择管点 并查询管线
     choosePipe() {
       if (this.gpJoinAnalysisData) {
         this.$bus.emit("clearGDataLayer");
@@ -377,25 +384,22 @@ export default {
           GPResult => {
             this.loading = false;
             this.gpJoinAnalysisData = GPResult;
-            console.log(GPResult);
             //获取数据
             if (GPResult.length > 0) {
               this.ConnectivitySearchFnc();
             } else {
-              this.$message({
-                type: "warning",
-                message: "两点之间没有连通的管线",
-                showClose: true
-              });
+              this.$myMessage("warning", "两点之间没有连通的管线");
             }
           }
         );
       });
     },
+    //高亮管线选中的管线计算空间区域
     ConnectivitySearchFnc() {
-      this.$bus.emit("pipeLineView", this.gpJoinAnalysisData[0]); //高亮管线
-      let ConnectedDataTotal = _.map(this.gpJoinAnalysisData[0], "attributes");
-      let geometry = _.map(this.gpJoinAnalysisData[0], "geometry");
+      this.$bus.emit("pipeLineView", this.gpJoinAnalysisData); //高亮管线
+      let ConnectedDataTotal = _.map(this.gpJoinAnalysisData, "attributes");
+      ConnectedDataTotal = _.uniqBy(ConnectedDataTotal, "OBJECTID");
+      let geometry = _.cloneDeep(_.map(this.gpJoinAnalysisData, "geometry"));
       this.ContourList = [];
       let geometrylen = geometry.length;
       //_.forEach(geometry,(Gdata , index) => this.MapDataSearch(Gdata,index === geometrylen-1))
@@ -404,7 +408,6 @@ export default {
         GdataAll.paths[0].push(...Gdata.paths[0]);
       });
       this.MapDataSearch(GdataAll);
-      console.log(GdataAll);
       //保留三位小数
       this.ConnectedDataTotal = FixFloat(ConnectedDataTotal);
     },

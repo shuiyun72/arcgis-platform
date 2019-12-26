@@ -40,7 +40,7 @@
       </el-form>
       <!-- 添加编辑区域 end -->
       <!-- 添加修改关键点 -->
-      <el-form label-width="66px" size="small" v-show="dialogType != '编辑区域'">
+      <el-form label-width="66px" size="small" v-show="dialogType != '编辑区域'"  maxlength="15">
         <el-form-item label="名称：">
           <el-input :placeholder="请输入标题" v-model="AreaPointName"></el-input>
         </el-form-item>

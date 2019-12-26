@@ -41,79 +41,79 @@ var arcGisMapConfig = {
       // {"level" : 20, "resolution" : 0.000258382675, "scale" : 1},
     ],
     //基础图层
-  BaseLayers: [
+    BaseLayers: [
+    //   {
+    //   layerCName: "遥感图", //图层中文名称
+    //   layerName: 'SatellLayer', //图层编号
+    //   viewIndex: 1, //图层显示顺序
+    //   transValue: 100, //透明度
+    //   iconName: "Layer-Diqiu.png", //图层缩略图
+    //   layerURL: "http://192.168.0.123:6080/arcgis/rest/services/hb/HB_yxt/MapServer", //空间数据地址
+    //   isActive: false //默认显示与隐藏
+    // },
+     {
+      layerCName: "街道图", //图层中文名称
+      layerName: 'StreetLayer', //图层编号
+      viewIndex: 2, //图层显示顺序
+      transValue: 100, //透明度
+      iconName: "Layer-JieDao.png", //图层缩略图
+      layerURL: "http://58.218.184.194:6080/arcgis/rest/services/fx/FX_jdt/MapServer", //空间数据地址
+      isActive: true //默认显示与隐藏
+    }, 
     {
-    layerCName: "影像图", //图层中文名称
-    layerName: 'SatellLayer', //图层编号
-    viewIndex: 1, //图层显示顺序
-    transValue: 100, //透明度
-    iconName: "Layer-Diqiu.png", //图层缩略图
-    layerURL: "http://114.215.126.11:30596/arcgis/rest/services/hb/影像图/MapServer", //空间数据地址
-    isActive: false //默认显示与隐藏
-  }, {
-    layerCName: "街道图", //图层中文名称
-    layerName: 'StreetLayer', //图层编号
-    viewIndex: 2, //图层显示顺序
-    transValue: 100, //透明度
-    iconName: "Layer-JieDao.png", //图层缩略图
-    layerURL: "http://114.215.126.11:30596/arcgis/rest/services/hb/街道图/MapServer", //空间数据地址
-    isActive: true //默认显示与隐藏
-  }, 
-  {
-    layerCName: "地形图", //图层中文名称
-    layerName: 'TerrainLayer', //图层编号
-    viewIndex: 3, //图层显示顺序
-    transValue: 100, //透明度
-    iconName: "Layer-GuanWang.png", //图层缩略图
-    layerURL: "http://114.215.126.11:30596/arcgis/rest/services/hb/HB_vector_new/MapServer", //空间数据地址
-    isActive: false //默认显示与隐藏
-  }],
-  //POI数据定位查询
-  POILayers: {
-    groupCName: "POI查询图层", //图层中文名称
-    groupName: 'GroupPOI', //图层编号
-    layerURL: "http://114.215.126.11:30596/arcgis/rest/services/hb/HB_POI/MapServer", //空间数据地址
-    featureLayers: [{
-      layerCName: "点", //图层中文名称
-      layerName: 'POILayer', //图层编号
-      layerType: 1, //点查询
-      layerIndex: 0, //对应ArcGis图层编号
-      viewIndex: 1 //图层显示顺序
-    }]
-  },
-  //空间数据查询
-  SpatialAnalysisURL: {
-    //编辑
-    urlbianji: "http://106.3.45.220:6080/arcgis/rest/services/china_region/MapServer",
-    //几何服务=》
-    GeometryService: "http://47.104.3.68:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer",
-    //打印服务
-    PrintService: "http://47.104.3.68:6080/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
-    //等高线服务
-    dgxService: "http://114.215.126.11:30596/arcgis/rest/services/hb/HB_DGX/MapServer/0",
-  },
-
+      layerCName: "地形图", //图层中文名称
+      layerName: 'TerrainLayer', //图层编号
+      viewIndex: 3, //图层显示顺序
+      transValue: 100, //透明度
+      iconName: "Layer-GuanWang.png", //图层缩略图
+      layerURL: "http://58.218.184.194:6080/arcgis/rest/services/fx/FX_yxt/MapServer", //空间数据地址
+      isActive: false //默认显示与隐藏
+    }],
+    //POI数据定位查询
+    POILayers: {
+      groupCName: "POI查询图层", //图层中文名称
+      groupName: 'GroupPOI', //图层编号
+      layerURL: "http://58.218.184.194:6080/arcgis/rest/services/fx/FX_poi/MapServer", //空间数据地址
+      featureLayers: [{
+        layerCName: "点", //图层中文名称
+        layerName: 'POILayer', //图层编号
+        layerType: 1, //点查询
+        layerIndex: 0, //对应ArcGis图层编号
+        viewIndex: 1 //图层显示顺序
+      }]
+    },
+    //空间数据查询
+    SpatialAnalysisURL: {
+      //编辑
+      urlbianji: "http://106.3.45.220:6080/arcgis/rest/services/china_region/MapServer",
+      //几何服务=》
+      GeometryService: "http://58.218.184.194:6080/arcgis/rest/services/Utilities/Geometry/GeometryServer",
+      //打印服务
+      PrintService: "http://58.218.184.194:6080/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task",
+      //等高线服务
+      dgxService: "http://58.218.184.194:6080/arcgis/rest/services/fx/FX_dgx/MapServer/0",
+    },
     //特征图层配置
     FeatureLayerGroup: [
       {
         groupCName: "冷水管网", //特征图层中文名称
         groupName: "ColdWaterLayer", //英文名称
-        layerURL: "http://114.215.126.11:30596/arcgis/rest/services/hb/HB_pipe/MapServer", //图层基础URL地址
-        GPService: "http://47.104.3.68:6080/arcgis/rest/services/hb/连通性分析/GPServer/连通性分析", //分析服务地址
+        layerURL: "http://58.218.184.194:6080/arcgis/rest/services/fx/FX_pipe/MapServer", //图层基础URL地址
+        GPService: "http://58.218.184.194:6080/arcgis/rest/services/fx/连通性分析/GPServer/连通性分析", //分析服务地址
       }
     ],
     //地图中心点
     MapCenter: {
-      Center_X: 525044.2472089946,
-      Center_Y: 3958462.448799199,
+      Center_X: 462444.6547062417,
+      Center_Y: 3800899.851250,
       Center_Zoom: 7
     },
     MapExtent: {
-      XMin: 518960.1425333049,
-      YMin: 3949388.8184185126,
-      XMax: 530552.1703603537,
-      YMax: 3962982.556834628,
-      SpatialReference: 4547
+      XMin: 433703.6710154075,
+      YMin: 3804180.357570882,
+      XMax: 490369.6617651227,
+      YMax: 3872663.384633132,
+      SpatialReference: 4548
     },
     //比例尺缩放到哪个级别时切换地图
     MapChange: {

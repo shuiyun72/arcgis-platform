@@ -13,6 +13,14 @@ export default {
             }
         })
     },
+    //查询人员数据
+    GetUserComboboxListNoDelete(deptId) {
+        return instance.get('/User/GetUserComboboxListNoDelete', {
+            params: {
+                deptId: Number(deptId),
+            }
+        })
+    },
 
     //查询计划周期
     GetPlanCycle() {

@@ -2,7 +2,7 @@
 
 
 <template>
-  <el-select :value="valueTitle" class="selectTree">
+  <el-select :value="valueTitle" class="selectTree" ref="DeptSelect">
     <el-option :value="valueTitle" :label="valueTitle" v-loading="loading">
       <el-scrollbar style="height: 260px;" class="selectTreeScroll">
         <el-tree
@@ -132,7 +132,6 @@ export default {
     },
     // 初始化值
     initHandle() {
-      console.log("initHandle", this.valueId);
       if (this.valueId) {
         this.$refs.selectTree.setCurrentKey(this.valueId); // 设置默认选中
         this.defaultExpandedKey = [this.valueId]; // 设置默认展开
@@ -167,6 +166,7 @@ export default {
       this.valueId = node[this.selectTreeProps.value];
       this.$emit("getChildChange", this.name, this.valueId);
       this.defaultExpandedKey = [];
+      this.$refs.DeptSelect.blur();
     },
     valueTitleParent(node, parentTitle) {
       if (node) {

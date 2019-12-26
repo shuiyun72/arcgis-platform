@@ -27,13 +27,25 @@
         :height="tableHeight"
         highlight-current-row
       >
-        <el-table-column
+      <!-- <el-table-column
           v-for="column in columnList"
           :key="column.text"
-          :prop="column.field"
+          :prop="PersonName"
           :label="column.text"
           :width="column.width"
           :align ="column.align"
+        ></el-table-column> -->
+        <el-table-column
+          :key="columnList[0].text"
+          prop="PersonName"
+          label="上报人员"
+          :align ="columnList[0].align"
+        ></el-table-column>
+        <el-table-column
+          :key="columnList[0].text"
+          prop="ECount"
+          label="上报事件次数"
+          :align ="columnList[0].align"
         ></el-table-column>
       </el-table>
       <el-pagination
@@ -43,7 +55,7 @@
         :page-sizes="[50,100, 200]"
         :page-size="currentPageSize"
         :pager-count="5"
-        layout=" sizes, prev, next, jumper"
+        layout="total, sizes, prev, pager, next, jumper"
         :total="squareQueryTotal"
       ></el-pagination>
     </el-row>
@@ -58,7 +70,8 @@ import echarts from "echarts";
 // import DateBtnChoose from "./DateBtnChoose";
 import DateBtnChoose from "@features/InspectionGIS/components/DateBtnChoose";
 import TableFormTitle from "@common/components/TableFormTitle";
-
+//柱状图 折线图
+import EventManageForMaintain from "@api/Maintain/EventManageForMaintain";
 import { ChartBarZoom, ChartBrokenLine, ChartBarGIS } from "@util/echart";
 export default {
   components: {
@@ -70,7 +83,26 @@ export default {
       squareQueryTotal:2,
       flexible: false, //是否收缩左侧表格
       titleName: "事件趁势分析",
+      // 柱状
       getData: [
+        { 2: "1", 3: "10" },
+        { 2: "10", 3: "102" },
+        { 2: "15", 3: "102" },
+        { 2: "16", 3: "102" },
+        { 2: "154", 3: "120" },
+        { 2: "11", 3: "120" }
+      ],
+      // 柱状
+      getBarData: [
+        { 2: "1", 3: "10" },
+        { 2: "10", 3: "102" },
+        { 2: "15", 3: "102" },
+        { 2: "16", 3: "102" },
+        { 2: "154", 3: "120" },
+        { 2: "11", 3: "120" }
+      ],
+      // 折线
+      getLineData: [
         { 2: "1", 3: "10" },
         { 2: "10", 3: "102" },
         { 2: "15", 3: "102" },
@@ -91,7 +123,7 @@ export default {
       tableHeight:'calc(100vh - 552px)',
       chartBar:null,//两个图表便于引用resize
       chartBrokenLine:null,
-
+      Xarr:[],//折线图x轴数据
     };
   },
   created() {
@@ -100,7 +132,7 @@ export default {
   },
   mounted() {
     //图表显示
-    this.gtCharInitGauge();
+    // this.gtCharInitGauge();
   },
 
   methods: {
@@ -111,7 +143,6 @@ export default {
       }      
     },
     controlTableHeight(state){
-      console.log(state)
       if(state){
         this.tableHeight ='calc(100vh - 582px)'
       }else{
@@ -120,12 +151,15 @@ export default {
     },
     //初始化
     init() {
-      this.squareQueryTotal = this.getData.length
+      this.getEventsBar();
+      this.getEChatLine();
+      this.GetEvents();
       this.columnList = TableData.Mai_Analysis_Columns;
     },
     gtCharInitGauge(chartBarZoomData, chartBrokenLineData) {
+      // this.squareQueryTotal = 10;
       //图表显示
-      this.chartBarZoom.series[0].data = _.map(this.getData, "3");
+      this.chartBarZoom.series[0].data = _.map(this.getBarData, "ECount");
       this.chartBarZoom.title.text = "柱状图展示";
       this.chartBarZoom.title.x = "left"
       this.chartBarZoom.title.top= 12
@@ -137,7 +171,7 @@ export default {
             letterSpacing: 0.7,
         }
       this.chartBarZoom.toolbox = null;
-      this.chartBarZoom.xAxis[0].data = _.map(this.getData, "2");
+      this.chartBarZoom.xAxis[0].data = _.map(this.getBarData, "EventFromName");
       (this.chartBarZoom.grid = {
         top: "100px",
         left: "20px",
@@ -152,24 +186,88 @@ export default {
       this.chartBrokenLine = _.cloneDeep(this.chartBarZoom),
       this.chartBrokenLine.title.text = "折线图展示";
       this.chartBrokenLine.series[0].type = "line";
-      this.chartBrokenLine.series[0].data = _.map(this.getData, "3");
-      this.chartBrokenLine.xAxis[0].data = _.map(this.getData, "2");
+      // this.chartBrokenLine.series[0].data = _.map(this.getLineData, "data");
+      // this.chartBrokenLine.xAxis[0].data = _.map(this.getLineData, "Xarr");
+      this.chartBrokenLine.series = this.getLineData.p3;
+      this.chartBrokenLine.xAxis[0].data = this.Xarr;
+      this.chartBrokenLine.xAxis[0].axisLabel = { rotate : 45 };
+      this.chartBrokenLine.xAxis[0].boundaryGap = false;
+      this.chartBrokenLine.grid = {
+        top: "100px",
+        left: "40px",
+        right: "30px",
+        bottom: "2px",
+        containLabel: true
+      }
+      
+      // 折线图去掉legend
+      // this.chartBrokenLine.legend[0].data = [];
       this.chartLine = echarts.init(document.querySelector(".charWraper.job2"))
+      this.chartBrokenLine.legend = null;
       this.chartLine.setOption(this.chartBrokenLine); 
     },
     // 分页相关
     onPageChange(objvalue) {
       this.currentPageNumber = objvalue;
+      this.GetEvents();
     },
     //当前页数据变化
     onPageSizeChange(objvalue) {
       this.currentPageSize = objvalue;
+      this.GetEvents();
     },
     //上报时间
     SubmitTime(startTime, endTime) {
       this.SubmitStartTime = startTime;
       this.SubmitEndTime = endTime;
-      console.log(startTime + " " + endTime);
+      this.getEventsBar();
+      this.getEChatLine();
+      this.GetEvents();
+    },
+    // 获取柱状图数据
+    getEventsBar(){
+      EventManageForMaintain.EChatbar(this.SubmitStartTime,this.SubmitEndTime).then(res=>{
+        let temp = JSON.stringify(res.data.Data.Result);
+        this.getBarData = JSON.parse(temp);
+        this.gtCharInitGauge();
+      })
+    },
+    // 获取折线图数据
+    getEChatLine(){
+      EventManageForMaintain.EChatLine(this.SubmitStartTime,this.SubmitEndTime).then(res=>{
+        let temp = JSON.stringify(res.data.Data.Result);
+        this.getLineData = JSON.parse(temp);
+        _.each(this.getLineData.p3,(res,index)=>{
+          if(res.name == "接电上报"){
+            this.getLineData.p3[index] = _.assign({},{color:"#3088c2"},res)
+          }
+        })
+        // else if(res.name == "调度事件"){
+        //     this.getLineData.p3[index] = _.assign({},{color:"#c23030"},res)
+        //   }else if(res.name == "临时工作"){
+        //     this.getLineData.p3[index] = _.assign({},{color:"#30b1c2"},res)
+        //   }else if(res.name == "热线系统"){
+        //     this.getLineData.p3[index] = _.assign({},{color:"#d27632"},res)
+        //   }else if(res.name == "日常工作处理"){
+        //     this.getLineData.p3[index] = _.assign({},{color:"#30c27e"},res)
+        //   }else if(res.name == "巡检上报"){
+        //     this.getLineData.p3[index] = _.assign({},{color:"#c2b230"},res)
+        //   }
+        this.Xarr = this.getLineData.p1.split(',');
+        this.gtCharInitGauge();
+      })
+    },
+    // 获取数据表格
+    GetEvents(){
+      let sort = "PersonName";
+      let ordering = "desc";
+      let num = this.currentPageSize;
+      let page = this.currentPageNumber;
+      EventManageForMaintain.GetEvents(this.SubmitStartTime,this.SubmitEndTime,sort,ordering,num,page).then(res=>{
+        let temp = JSON.stringify(res.data.Data.Result);
+        this.getData = JSON.parse(temp);
+        this.squareQueryTotal = res.data.Data.TotalRows
+      })
     }
   }
 };
