@@ -37,8 +37,9 @@ export default {
     },
 
     //修改关键点
-    EditMapPlane(PointId, PointName, PointX, PointY) {
+    EditMapPlane(PlanAreaId,PointId, PointName, PointX, PointY) {
         return instance.put('/PointArea/Put?pointId=' + PointId, {
+            PlanAreaId: Number(PlanAreaId),
             PointId: Number(PointId),
             PointName: String(PointName),
             PointX: String(PointX),

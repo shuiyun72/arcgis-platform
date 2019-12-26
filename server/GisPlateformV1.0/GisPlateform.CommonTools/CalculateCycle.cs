@@ -144,7 +144,7 @@ namespace GisPlateform.CommonTools
                 //初始化周最后一天的日期,可以进行多次复用
                 DateTime CurrentWeekEndDate;
                 //获取当前系统时间
-                DateTime CurrentDate = DateTime.Parse(System.DateTime.Now.ToString("yyyy-MM-dd") + " 00:00:00");
+                DateTime CurrentDate =StartDay;
                 //1-3:获取到本月的第一天是星期几
                 int DayOfWeek = int.Parse(DateTime.Parse(CurrentMonthFirstDay).DayOfWeek.ToString("d"));
                 //1-4:找到本月第一天的日期
@@ -284,7 +284,7 @@ namespace GisPlateform.CommonTools
                 //1-1:获取本年第一天的日期
                 DateTime CurrentYearFirstDay = DateTime.Parse(System.DateTime.Now.ToString("yyyy") + "-01-01" + " 00:00:00");
                 //1-2:获取当前系统时间
-                DateTime CurrentDate = DateTime.Parse(System.DateTime.Now.ToString("yyyy-MM-dd") + " 00:00:00");
+                DateTime CurrentDate =StartDay;
                 //第二步:进行迭代计算周期计划
                 for (int i = 0; i < 4; i++)
                 {
@@ -333,7 +333,7 @@ namespace GisPlateform.CommonTools
             try
             {
                 //第一步:获取到当前系统时间
-                DateTime CurrentDate = DateTime.Parse(System.DateTime.Now.ToString("yyyy-MM-dd") + " 00:00:00");
+                DateTime CurrentDate =StartDay;
                 //1-1:年开始时间
                 DateTime CurrentYearDateStart = CurrentDate;
                 //1-2:年结束时间
@@ -373,7 +373,7 @@ namespace GisPlateform.CommonTools
             try
             {
                 //第一步:获取到当前系统时间
-                DateTime CurrentDate = DateTime.Parse(System.DateTime.Now.ToString("yyyy-MM-dd") + " 00:00:00");
+                DateTime CurrentDate =StartDay;
                 //第二步:获取本月第一天
                 DateTime CurrentMonthFirstDay = DateTime.Parse(System.DateTime.Now.ToString("yyyy-MM") + "-01" + " 00:00:00");
                 //第二步:获取本月最后一天

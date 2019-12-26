@@ -7,7 +7,7 @@
         plain
         size="mini"
         @click="addItem"
-        v-if="$options.filters.btnTree('/api/EventType/Post' ,$route.meta.iFunID)"
+        v-if="$options.filters.btnTree('/api/EventType/Post' ,$route.name)"
       >
         <i class="iconfont icon-xinzeng"></i>新增
       </el-button>
@@ -15,7 +15,7 @@
         class="my-tableout"
         size="mini"
         @click="editItem"
-        v-if="$options.filters.btnTree('/api/EventType/Put' ,$route.meta.iFunID)"
+        v-if="$options.filters.btnTree('/api/EventType/Put' ,$route.name)"
       >
         <i class="iconfont icon-bianji"></i>编辑
       </el-button>
@@ -23,7 +23,7 @@
         class="my-tableout"
         size="mini"
         @click="delItem"
-        v-if="$options.filters.btnTree('/api/EventType/Delete' ,$route.meta.iFunID)"
+        v-if="$options.filters.btnTree('/api/EventType/Delete' ,$route.name)"
       >
         <i class="iconfont icon-shanchu"></i>删除
       </el-button>
@@ -36,24 +36,23 @@
       class="myDialog"
     >
       <el-form label-width="80px" size="small">
-        <el-form-item label="事件名称：">
-          <el-input v-model="formValue.EventTypeName" placeholder="请输入事件名称"></el-input>
+        <el-form-item label="事件类型：">
+          <el-input v-model="formValue.EventTypeName" placeholder="请输入事件名称(限制20字符内)" @change="EventTypeNameC" maxlength=20></el-input>
         </el-form-item>
-        <el-form-item label=" 处理小时：">
-          <!-- <el-input v-model="formValue.ExecTime" type="number"></el-input> -->
-          <el-input-number
+        <el-form-item label=" 处理小时：" v-show="false">
+          <el-input
             ref="numberInput"
             v-if="dialogTitle == '新增'"
             @change="ExecTimeChange"
             controls-position="right"
             placeholder="请输入执行时间"
-          ></el-input-number>
-          <el-input-number
+          ></el-input>
+          <el-input
             v-else
             v-model="formValue.ExecTime"
             controls-position="right"
             placeholder="请输入执行时间"
-          ></el-input-number>
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -98,7 +97,7 @@ export default {
       dialogTitle: "", //弹框标题
       formValue: {
         EventTypeName: "",
-        ExecTime: ""
+        ExecTime: 12
       } //弹框数据
     };
   },
@@ -111,6 +110,18 @@ export default {
     }
   },
   methods: {
+    EventTypeNameC(){
+      this.formValue.EventTypeName = this.formValue.EventTypeName.replace(/\s+/g, '');
+      let isTrueE = /^[A-Za-z0-9\u4e00-\u9fa5]{0,20}$/.test(this.formValue.EventTypeName);
+      if(!isTrueE){
+        this.$message({
+          type: "error",
+          message: "事件名称不合法",
+          showClose: true
+        });
+        this.formValue.EventTypeName = "";
+      }
+    },
     //input输入框绑定事件
     ExecTimeChange(value) {
       this.formValue.ExecTime = value;
@@ -125,7 +136,7 @@ export default {
         this.$refs.numberInput.currentValue = undefined;
         this.formValue = {
           EventTypeName: "",
-          ExecTime: ""
+          ExecTime: 12
         };
       }
     },
@@ -141,6 +152,7 @@ export default {
         this.pageSize = pageSize;
       }
       EvenType.EventTypeAll(this.pageSize, this.pageNumber).then(res => {
+        console.log(res)
         this.loading = false;
         this.columnListData = res.data.Data.Result;
         this.dataTotal = res.data.Data.TotalRows;
@@ -204,6 +216,7 @@ export default {
     },
     //新增弹框控制
     addItem() {
+      this.formValue.EventTypeName = "";
       this.dialogVisible = true;
       this.dialogTitle = "新增";
       this.formValueSet();

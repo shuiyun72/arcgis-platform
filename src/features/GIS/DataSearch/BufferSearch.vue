@@ -1,18 +1,15 @@
 <template>
-  <div class="table_style w700" :class="{flexible:flexible}">
+  <div class="table_style w700 count-style" :class="{flexible:flexible}" v-loading="loading">
     <TableFormTitle :titleName="'缓冲查询'" :flexible.sync="flexible"></TableFormTitle>
     <el-form label-width="83px" label-position="right">
       <el-row>
-        <el-col class="table-left" :xs="12" :sm="12" :lg="8">
+        <el-col class="table-left" :xs="12" :sm="10" :lg="7">
           <layerSelect
             :layerGroupLen.sync="layerGroupLen"
             :layerData.sync="bufferData"
             :loading.sync="loading"
             :groupLayerDataValue.sync="groupLayerDataValue"
             :layerDataValue.sync="layerDataValue"
-            :layerListName.sync="layerListName"
-            @onLayerSelectChange="onLayerSelectChange"
-            @onGroupLayerSelectChange="onLayerSelectChange"
           ></layerSelect>
         </el-col>
 
@@ -20,14 +17,32 @@
           <span class="iconfont icon-dian" @click="onPointBuffer"></span>
           <span class="iconfont icon-xiantiao-line" @click="onLineBuffer"></span>
         </el-col>-->
-        <el-col :xs="12" :sm="12" :lg="10">
+        <el-col :xs="12" :sm="12" :lg="8">
           <el-form-item
             label="缓冲半径(米)："
             style="padding-left:20px"
-            label-width="120px"
+            label-width="110px"
             @keyup.enter.native="bufferSearch"
           >
-            <el-input-number v-model="bufferRadius" controls-position="right"></el-input-number>
+            <el-input-number
+              v-model="bufferRadius"
+              controls-position="right"
+              :precision="0"
+              :controls="false"
+              min="1"
+            ></el-input-number>
+          </el-form-item>
+        </el-col>
+        <el-col  :xs="24"  :sm="24" :md="24" :lg="9" :span="10" v-if="$options.filters.btnTree('sSearch' ,$route.name)">
+          <el-form-item label="选择范围：" class="choose_Icon_Wraper">
+            <img
+              class="imgIcon"
+              v-for="item in shapeList"
+              :key="item"
+              @click="mapSelectStatices(item)"
+              :src=" require('@assets/toolIcon/action/'+ item  + (shapeActive === item ? 'active.png' : '.png'))"
+              alt
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -35,74 +50,20 @@
         <el-button
           class="my-search"
           size="mini"
-          @click="equipmentSearch"
-          style="margin-right:10px;"
-          v-if="$options.filters.btnTree('eSearch' ,$route.meta.iFunID)"
-        >设备区域</el-button>
-        <el-popover
-          popper-class="buffer-popover"
-          placement="bottom-start"
-          width="10"
-          trigger="click"
-        >
-          <div class="choose-Icon-shape">
-            <span style>请选择：</span>
-            <span>
-              <svg
-                class="icon"
-                aria-hidden="true"
-                @click="mapSelectStatices('画圆')"
-                :class="{active:shapeActive == '画圆'}"
-              >
-                <use xlink:href="#icon-caozuoxingzhuang-2" />
-              </svg>
-            </span>
-            <span>
-              <svg
-                class="icon"
-                aria-hidden="true"
-                @click="mapSelectStatices('长方形')"
-                :class="{active:shapeActive == '长方形'}"
-              >
-                <use xlink:href="#icon-caozuoxingzhuang-1" />
-              </svg>
-            </span>
-            <span>
-              <svg
-                class="icon"
-                aria-hidden="true"
-                @click="mapSelectStatices('多边形')"
-                :class="{active:shapeActive == '多边形'}"
-              >
-                <use xlink:href="#icon-caozuoxingzhuang-" />
-              </svg>
-            </span>
-          </div>
-          <el-button
-            slot="reference"
-            class="my-search"
-            size="mini"
-            style="margin-right:10px;"
-            v-if="$options.filters.btnTree('sSearch' ,$route.meta.iFunID)"
-          >空间区域</el-button>
-        </el-popover>
-        <el-button
-          class="my-search"
-          size="mini"
           @click="bufferSearch"
-          v-if="$options.filters.btnTree('search' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('search' ,$route.name)"
         >查询</el-button>
         <el-button
           class="my-export"
           size="mini"
           @click="exportExcel"
-          v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('export' ,$route.name)"
         >导出</el-button>
         <el-button
           class="my-del"
           size="mini"
           @click="bufferClean"
-          v-if="$options.filters.btnTree('clear' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('clear' ,$route.name)"
         >清除</el-button>
       </el-row>
     </el-form>
@@ -143,6 +104,8 @@ export default {
   },
   data() {
     return {
+      shapeList: ["画圆", "长方形", "多边形", "设备"],
+      shapeActive: "",
       visible: false,
       flexible: false, //是否收缩左侧表格
       eachLayer: [], //全部查询所需的图层信息
@@ -259,14 +222,14 @@ export default {
       this.layerDataValue = "all";
       this.layerListName = "all";
       this.groupLayerDataValue[1] = "all";
-      this.attRList =
-        MapConfigure.FeatureLayerGroup[0].featureLayers[0].featureColumn;
+      this.attRList = this.activeItem.featureColumn;
       this.eachLayer = this.getEachLayer();
     },
     //清除buffer在地图的展示
     bufferClean() {
       this.$bus.emit("clearGDataLayer"); //清除绘制过的图层数据信息
       this.$bus.emit("clearGraphics"); //取消绘制方法
+      this.shapeActive = "";
       this._GData = null;
       //this.loading = true;
       this.drawType = "";
@@ -285,6 +248,7 @@ export default {
           "featureQueryTask",
           this._GData,
           res => {
+            this.shapeActive = "";
             let layerData = [];
             _.forEach(res, item => {
               if (item.layerData.length) {
@@ -315,13 +279,24 @@ export default {
     },
     //地图框选统计
     mapSelectStatices(_drawType) {
+      if (this.shapeActive === _drawType) {
+        this.shapeActive = "";
+        this.$bus.emit("clearGraphics", true);
+        return;
+      }
+      this.shapeActive = _drawType;
+      if (_drawType === "设备") {
+        this.equipmentSearch();
+        return;
+      }
+
       this.drawType = _drawType;
       this._GData = null;
       //条件组合
       this.$bus.emit("getStatisticsResult", _drawType, resultValue => {
         //this.loading = true;
         this._GData = resultValue;
-        //console.log('equipmentSearch',resultValue)
+        this.shapeActive = "";
         //this.allBufferSearch();
         return;
       });
@@ -401,8 +376,9 @@ export default {
             }
             let resArray = [];
             _.forEach(result, item => {
-              item.length && resArray.push(...item);
+              item && item.length && resArray.push(...item);
             });
+
             this.columnListData = resArray;
           })
           .catch(err => {
@@ -423,7 +399,10 @@ export default {
         this.activeItem = FeatureLayerOperation.getLayerFeatureByName(layer);
       }
 
-      if (this.activeItem.layerType == LayerType.PipeTypeNO) {
+      if (
+        this.activeItem.layerType === LayerType.PipeTypeNO ||
+        this.activeItem.layerType === LayerType.PipeDiscardTypeNO
+      ) {
         // //展示线
         this.$bus.emit("pipeLineView", resultValue); //线高亮
       } else {
@@ -433,6 +412,11 @@ export default {
     },
     //缓冲区查询事件
     bufferSearch() {
+      if (!this.bufferRadius) {
+        this.$myMessage("warning", "缓冲区半径为必填项，且不能小于1");
+        this.bufferRadius = 1;
+        return;
+      }
       this.loading = true;
       if (this.layerDataValue == "all") {
         this.layerListName = "all";
@@ -536,15 +520,6 @@ export default {
         });
       }
       return eachData; //所有的图层
-    },
-    //图层下拉选择
-    onLayerSelectChange(objvalue) {
-      this.activeItem = FeatureLayerOperation.getLayerFeatureByName(
-        this.layerDataValue
-      );
-      //设置选中列的前端列表控件列
-      this.columnListData = "";
-      //this.bufferSearch();
     },
     onSearch(layer, callBack) {
       this.loading = true;

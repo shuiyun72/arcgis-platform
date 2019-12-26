@@ -105,11 +105,15 @@ export default {
       currentPageSize: 10,
       paginatedTableData: [],
       bottomType: "", //底部提交显示区域或路线
-      DoneDrawPoint:undefined
+      DoneDrawPoint:undefined,
+      calcHeight:""
     };
   },
   created() {
     this.$bus.on("resteRegionalPointData", this.resteRegionalPointData); //更新数据
+  },
+  mounted(){
+    this.calcHeight = document.getElementsByClassName("calcHeight")[0].clientHeight/4;
   },
   beforeDestroy() {
     this.$bus.off("resteRegionalPointData", this.resteRegionalPointData); //更新数据
@@ -130,9 +134,9 @@ export default {
     },
     layerHeight() {
       if (this.layerDataValue == "RouteManagement") {
-        return "275px";
+        return this.calcHeight + "px";
       } else {
-        return "278px";
+        return this.calcHeight + "px";
       }
     }
   },
@@ -220,6 +224,7 @@ export default {
     getPointArray(){
       // this.$bus.emit('endEditFeature',false)
       // this.$bus.emit('setBusinessLayerGroupVisible',false)
+      console.log(this.currentRow)
       if(!this.impAreaName){
         this.$message({
           type:'warning',
@@ -228,7 +233,7 @@ export default {
         })
       }
       if(this.bottomType == "编辑区域关键点"){
-        InsPointArea.EditMapPlane(this.bottomRow.PointId, this.impAreaName, this.PointArray[0], this.PointArray[1]).then(
+        InsPointArea.EditMapPlane(this.currentRow.PlanAreaId,this.bottomRow.PointId, this.impAreaName, this.PointArray[0], this.PointArray[1]).then(
            res => {
             this.$emit("tableClick",this.currentRow)
             this.$emit("tableDbClick", this.currentRow);
@@ -318,10 +323,25 @@ export default {
         this.squareQueryTotal = res.data.Data.TotalRows;
       });
     },
-    addPoint(val,callBack) {
+    addPoint(val,callBack,feature) {
       this.$bus.emit("OffPointermoveControl");
      this.$bus.emit('removeInteractions')
       this.$bus.emit("addInteractions", "Point", false, res1 => {
+        console.log(res1)
+        console.log(val)
+        console.log(feature)
+        if(feature){
+          var geo = feature.getGeometry();//feture是几何元素
+          var isIn = geo.intersectsCoordinate(res1);
+          if(!isIn){
+            this.$message({
+              type:'warning',
+              message:'请在区域内添加关键点'
+            })
+            return;
+          }
+        }
+       
         this.$bus.emit(
           "setOverlay",
           res1,

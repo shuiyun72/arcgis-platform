@@ -1,6 +1,5 @@
 import _ from 'lodash';
-import 'ol/ol.css';
-
+// import 'ol/ol.css';
 import {
     Draw,
     Modify,
@@ -27,8 +26,7 @@ import {
 } from 'ol/geom.js';
 import LineString from "ol/geom/LineString.js";
 import mapStyle from '@services/OpenLayers/mapStyle.js';
-import * as jsts from 'jsts/dist/jsts.js'
-
+// import * as jsts from 'jsts/dist/jsts.js'
 // var drawTypeSelect;
 var bufferNumber = 0.001
 var plotAnimate = {}
@@ -117,7 +115,7 @@ class MapNavigate {
 
         this.groups.spatialSearchLayerGroup.setVisible(isVisible)
         if (isClear) {
-            this.groups.spatialSearchLayerGroup.getLayers().forEach(layer => {
+            _.forEach(this.groups.spatialSearchLayerGroup.getLayers(), layer => {
                 layer.getSource() && layer.getSource().clear()
             })
         }
@@ -136,8 +134,8 @@ class MapNavigate {
      */
     setBusinessLayerGroupVisible(isVisible) {
         if (!isVisible)
-            this.groups.businessLayerGroup.getLayers().forEach(layer => {
-                layer.getSource() && layer.getSource().clear()
+            _.forEach(this.groups.businessLayerGroup.getLayers(), layer => {
+                    layer.getSource instanceof Function && layer.getSource().clear()
             })
 
         //this.groups.businessLayerGroup.setVisible(isVisible)
@@ -148,8 +146,8 @@ class MapNavigate {
     setTempLayerGroupVisible(isVisible) {
         this.groups.tempLayerGroup.setVisible(isVisible)
         if (!isVisible)
-            this.groups.tempLayerGroup.getLayers().forEach(layer => {
-                layer.getSource() && layer.getSource().clear()
+            _.forEach(this.groups.tempLayerGroup.getLayers(), layer => {
+                layer.getSource instanceof Function && layer.getSource() && layer.getSource().clear()
             })
     }
     /**清空临时图层图层并结束编辑修改交互
@@ -238,7 +236,7 @@ class MapNavigate {
                 source: source
             });
             this.map.addInteraction(modify);
-            source.getFeatures.forEach(value => {
+            _.forEach(source.getFeatures, value => {
                 this.mapInstance.interactions.snap.addFeature(value)
             })
 
@@ -303,14 +301,20 @@ class MapNavigate {
         if (geomArray instanceof Array) {
             let features = []
             let pointLayer = this.businessLayers.pointLayer
-            geomArray.forEach((obj, index) => {
+            _.forEach(geomArray, (obj, index) => {
                 let feature = new Feature({
                     geometry: new Point(obj),
                     name: featureName,
                     properties: isInsertProperties ? featureProperties[index] : undefined
                 })
-
-                feature.setStyle(mapStyle.getStyle('businessLayers.pointLayer',featureProperties[index].EventFromName))
+                if (featureName == "RegionalPoint") {
+                    feature.setStyle(mapStyle.getStyle('businessLayers.pointLayer', featureProperties[index].PointName))
+                } else
+                    if (featureName == "EventPoint") {
+                        feature.setStyle(mapStyle.getStyle('businessLayers.pointLayer', featureProperties[index].EventPoint))
+                    } else {
+                        feature.setStyle(mapStyle.getStyle('businessLayers.pointLayer'))
+                    }
                 features.push(feature)
             })
             pointLayer.setSource(new VectorSource({
@@ -357,16 +361,14 @@ class MapNavigate {
         if (geomArray instanceof Array && nameArray instanceof Array && geomArray.length == nameArray.length) {
             let features = []
             let polygonLayer = this.businessLayers.polygonLayer
-            geomArray.forEach((obj, index) => {
+            _.forEach(geomArray, (obj, index) => {
                 let feature = new Feature({
                     geometry: new Polygon([obj]),
-                    name: nameArray[index],
-
+                    name: nameArray[index]
                 })
                 feature.setStyle(mapStyle.getStyle('businessLayers.polygonLayer', nameArray[index]))
                 features.push(feature)
             })
-
             polygonLayer.setSource(new VectorSource({
                 features: features
             }))
@@ -418,7 +420,7 @@ class MapNavigate {
             let lineStringLayer = this.businessLayers.lineStringLayer
             let polygonLayer = this.businessLayers.polygonLayer
             let isAddBuffer = (bufferArray instanceof Array && bufferArray.length == geomArray.length)
-            geomArray.forEach((obj, index) => {
+            _.forEach(geomArray, (obj, index) => {
                 let feature = new Feature({
                     geometry: new LineString(obj),
                     name: nameArray[index],
@@ -685,6 +687,12 @@ class MapNavigate {
                             <div><strong>事件来源：</strong>${properties.properties.EventFromName}</div>
                             <div><strong>事件描述：</strong>${properties.properties.EventDesc}</div>`;
                         callback(innerHTML, '事件上报')
+                        overlay.setPosition(coodinate)
+                    } else if (properties.name == 'InsMinitor') {
+                        let innerHTML =
+                            `<div><strong>上传人员：</strong>${properties.properties[0].cAdminName}</div>
+                            <div><strong>上传时间：</strong>${properties.properties[0].UpTime.split("T")[0]} ${properties.properties[0].UpTime.split("T")[1]}</div>`;
+                        callback(innerHTML, '巡检轨迹')
                         overlay.setPosition(coodinate)
                     }
                 }

@@ -50,6 +50,7 @@
           :fixed="column.fixed"
           :label="column.text"
           :align="column.align"
+          :title="column.titleC?column.titleC:''"
           :sortable="column.sortable"
         ></el-table-column>
         <!-- 事件管理部分 -->
@@ -58,13 +59,13 @@
           align="center"
           fixed="right"
           width="120"
-          v-if="layeName == 'InsEven' && ($options.filters.btnTree('/api/EventManage/Delete' ,$route.meta.iFunID) || $options.filters.btnTree('detail' ,$route.meta.iFunID))"
+          v-if="layeName == 'InsEven' && ($options.filters.btnTree('/api/EventManage/Delete' ,$route.name) || $options.filters.btnTree('detail' ,$route.name))"
         >
           <template slot-scope="scope" >
-            <el-button size="mini" class="my-table-detail" @click="detailBtn(scope.row)" v-if="$options.filters.btnTree('detail' ,$route.meta.iFunID) ">
+            <el-button size="mini" class="my-table-detail" @click="detailBtn(scope.row)" v-if="$options.filters.btnTree('detail' ,$route.name) ">
               <i class="iconfont icon-xiangqing-copy"></i>
             </el-button>
-            <el-button size="mini" class="my-table-del" @click="deltableItem(scope.row)" v-if="$options.filters.btnTree('/api/EventManage/Delete' ,$route.meta.iFunID) ">
+            <el-button size="mini" class="my-table-del" @click="deltableItem(scope.row)" v-if="$options.filters.btnTree('/api/EventManage/Delete' ,$route.name) ">
               <i class="iconfont icon-shanchu"></i>
             </el-button>
           </template>

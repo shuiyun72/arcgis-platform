@@ -1,22 +1,22 @@
 <template>
-  <div class="table_style formItem" :class="{flexible:flexible}">
-    <TableFormTitle :titleName="'巡检计划管理'" :flexible.sync="flexible"></TableFormTitle>
+  <div class="table_style formItem calcHeight" :class="{flexible:flexible}">
+    <TableFormTitle :titleName="'巡检区域管理'" :flexible.sync="flexible"></TableFormTitle>
     <el-form label-width="48px">
       <el-row>
         <el-col :span="16" style="text-align: left;">
-          <el-button class="my-allArea" size="mini" @click="showAllArea" v-if="$options.filters.btnTree('/api/PlanArea/Get' ,$route.meta.iFunID)">全部区域</el-button>
-          <el-button class="my-closeChoose" size="mini" @click="closeAllArea" v-if="$options.filters.btnTree('clear' ,$route.meta.iFunID)">关闭选择</el-button>
+          <el-button class="my-allArea" size="mini" @click="showAllArea" v-if="$options.filters.btnTree('/api/PlanArea/Get' ,$route.name)">全部区域</el-button>
+          <el-button class="my-closeChoose" size="mini" @click="closeAllArea" v-if="$options.filters.btnTree('clear' ,$route.name)">关闭选择</el-button>
         </el-col>
       </el-row>
       <div class="table-btn-control">
         <el-row type="flex" justify="start">
-          <el-button class="my-tableout" plain size="mini" @click="addRow" v-if="$options.filters.btnTree('/api/PlanArea/Post' ,$route.meta.iFunID)">
+          <el-button class="my-tableout" plain size="mini" @click="addRow" v-if="$options.filters.btnTree('/api/PlanArea/Post' ,$route.name)">
             <i class="iconfont icon-xinzeng"></i>新增
           </el-button>
-          <el-button class="my-tableout" size="mini" @click="editRow" v-if="$options.filters.btnTree('/api/PlanArea/Put' ,$route.meta.iFunID)">
+          <el-button class="my-tableout" size="mini" @click="editRow" v-if="$options.filters.btnTree('/api/PlanArea/Put' ,$route.name)">
             <i class="iconfont icon-bianji"></i>编辑
           </el-button>
-          <el-button class="my-tableout" size="mini" @click="DelectRow" v-if="$options.filters.btnTree('/api/PlanArea/Delete' ,$route.meta.iFunID)">
+          <el-button class="my-tableout" size="mini" @click="DelectRow" v-if="$options.filters.btnTree('/api/PlanArea/Delete' ,$route.name)">
             <i class="iconfont icon-shanchu"></i>删除
           </el-button>
         </el-row>
@@ -33,7 +33,7 @@
       :dataTotal="squareQueryTotal"
       :layeName="'RegionalManagement'"
       :tableIndex.sync="tableIndex"
-      :addShow="$options.filters.btnTree('/api/PointArea/Post' ,$route.meta.iFunID)"
+      :addShow="$options.filters.btnTree('/api/PointArea/Post' ,$route.name)"
       @tableDbClick="tableDbClick"
       @GetData="GetData"
       @currentChange="currentChange"
@@ -46,8 +46,8 @@
       :currentRow="currentRow"
       :layerDataValue="'RegionalManagement'"
       ref="bottomTable"
-      :editShow="$options.filters.btnTree('/api/PointArea/Put' ,$route.meta.iFunID)"
-      :delShow="$options.filters.btnTree('/api/PointArea/Delete' ,$route.meta.iFunID)"
+      :editShow="$options.filters.btnTree('/api/PointArea/Put' ,$route.name)"
+      :delShow="$options.filters.btnTree('/api/PointArea/Delete' ,$route.name)"
       @tableClick="tableClick"
       @endDrawRoint="endDrawRoint"
       @tableDbClick="tableDbClick"
@@ -188,6 +188,7 @@ export default {
         this.currentPageSize,
         this.currentPageNumber
       ).then(res => {
+        console.log(res)
         //区域管理数据
         this.loading = false;
         this.squareQueryRawTableData = res.data.Data.Result;
@@ -203,6 +204,9 @@ export default {
       this.$bus.emit("CloseModifyInteraction");
       this.allAreaGeoTextData = [];
       this.allAreaNamesData = [];
+
+     // this.$bus.emit("setCenter",[115.16432404518437, 33.034719228745395]);
+
       for (let i = 0; i < this.allAreaData.length; i++) {
         try {
           JSON.parse(this.allAreaData[i].GeoText);
@@ -226,7 +230,6 @@ export default {
           });
         });
       }
-
       this.$bus.emit(
         "setPolygonOnMap",
         this.allAreaGeoTextData,
@@ -271,7 +274,7 @@ export default {
       } else {
         this.$message({
           type: "warning",
-          message: "请选择要删除的行!",
+          message: "请选择要删除的区域!",
           showClose: true
         });
       }
@@ -443,13 +446,12 @@ export default {
       );
     },
     //提交数据   获取编辑后区域数组
-    SubmitArea() {
-      let AreaArrayGeoText = undefined;
-      if (_.isEmpty(this.AreaArray)) {
+    SubmitArea() {    
+      let AreaArrayGeoText;
+      if (!_.isEmpty(this.AreaArray)) {
         AreaArrayGeoText = this.AreaArrayStandby;
       } else {
-        let [pullArr] = this.AreaArray;
-        AreaArrayGeoText = JSON.stringify(pullArr);
+        AreaArrayGeoText = JSON.stringify(this.AreaArray[0]);
       }
       this.dialogVisible = false;
       if (this.PlanAreaName.replace(/(^\s*)|(\s*$)/g, "") != "") {
@@ -463,7 +465,9 @@ export default {
           this.isShowAllArea = true;
           this.GetData();
           if (this.AreaArray != undefined) {
-            this.DoneDrawPolygon();
+            if( this.DoneDrawPolygon instanceof Function){
+              this.DoneDrawPolygon();
+            }  
           }
         });
       } else {
@@ -513,13 +517,46 @@ export default {
 
     //单击表格操作
     tableClick(row) {
+      console.log(row)
       row = row || { PlanAreaId: null };
       this.$refs.bottomTable.GetData(row.PlanAreaId);
       row && this.$refs.InsPlanTable.setCurrentRow(row);
+
+      let GeoTextData = [JSON.parse(this.currentRow.GeoText)];
+      this.AreaArrayStandby = this.currentRow.GeoText;
+   
+        this.$bus.emit(
+          "setPolygonOnMap",
+          GeoTextData,
+          [this.currentRow.PlanAreaName],
+          false,
+          (res, func) => {
+            this.AreaArray = res;
+          }
+        );
+      
+      // this.$bus.emit("onPointermoveControl");
+      // this.$bus.emit("CloseModifyInteraction");
+      // if (this.DoneDrawPolygon instanceof Function) {
+      //   this.DoneDrawPolygon();
+      // }
+      // this.isModifyArea(false);
+      // GeoTextCenter(this.currentRow.GeoText, res => {
+      //   this.$bus.emit("setCenter", res);
+      // });
+
+
     },
     //添加关键点
     addPoint(val) {
-      this.$refs.bottomTable.addPoint(val.row);
+      if(this.AreaArray){
+        this.$refs.bottomTable.addPoint(val.row,res=>{},this.AreaArray);
+      }else{
+        this.$message({
+          type:'warning',
+          message:'区域加载中，请重新添加'
+        })
+      }
     }
   }
 };

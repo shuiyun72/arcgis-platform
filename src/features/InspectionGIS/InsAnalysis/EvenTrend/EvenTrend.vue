@@ -45,8 +45,8 @@
         <el-col :span="5" :xs="8" :sm="8" :lg="7">
           <el-row type="flex" justify="end" style="padding:0">
           <el-button class="my-search" size="mini" @click="GetData" 
-          v-if="$options.filters.btnTree('/api/InspectionStatistics/GetEventTypeTrendTable' ,$route.meta.iFunID) && $options.filters.btnTree('/api/InspectionStatistics/GetEventTypeTrendLineChart' ,$route.meta.iFunID)">查询</el-button>
-          <el-button class="my-export" size="mini" @click="exportExcel" v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)">导出</el-button>
+          v-if="$options.filters.btnTree('/api/InspectionStatistics/GetEventTypeTrendTable' ,$route.name) && $options.filters.btnTree('/api/InspectionStatistics/GetEventTypeTrendLineChart' ,$route.name)">查询</el-button>
+          <el-button class="my-export" size="mini" @click="exportExcel" v-if="$options.filters.btnTree('export' ,$route.name)">导出</el-button>
           </el-row>
         </el-col>
       </el-row>
@@ -122,8 +122,13 @@ export default {
       let _year = this.year;
       let _startMonth = this.minMonth;
       let _endMonth = this.maxMonth;
+         if(_year =="" || _year == null){
+          this.$myMessage("warning", "请选择年");
+          this.loading = false;
+          return;
+      }
       //处理表头信息
-      let columnList = _.cloneDeep(this.columnList);
+      let columnList = _.cloneDeep(EasyTable.Ins_EvenTrendAnalysis_Columns);
       for (let i = _startMonth; i <= _endMonth; i++) {
         let clumItem = _.assign({}, this.clumItem);
         clumItem.field = i + "月";

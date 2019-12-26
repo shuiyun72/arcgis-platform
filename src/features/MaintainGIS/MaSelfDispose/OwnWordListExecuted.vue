@@ -93,7 +93,7 @@ export default {
     init() {
       //初始化
       if (this.eventOrderResult) {
-        this.columnList = TableData.Mai_EventBills_Columns;
+        this.columnList = TableData.Mai_DoneOrderBills_Columns;
         this.entrustData = {
           num: this.num,
           page: this.page,
@@ -242,7 +242,7 @@ export default {
           temp[0].OperName2 = "无效";
         }
         this.eventOrderResultLength = res.data.Data.TotalRows;
-        this.columnList = TableData.Mai_EventBills_Columns;
+        this.columnList = TableData.Mai_DoneOrderBills_Columns;
         this.entrustData = {
           num: this.num,
           page: this.page,
@@ -275,7 +275,7 @@ export default {
         this.$message("请选择要作废的工单");
         return;
       }
-      if (!this.currentRow.OrderId) {
+      if(!this.currentRow.OrderId){
         this.$message("此工单未分派,请重新选择");
         return;
       }

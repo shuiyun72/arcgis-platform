@@ -65,6 +65,8 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.InspectionP
         /// <returns></returns>
         public MessageEntity GetCount(DateTime startTime, DateTime endTime)
         {
+            if (endTime != null)
+                endTime = endTime.AddDays(1).AddSeconds(-1);
             var messageEntity = _taskManageDAL.GetPlanListCount(startTime, endTime);
 
             return messageEntity;

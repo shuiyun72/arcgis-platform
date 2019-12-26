@@ -247,7 +247,7 @@ class MapNavigate {
                     break;
                 case this.operType.area://面积量算
                     this.addMeasureToMap(evt);
-                    this.toolbar.deactivate(); //撤销地图绘制功能
+                    // this.toolbar.deactivate(); //撤销地图绘制功能
                     break;
                 //点选
                 case this.operType.pointSelect://点选
@@ -268,18 +268,20 @@ class MapNavigate {
                     this.toolbar.deactivate(); //撤销地图绘制功能
                     break;
                 case this.operType.selectSquibPoint: //爆管点选择绘制
-                    gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
+                    gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("baselayer/dian.gif", 30, 30)));
                     this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     this.toolbar.deactivate(); //撤销地图绘制功能
                     this.mapOperationInit(true, true)
                     break;
                 case this.operType.setJoinJoinAnalysis: //连通分析点选择
-                    gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
+                    gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("baselayer/dian.gif", 30, 30)));
                     this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     break;
                 case this.operType.getMapPoint: //获取地图空间数据点
-                    gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
-                    this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
+                    if (!this.options.NoSympol) {
+                        gLayer.add(new this.modules.Graphic(evt.geometry, this.createPictureMarkerSymbol("baselayer/dian.gif", 30, 30)));
+                    }
+                    this.options.featureQueryCompleted && this.options.featureQueryCompleted instanceof Function && this.options.featureQueryCompleted(evt);
                     this.toolbar.deactivate(); //撤销地图绘制功能
                     break;
                 case this.operType.drawLine: //画线
@@ -321,6 +323,9 @@ class MapNavigate {
                 break;
             case "多边形":
                 this.polygonSelect();
+                break;
+            case "多边形吸附":
+                this.polygonSelect(true);
                 break;
             case "线":
                 this.lineSelect();
@@ -405,7 +410,6 @@ class MapNavigate {
 
     //当前屏幕展示的地图范围
     currentRange() {
-        console.log(this.Map.extent)
         let extent = this.Map.extent
         let coordinates = [[[extent.xmin, extent.ymax], [extent.xmax, extent.ymax], [extent.xmax, extent.ymin], [extent.xmin, extent.ymin], [extent.xmin, extent.ymax]]]
         let polygonJson = {
@@ -432,8 +436,8 @@ class MapNavigate {
 
 
     //多边形选择统计
-    polygonSelect() {
-        this.mapOperationInit(false, false);
+    polygonSelect(snip = false) {
+        this.mapOperationInit(false, snip);
         this.ButtonType = this.operType.areaSelect;
         this.toolbar.activate(this.modules.Draw.POLYGON);
     }
@@ -763,15 +767,19 @@ class MapNavigate {
      */
     setPOIView(popupContent, template) {
         if (!template) {
-            template = "<label font-size=\"24px\">" + popupContent.NAME + "</label>"
+            if (popupContent.NAME) {
+                template = "<label font-size=\"24px\">" + popupContent.NAME + "</label>"
+            }
         }
 
         let setpoint = this.modules.Point(popupContent.geometry.x, popupContent.geometry.y, this.Map.spatialReference);
-        this.Map.graphics.add(new this.modules.Graphic(setpoint, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
+        this.Map.graphics.add(new this.modules.Graphic(setpoint, this.createPictureMarkerSymbol("baselayer/dian.gif", 30, 30)));
         this.Map.infoWindow.clearFeatures();
-        this.Map.infoWindow.setContent(template);
-        this.Map.infoWindow.show(setpoint);
-        this.Map.centerAt(setpoint);
+        if (template) {
+            this.Map.infoWindow.setContent(template);
+            this.Map.infoWindow.show(setpoint);
+        }
+        this.Map.centerAndZoom(setpoint, 8);
     }
 
     //清空函数
@@ -797,6 +805,13 @@ class MapNavigate {
             }
         }
     };
+    //展示部分图层信息
+    setDefinitionExpression(layerName, query) {
+
+        let featureLayer = this.Map.getLayer(layerName);
+        featureLayer.setDefinitionExpression(query);
+
+    }
 
     //绘制分析图层清空
     clearGraphicslayer(layerName) {
@@ -837,31 +852,46 @@ class MapNavigate {
             if (_.isUndefined(objValue.geometry)) {
                 if (templateJson) {
                     gLayer.add(new this.modules.Graphic(new this.modules.Point(objValue.coordinate_x, objValue.coordinate_y, this.Map.spatialReference),
-                        this.createPictureMarkerSymbol(pictureName, 20, 20), tempateValue[index]
+                        this.createPictureMarkerSymbol('mapIcon/' + pictureName, 20, 20), tempateValue[index]
                     ));
                 } else {
                     gLayer.add(new this.modules.Graphic(new this.modules.Point(objValue.coordinate_x, objValue.coordinate_y, this.Map.spatialReference),
-                        this.createPictureMarkerSymbol(pictureName, 20, 20)
+                        this.createPictureMarkerSymbol('mapIcon/' + pictureName, 20, 20)
                     ));
                 }
 
             } else {
                 if (templateJson) {
-                    gLayer.add(new this.modules.Graphic(objValue.geometry, this.createPictureMarkerSymbol(pictureName, 20, 20), tempateValue[index]));
+                    gLayer.add(new this.modules.Graphic(objValue.geometry, this.createPictureMarkerSymbol('mapIcon/' + pictureName, 20, 20), tempateValue[index]));
                 } else {
-                    gLayer.add(new this.modules.Graphic(objValue.geometry, this.createPictureMarkerSymbol(pictureName, 20, 20)));
+                    gLayer.add(new this.modules.Graphic(objValue.geometry, this.createPictureMarkerSymbol('mapIcon/' + pictureName, 20, 20)));
                 }
 
             }
         });
     }
+    //点击Graphicslayer并回调
+    facilitiesViewClick(callback) {
+        let gLayer = this.getFeatureLayerByName("Graphicslayer");
+        this.Map.setInfoWindowOnClick(false)
+        let click = gLayer.on('dbl-click', res => {
+            res.stopPropagation();
+            if (callback && callback instanceof Function) {
+                callback(click, res)
+                setTimeout(() => {
+                    this.Map.setInfoWindowOnClick(true)
+                }, 500);
+
+            }
+        })
+        callback(click)
+    }
 
     //搜索管线高亮
     pipeLineView(pipeCollection) {
-
         let gLayer = this.getFeatureLayerByName("Graphicslayer");
         _.forEach(pipeCollection, objValue => {
-            gLayer.add(new this.modules.Graphic(objValue.geometry, this.createSimpleLineSymbol([255, 87, 34, 1], 3)));
+            gLayer.add(new this.modules.Graphic(objValue.geometry, this.createSimpleLineSymbol([255, 87, 34, 1], 3), { 'type': 1 }));
         });
     }
 
@@ -957,24 +987,19 @@ class MapNavigate {
      * @param {图层名称} _layerName 
      * @param {回调函数} allDoneCallback 
      */
-    featureQueryFeature(_GData, _layerName, allDoneCallback) {
-        let queryTask = new Promise((resolve, reject) => {
-            let CurrentLayer = this.Map.getLayer(_layerName);
-            //声明query对象
-            let query = this.modules.query();
-            //构建缓冲区
-            query.geometry = _GData;
-            query.returnGeometry = true;
-            //执行查询操作
-            CurrentLayer.queryFeatures(query, evt => {
-                resolve(evt.features);
-            }, err => {
-                reject(err)
-            });
-        });
-        queryTask.then(result => {
-            allDoneCallback(result);
-        }).catch(err => {
+    featureQueryFeature(_GData, _layerName, _SearchCondition, allDoneCallback) {
+
+        let CurrentLayer = this.Map.getLayer(_layerName);
+        //声明query对象
+        let query = this.modules.query();
+        //构建缓冲区
+        query.geometry = _GData;
+        query.where = _SearchCondition;
+        query.returnGeometry = true;
+        //执行查询操作
+        CurrentLayer.queryFeatures(query, evt => {
+            allDoneCallback(evt.features);
+        }, err => {
             console.log("空间数据查询", err);
         });
     }
@@ -1020,13 +1045,13 @@ class MapNavigate {
             }
         }
         let taskList = []
-        _.forEach(MapConfigure.FeatureLayerGroup, (GroupValue,index) => {
+        _.forEach(MapConfigure.FeatureLayerGroup, (GroupValue, index) => {
             //判断当前图层是否启用
             if (GroupValue.isEnable) {
                 //特性图层循环
                 _.forEach(GroupValue.featureLayers, featureValue => {
-                    if(layerType && featureValue.layerType !== layerType ){
-                        return 
+                    if (layerType && featureValue.layerType !== layerType) {
+                        return
                     }
                     let queryTask = new Promise((resolve, reject) => {
                         let CurrentLayer = this.Map.getLayer(featureValue.layerName);
@@ -1043,8 +1068,8 @@ class MapNavigate {
                                 layerCName: featureValue.layerCName,
                                 iconName: featureValue.iconName,
                                 layerType: featureValue.layerType,
-                                groupIndex:index,
-                                layerIndex:featureValue.layerIndex,
+                                groupIndex: index,
+                                layerIndex: featureValue.layerIndex,
                                 listViewColumn: featureValue.listViewColumn,
                                 layerData: evt
                             });
@@ -1111,11 +1136,9 @@ class MapNavigate {
                 //this.Map.setLevel(11)
                 break;
             case "polygon":
-                centerPoint = objValue.geometry.getCentroid();
-                point = new this.modules.Point();
-                point.x = centerPoint.x;
-                point.y = centerPoint.y;
-                this.Map.centerAndZoom(point, 11);
+                centerPoint = objValue.geometry.getExtent();
+                this.Map.setExtent(centerPoint, true); //定位
+                // this.Map.centerAndZoom(centerPoint, 11);
                 break;
             // case "multipoint":
             //     break;
@@ -1136,7 +1159,7 @@ class MapNavigate {
         this.Map.centerAt(point);
         let gLayer = this.getFeatureLayerByName("Graphicslayer");
         gLayer.add(new this.modules.Graphic(point,
-            this.createPictureMarkerSymbol("dian.gif", 30, 30)
+            this.createPictureMarkerSymbol("baselayer/dian.gif", 30, 30)
         ));
     }
 
@@ -1174,7 +1197,18 @@ class MapNavigate {
 
     addMapPoint(geometry) {
         let gLayer = this.getFeatureLayerByName("Graphicslayer");//取得绘制图层对象
-        gLayer.add(new this.modules.Graphic(geometry, this.createPictureMarkerSymbol("dian.gif", 30, 30)));
+        gLayer.add(new this.modules.Graphic(geometry, this.createPictureMarkerSymbol("baselayer/dian.gif", 30, 30)));
+    }
+
+    addGeometry(geometry) {
+        let gLayer = this.getFeatureLayerByName("Graphicslayer");//取得绘制图层对象
+        let symbol = new this.modules.SimpleFillSymbol(this.modules.SimpleFillSymbol.STYLE_SOLID,
+            new this.modules.SimpleLineSymbol(this.modules.SimpleLineSymbol.STYLE_SOLID, new this.modules.Color([
+                255, 0, 0
+            ]), 2),
+            new this.modules.Color([255, 255, 0, 0.25]));
+        gLayer.add(new this.modules.Graphic(geometry, symbol));
+
     }
 
     addMapLine(geometry) {
@@ -1182,6 +1216,32 @@ class MapNavigate {
         gLayer.add(new this.modules.Graphic(geometry, this.createSimpleLineSymbol([255, 255, 0, 0.8], 6)));
     }
 
+    //图层新增编辑属性删除操作方法
+    featureLayerApplyEdits(layName, graphic, station, allDoneCallback, errorCallback) {
+        let featureLayers = this.Map.getLayer(layName)
+        let editObj = []
+        if (station === 'add') {
+            // 添加要素信息   修改要素信息 删除要素信息
+            editObj = [[graphic], null, null]
+        } else if (station === 'edit') {
+            editObj = [null, [graphic], null]
+        } else {
+            editObj = [null, null, [graphic]]
+        }
+        featureLayers.applyEdits(
+            ...editObj,
+            result => {
+                if (allDoneCallback && allDoneCallback instanceof Function) {
+                    allDoneCallback(result)
+                }
+            },
+            error => {
+                if (errorCallback && errorCallback instanceof Function) {
+                    errorCallback(error)
+                }
+            },
+        )
+    }
 
     //卷帘效果 开启
     SwipeMapInit() {
@@ -1221,6 +1281,11 @@ class MapNavigate {
 
     }
 
+    infoWindowUnseen() {
+        this.Map.infoWindow.show(new this.modules.Point(-1, -1, this.Map.spatialReference))
+    }
+
+
     //放大镜效果关闭
     clearMagnify() {
         if (this.MagnifyMap && this.MagnifyMap.initState) {
@@ -1229,6 +1294,7 @@ class MapNavigate {
         }
 
     }
+
 }
 
 //卷帘方法类
@@ -1237,18 +1303,23 @@ class SwipeMap {
     constructor(map, modules) {
         this.swipeWidget = null;
         this.map = map;
-        this.modules = modules
+        this.modules = modules;
+        this.layerlist = _.cloneDeep(map.layerIds);
+        this.divID = "";//卷帘对比的地图
+        this.showDivID = "";//目前展示的地图
+        this.len = 0;
     }
 
     InitSwipe() {
         let rt = true;
-        let divID = this.getTopLayerDivID();
-        if (!divID) {
+        this.getTopLayerDivID();
+        if (!this.divID) {
             alert('当前图层不支持卷帘')
+            return false
         }
-        let swipeLayer = this.map.getLayer(divID);
-        console.log(swipeLayer)
+        let swipeLayer = this.map.getLayer(this.divID)
         if (this.swipeWidget) {
+            this.swipeWidget.layers = [swipeLayer]
             this.swipeWidget.enable()
         } else {
             this.swipeWidget = new this.modules.LayerSwipe({
@@ -1264,32 +1335,42 @@ class SwipeMap {
     clearSwipe() {
         if (this.swipeWidget) {
             this.swipeWidget.disable()
+            for (let i = 0; i < this.len; i++) {
+                let item = this.map.getLayer(this.layerlist[i]);
+                if (this.showDivID === item.id) {
+                    item.setVisibility(true)
+                } else {
+                    item.visible && item.setVisibility(false)
+                }
+                this.map.reorderLayer(item, i)
+            }
         }
     }
 
     getTopLayerDivID() {
-        let layerlist = this.map.layerIds;
-        let len = 0;
-        if (layerlist != undefined && layerlist.length > 0) {
-            len = layerlist.length;
+        this.len = 0;
+        if (this.layerlist != undefined && this.layerlist.length > 0) {
+            this.len = this.layerlist.length;
         } else {
-            return null;
+            this.divID = ''
+            return 0;
         }
-        let divID = null;
 
-        for (let i = len - 1; i > 0; i--) {
-            let item = this.map.getLayer(layerlist[i]);
+        if (this.len === 1) {
+            this.divID = ''
+            return
+        }
+        this.divID = '';
+        for (let i = 0; i < this.len; i++) {
+            let item = this.map.getLayer(this.layerlist[i]);
             if (item.visible) {
-                divID = item.id;
-                break;
+                this.showDivID = item.id;
+            } else if (!this.divID) {
+                this.divID = item.id
+                this.map.reorderLayer(item, this.len - 1)
+                item.setVisibility(true)
             }
         }
-        if (!divID && len >= 2) {
-            let layer = this.map.getLayer(layerlist[1])
-            layer.setVisibility(true)
-            divID = layer.id;
-        }
-        return divID;
     }
 }
 
@@ -1327,7 +1408,7 @@ class MagnifyMap {
         } else if (div) {
             mlayer = div
         } else {
-            alert("当前图层不支持卷帘操作");
+            alert("当前图层不支持透镜操作");
             rt = false;
         }
         if (mlayer == undefined || !rt) {
@@ -1339,21 +1420,29 @@ class MagnifyMap {
                 slider: false,
                 logo: false
             });
-            // document.getElementById("mmap").css("width", this.map.width);
-            // document.getElementById("mmap").css("height", this.map.height);
             this.mmap.setLevel(this.map.getLevel() + this.levelMax);
             this.mmap.centerAt(this.map.extent.getCenter());
-            console.log(this.mmap)
+
             document.getElementById('mmapWrapper').style.width = this.radius * 2 + 'px';
             document.getElementById('mmapWrapper').style.height = this.radius * 2 + 'px';
             // document.getElementById(mmapWrapper).css("border-radius", "50%");
-            
             let layer = new this.modules.ArcGISTiledMapServiceLayer(this.map.getLayer(sdivID).url);
-            
             layer.id = 'mmap1'
             layer.visible = true
-            
             this.mmap.addLayer(layer);
+            //添加管网信息
+            let graphicsLayerIds = this.map.graphicsLayerIds
+            _.forEach(graphicsLayerIds, (item, index) => {
+                let layer = _.cloneDeep(this.map.getLayer(item))
+                if (!layer.url) {
+                    return
+                }
+                let addLayer = new this.modules.FeatureLayer(layer.url, {
+                    id: layer.id + index,
+                    mode: this.modules.FeatureLayer.MODE_ONDEMAND,
+                });
+                this.mmap.addLayer(addLayer)
+            })
             this.mmap.disablePan();
             this.mmap.disableDoubleClickZoom();
             this.mmap.disableScrollWheelZoom();

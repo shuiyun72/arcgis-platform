@@ -5,8 +5,8 @@
     </div>-->
     <!-- 顶部查询开始 -->
     <el-row class="Map_Action_Bar_Search row" type="flex" justify="space-between">
-      <div class="Text-Wraper">
-        <div class="textShowWraper hidden-md-and-down">
+      <div class="Text-Wraper hidden-sm-and-down">
+        <div class="textShowWraper">
           <span v-for="item in topTotleMessage" :key="item.name">
             <span>{{item.name}}</span>
             <span class="orange">{{item.number}}</span>
@@ -15,17 +15,18 @@
         </div>
       </div>
 
-      <el-row type="flex" class="row" justify="end">
+      <el-row type="flex" class="row MapActionBar-icon-wrapper" justify="end">
         <!--右侧菜单控制-->
         <div class="Map_Action_Bar_container" component="MapActionBar">
           <div
             class="action_item"
             v-for="action in actionList"
             :key="action.id"
-            :class="{active:actionItemActiveID == action.id}"
+            :class="{active:actionItemActiveID === action.id}"
             :name="action.name"
             :value="action.value"
             @click="onItemClick(action)"
+            @dblclick="onItemCancleClick(action)"
             :title="action.name"
           >
             <el-popover
@@ -67,7 +68,12 @@
             <span class="iconfont" :class="action.icon" v-else></span>
           </div>
         </div>
-        <POISearch @actionMapSearch="actionMapSearch" :toolbar="toolbar" />
+        <POISearch
+          :searchList.sync="searchList"
+          @actionMapSearch="actionMapSearch"
+          :toolbar="toolbar"
+          :actionItemActiveID.sync="actionItemActiveID"
+        />
       </el-row>
     </el-row>
     <!-- 图层控制弹窗开始 -->
@@ -94,8 +100,9 @@
 
     <!-- 书签管理 -->
     <BookMark v-show="actionItemActiveID === 'bookMark' " ref="bookMark" @closeLayer="closeLayer" />
+
     <!-- 框选 -->
-    <BoxSelectTable :searchType.sync="searchType" ref="boxSelectTable" />
+    <boxSelectTable :searchType.sync="searchType" ref="boxSelectTable" />
   </div>
 </template>
 
@@ -144,6 +151,7 @@ export default {
   },
   data() {
     return {
+      searchList: [], //控制中心的数据列表
       countedData: false, //是否计算过数据
       boxSelectState: false, //框选状态
       actionItemActiveID: "", //地图操作图标选中
@@ -174,11 +182,11 @@ export default {
           math: "count"
         },
         {
-          name: "阀门总数",
+          name: "水表井总数",
           eName: "ValveCountNumber",
           number: 100,
           unit: "个",
-          layerType: LayerType.ValveTypeNO,
+          layerType: [LayerType.WatermeterwellTypeNO],
           math: "count"
         }
       ], //顶部管网总数等统计结果集
@@ -237,7 +245,7 @@ export default {
       this.$refs.MapLayerList.setCheckedTreeNodes(type, addNode, isDisplay);
     },
     //map toolbar  点击事件
-    onItemClick(action, operVal = "m") {
+    onItemCancleClick(action) {
       if (action.value != "框选") {
         if (this.boxSelectState) {
           this.boxSelectState = false;
@@ -249,8 +257,82 @@ export default {
       if (action.value != "点选") {
         this.$bus.emit("clearGraphics"); //清除绘制过的图层数据信息
       }
+
+      if (action.id === "Swipe") {
+        this.toolbar.SwipeMapInit();
+      } else {
+        this.toolbar.clearSwipe();
+      }
+
+      //放大镜注册和清除
+      if (action.id === "Magnify") {
+        this.toolbar.MagnifyMapInit();
+      } else {
+        this.toolbar.clearMagnify();
+      }
+      this.closeLayer();
+      return;
+    },
+    onItemClick(action, operVal) {
+      // if (!operVal && action.id === this.actionItemActiveID) {
+      //   if (action.value != "框选") {
+      //     if (this.boxSelectState) {
+      //       this.boxSelectState = false;
+      //       this.$refs.boxSelectTable.boxHide();
+      //     }
+      //   } else {
+      //     this.$bus.emit("clearGDataLayer"); //清除操作
+      //   }
+      //   if (action.value != "点选") {
+      //     this.$bus.emit("clearGraphics"); //清除绘制过的图层数据信息
+      //   }
+      //   this.actionItemActiveID = "";
+      //   if (action.id === "Swipe") {
+      //     this.toolbar.SwipeMapInit();
+      //   } else {
+      //     this.toolbar.clearSwipe();
+      //   }
+
+      //   //放大镜注册和清除
+      //   if (action.id === "Magnify") {
+      //     this.toolbar.MagnifyMapInit();
+      //   } else {
+      //     this.toolbar.clearMagnify();
+      //   }
+      //   return;
+      // }
+      operVal = operVal || "m";
+      if (action.value != "框选") {
+        if (this.boxSelectState) {
+          this.boxSelectState = false;
+          this.$refs.boxSelectTable.boxHide();
+        }
+      } else {
+        this.$bus.emit("clearGDataLayer"); //清除操作
+      }
+      if (action.value != "点选") {
+        this.$bus.emit("clearGraphics"); //清除绘制过的图层数据信息
+      }
+
+      //卷帘注册和清除
+      if (action.id === "Swipe") {
+        if (this.actionItemActiveID !== "Swipe") {
+          this.toolbar.SwipeMapInit();
+        }
+      } else {
+        this.toolbar.clearSwipe();
+      }
+
+      //放大镜注册和清除
+      if (action.id === "Magnify") {
+        if (this.actionItemActiveID !== "Magnify") {
+          this.toolbar.MagnifyMapInit();
+        }
+      } else {
+        this.toolbar.clearMagnify();
+      }
+
       this.actionItemActiveID = action.id;
-      this.actionValue = action;
       switch (action.id) {
         case "bookMark":
           this.$refs.bookMark.initBookMark();
@@ -259,28 +341,10 @@ export default {
           this.$refs.LegendList.getTuliList();
           break;
         case "maplayer":
-          this.$refs.MapLayerList.loadData();
+          // this.$refs.MapLayerList.loadData();
           break;
-        case "Print":
-          this.printShow = true;
-          this.tuLiShow = false; //显示和关闭
-          this.layerShow = false; //图例显示=》图层关闭
-          break;
-        case "Lengend":
-          this.$emit("layer-ActionClear", true);
-          this.printShow = false;
-          this.tuLiShow = this.tuLiShow ? false : true; //显示和关闭
-          this.layerShow = false; //图例显示=》图层关闭
-          break;
-        case "maplayer":
-          this.printShow = false;
-          this.$emit("layer-ActionClear", true);
-          this.layerShow = this.layerShow ? false : true; //显示和关闭
-          this.tuLiShow = false; //图层显示=》图例关闭
-          break;
-      }
-      switch (action.id) {
         case "FreehandPolyline":
+          this.actionItemActiveID = "";
           this.lengthUtilListValue = operVal;
           this.toolbar.distanceMeasure(operVal);
           break;
@@ -301,6 +365,7 @@ export default {
           this.toolbar.rangleSelect({
             featureQueryCompleted: result => {
               this.boxSelectState = true;
+              this.actionItemActiveID = "";
               this.$refs.boxSelectTable.boxSelect(result);
             }
           });
@@ -309,12 +374,15 @@ export default {
           this.toolbar.mapPointMove();
           break;
         case "Circle":
+          this.actionItemActiveID = "";
           this.toolbar.mapClean();
           break;
         case "zoomout":
+          this.actionItemActiveID = "";
           this.toolbar.zoomout();
           break;
         case "zoomin":
+          this.actionItemActiveID = "";
           this.toolbar.zoomin();
           break;
         case "Magnify":
@@ -322,20 +390,6 @@ export default {
         case "fastMap":
         case "Print":
           break;
-      }
-      //卷帘注册和清除
-      if (action.id === "Swipe") {
-        this.toolbar.SwipeMapInit();
-      } else {
-        this.toolbar.clearSwipe();
-      }
-
-      //放大镜注册和清除
-      if (action.id === "Magnify") {
-        this.toolbar.MagnifyMapInit();
-      } else {
-        console.log("clearMagnify");
-        this.toolbar.clearMagnify();
       }
     },
     //关闭图例、图层、打印弹窗
@@ -353,7 +407,7 @@ export default {
       if (this.$store.state.login.iframe && this.$route.name !== "GIS") return;
       this.countedData = true;
       let _GroupStaticesField = {
-        count: {
+       count: {
           statisticType: "count", //定义统计类型 'count'|'sum'|'min'|'max'|'avg'|'stddev'
           onStatisticField: "OBJECTID",
           outStatisticFieldName: "equipment_number"
@@ -385,9 +439,18 @@ export default {
       });
     },
     countMethods(layerType, _GroupStaticesField, callBack) {
-      let StatURLCollection = FeatureLayerOperation.getLayerURLByType(
-        layerType
-      );
+      let StatURLCollection = [];
+      if (_.isArray(layerType)) {
+        
+        _.forEach(layerType, item => {
+          StatURLCollection.push(
+            ...FeatureLayerOperation.getLayerURLByType(item)
+          );
+        });
+      } else {
+        StatURLCollection = FeatureLayerOperation.getLayerURLByType(layerType);
+      }
+
       //统计
       this._MapDataOperation.featureQueryGroup(
         null,

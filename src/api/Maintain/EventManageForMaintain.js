@@ -18,7 +18,7 @@ export default {
             }
         })
     },
-    //事件工单无效查询(个人处理-待办处理)
+    //事件工单查询(个人处理-待办处理)
     getWuXiao(startTime,endTime,EventFromId,eventType,OperId,DeptId,EventContenct,ExecPersonId,num,page){
         return matance.get('/EventManageForMaintain/Get',{
             params:{

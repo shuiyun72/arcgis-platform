@@ -15,6 +15,7 @@ export default {
         return instance.post('/Role/Post', {
                 cRoleName : query.cRoleName,
                 isSuperAdmin:query.isSuperAdmin,
+                IsInspector:query.IsInspector
         })
     },
 

@@ -13,6 +13,8 @@ using GisPlateform.Model.BaseEntity;
 using Newtonsoft.Json;
 using GisPlateform.CommonTools;
 using System.Data;
+using GisPlateform.Model;
+
 namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperation
 {
     /// <summary>
@@ -51,7 +53,17 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity Get(DateTime? startTime = null, DateTime? endTime = null, int? EventFromId = null, int? eventType = null, int? EventID = null, string OperId = "", int? IsValid = null, int? DeptId = null, string EventContenct = "",string ExecPersonId=null, string sort = "EventID", string ordering = "desc", int num = 20, int page = 1)
         {
-            var messageEntity = _eventManage.GetEventWorkorderListForMaintain(startTime, endTime, EventFromId, eventType, EventID, OperId, IsValid,DeptId, EventContenct, ExecPersonId, sort, ordering, num, page);
+            string iDeptIDs = "0";
+            //获取登陆人员部门权限
+            if(ExecPersonId !="" && ExecPersonId != null)
+            {
+                P_Admin _Admin = base.CommonDAL.GetUserInfo(ExecPersonId, out string errorMsg);
+                if (_Admin != null && _Admin.iDeptIDs!="" && _Admin.iDeptIDs != null)
+                {
+                    iDeptIDs = _Admin.iDeptIDs;
+                }
+            }
+            var messageEntity = _eventManage.GetEventWorkorderListForMaintain(startTime, endTime, EventFromId, eventType, EventID, OperId, IsValid,DeptId, EventContenct, ExecPersonId, iDeptIDs, sort, ordering, num, page);
 
             return messageEntity;
         }
@@ -90,6 +102,19 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity WorkListAudit(string EventID, string OrderId, string iDetpID, string OperRemarks, string satisfaction ,string StepNum = "7", string iAdminID = "")
         {
+            //是否审核完成过
+            if (_eventManage.IsExecute(EventID, "8", out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行审核，不能多次执行", "提示");
+                }
+            }
             return _eventManage.WorkListAudit(EventID, OrderId, iDetpID, OperRemarks, satisfaction, StepNum, iAdminID);
         }
         /// <summary>
@@ -105,6 +130,19 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity WorkListReceipt(string EventID, string ExecPersonId, string ExecDetpID, string OrderId, string StepNum = "3", string DispatchPersonID = "", string OperRemarks = "")
         {
+            //是否允许接单
+            if (_eventManage.IsExecute(EventID, StepNum, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行接单，不能多执行", "提示");
+                }
+            }
             return _eventManage.WorkListReceipt(EventID, ExecPersonId,ExecDetpID, OrderId, StepNum, DispatchPersonID, OperRemarks);
         }
         /// <summary>
@@ -128,6 +166,19 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
             if (eventPictures != null && !eventPictures.Contains("/"))
             {
                 return MessageEntityTool.GetMessage(ErrorType.SystemError, eventPictures);
+            }
+            //是否到场过
+            if (_eventManage.IsExecute(EventID, StepNum, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行到场，不能多次执行", "提示");
+                }
             }
             return _eventManage.WorkListPresent(EventID, ExecPersonId, ExecDetpID, OrderId, StepNum, DispatchPersonID, OperRemarks, eventPictures);
         }
@@ -153,6 +204,19 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
             {
                 return MessageEntityTool.GetMessage(ErrorType.SystemError, eventPictures);
             }
+            //是否处置过
+            if (_eventManage.IsExecute(EventID, StepNum, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行处置，不能多次执行", "提示");
+                }
+            }
             return _eventManage.WorkListChuZhi(EventID, ExecPersonId, ExecDetpID, OrderId, StepNum, DispatchPersonID, OperRemarks, eventPictures);
         }
         /// <summary>
@@ -174,6 +238,19 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
             if (eventPictures != null && !eventPictures.Contains("/"))
             {
                 return MessageEntityTool.GetMessage(ErrorType.SystemError, eventPictures);
+            }
+            //是否完工过
+            if (_eventManage.IsExecute(EventID, StepNum, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行完工，不能多次执行", "提示");
+                }
             }
             return _eventManage.WorkListFinished(EventID, OrderId, StepNum, iAdminID, OperRemarks, eventPictures);
         }
@@ -209,6 +286,20 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity WorkListAssign(string EventID, string ExecDetpID, string ExecPersonId, string DispatchPersonID, string ExecTime)
         {
+            string StepNum = "2";
+            //是否允许分派 是否分派过
+            if (_eventManage.IsExecute(EventID, StepNum, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null,errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已被分派，不能多次执行", "提示");
+                }
+            }
             return _eventManage.WorkListAssign(EventID, ExecDetpID, ExecPersonId, DispatchPersonID, ExecTime);
         }
         /// <summary>
@@ -235,6 +326,21 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity WordListBackExec(string EventID, string OrderId, string iAdminID, string BackDesc,string iDeptID)
         {
+            //退单
+            string isValid = "4";
+            //是否退单过
+            if (_eventManage.IsValid(EventID, isValid, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行退单，不能多次执行", "提示");
+                }
+            }
             return _eventManage.WordListBackExec(EventID, OrderId, iAdminID, BackDesc, iDeptID);
         }
         /// <summary>
@@ -249,6 +355,21 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity WordListDelay(string EventID, string OrderId, string OperRemarks, string complishTime, string DeptId,string iAdminID)
         {
+            //延期
+            string isValid = "5";
+            //是否延期过
+            if (_eventManage.IsValid(EventID, isValid, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行延期，不能多次执行", "提示");
+                }
+            }
             return _eventManage.WordListDelay(EventID, OrderId, OperRemarks, complishTime, DeptId,iAdminID);
         }
         /// <summary>
@@ -263,6 +384,21 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity WorkListDelayExec(string EventID, string OrderId, string complishTime, string iDeptID, string iAdminID, string OperRemarks = "")
         {
+            //延期确认
+            string isValid = "6";
+            //是否延期确认过
+            if (_eventManage.IsValid(EventID, isValid, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行延期确认，不能多次执行", "提示");
+                }
+            }
             return _eventManage.WorkListDelayExec(EventID, OrderId, complishTime, iDeptID, iAdminID, OperRemarks);
         }
         /// <summary>
@@ -277,6 +413,21 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
         /// <returns></returns>
         public MessageEntity WorkListDelayReturn(string eventID, string orderId, string complishTime, string iDeptID, string iAdminID, string operRemarks = "")
         {
+            //延期退回
+            string isValid = "7";
+            //是否延期退回过
+            if (_eventManage.IsValid(eventID, isValid, out string errorMsg))
+            {
+                if (errorMsg != "")
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, errorMsg, "提示");
+
+                }
+                else
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.OprationError, null, $"该任务已执行延期退回，不能多次执行", "提示");
+                }
+            }
             return _eventManage.WorkListDelayReturn(eventID, orderId, complishTime, iDeptID, iAdminID, operRemarks);
         }
 
@@ -323,14 +474,16 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.PipeInspection.EventOperat
             DataTable dtsq = _eventManage.GetPostponeOrderSQ(eventId, orderId);
             DataTable dtfh = _eventManage.GetPostponeOrderFH(eventId, orderId);
             dtsq.Columns.Add("QRCause", Type.GetType("System.String"));//项目id
+            dtsq.Columns.Add("IsValid", Type.GetType("System.String"));//项目id
             //循环遍历将延期返回数据添加到申请dt中
             int i = 0;
             foreach (var item in dtsq.Rows)
             {
                 if (i < dtfh.Rows.Count) { 
                     dtsq.Rows[i]["QRCause"] = dtfh.Rows[i]["Cause"];
+                    dtsq.Rows[i]["IsValid"] = dtfh.Rows[i]["IsValid"];
                 }
-                     i++;
+                i++;
             }
 
             return MessageEntityTool.GetMessage(1, dtsq); 

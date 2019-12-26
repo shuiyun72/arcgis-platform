@@ -29,50 +29,45 @@
           class="my-search"
           size="mini"
           @click="searchBtn"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.name)"
         >查询</el-button>
         <el-button
           class="my-reset"
           size="mini"
           @click="resetBtn"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.name)"
         >重置</el-button>
         <el-button
           class="my-regionIns"
           type
           size="mini"
           @click="GetPlanType(1)"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.name)"
         >区域巡检</el-button>
         <el-button
           class="my-routeIns"
           type
           size="mini"
           @click="GetPlanType(2)"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.name)"
         >路线巡检</el-button>
-        <el-button
+        <!-- <el-button
           class="my-all"
           size="mini"
           @click="GetPlanType(0)"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.meta.iFunID)"
-        >全部</el-button>
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/GetPlanManageInfo' ,$route.name)"
+        >全部</el-button>-->
       </el-row>
       <el-row type="flex" justify="start" class="table-btn-control">
-        <el-button
-          class="my-tableout"
-          plain
-          size="mini"
-          @click="addItem"
-          v-if="$options.filters.btnTree('/api//InspectionPlan/PlanManage/Post' ,$route.meta.iFunID)"
-        >
+        <el-button class="my-tableout" plain size="mini" @click="addItem">
+          <!-- v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/Post' ,$route.name)" -->
           <i class="iconfont icon-xinzeng"></i>新增
         </el-button>
         <el-button
           class="my-tableout"
           size="mini"
           @click="editItem"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/Put' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/Put' ,$route.name)"
         >
           <i class="iconfont icon-bianji"></i>编辑
         </el-button>
@@ -80,7 +75,7 @@
           class="my-tableout"
           size="mini"
           @click="delItem"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/Delete' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/Delete' ,$route.name)"
         >
           <i class="iconfont icon-shanchu"></i>删除
         </el-button>
@@ -88,7 +83,7 @@
           class="my-tableout"
           size="mini"
           @click="PlanAssign"
-          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/AssignTask' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/InspectionPlan/PlanManage/AssignTask' ,$route.name)"
         >
           <i class="iconfont icon-jihuafenpai"></i> 计划分派
         </el-button>
@@ -121,7 +116,7 @@
           <el-input v-model="alignNameChangeValue" disabled></el-input>
         </el-form-item>
         <el-form-item label="任务名称：">
-          <el-input v-model="alignNameChangeTime"></el-input>
+          <el-input v-model="alignNameChangeTime" maxlength=50></el-input>
         </el-form-item>
         <el-form-item label="部门：">
           <el-select v-model="fromAssignDept" placeholder="请选择" @change="deptDataChange">
@@ -149,13 +144,20 @@
             value-format="yyyy-MM-dd"
             type="date"
             @change="onChangeStarTime"
+            :clearable=false
           ></el-date-picker>
         </el-form-item>
         <el-form-item label="结束时间：">
-          <el-date-picker v-model="fromAssignPlan.endTime" value-format="yyyy-MM-dd" type="date"></el-date-picker>
+          <el-date-picker
+            v-model="fromAssignPlan.endTime"
+            value-format="yyyy-MM-dd"
+            type="date"
+            @change="onChangeEndTime"
+            :clearable=false
+          ></el-date-picker>
         </el-form-item>
         <el-form-item label="任务描述：">
-          <el-input v-model="fromAssignPlan.descript"></el-input>
+          <el-input v-model="fromAssignPlan.descript" maxlength="100" placeholder="任务描述(不可超过100个字节)"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -164,7 +166,7 @@
       </div>
     </el-dialog>
     <el-dialog
-      title="新增计划"
+      :title="dialogTitle+'计划'"
       v-dialogDrag
       :modal="false"
       center
@@ -174,10 +176,12 @@
       class="myDialog insPlanDialog"
     >
       <el-form label-width="100px" size="small">
-        <el-form-item label="计划名称：">
-          <el-input v-model="alignNameChangeValue" @change="alignNameChange"></el-input>
-        </el-form-item>
-        <el-form-item label="巡检类型：">
+        <el-form-item
+          label="巡检类型："
+          :rules="[
+          { required: true, message: ' ', trigger: 'change' }
+          ]"
+        >
           <el-select
             v-model="formLabelAlign.patrolType"
             placeholder="请选择"
@@ -192,17 +196,12 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="计划类型：">
-          <el-select v-model="formLabelAlign.planType" placeholder="请选择" :disabled="isEditPattern">
-            <el-option
-              v-for="item in planTypeData"
-              :key="item.PlanTypeId"
-              :label="item.PlanTypeName"
-              :value="item.PlanTypeId"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="formLabelAlign.patrolType == '区域巡检'?'区域名称：':'路线名称：'">
+        <el-form-item
+          :label="formLabelAlign.patrolType == '区域巡检'?'区域名称：':'路线名称：'"
+          :rules="[
+          { required: true, message: ' ', trigger: 'change' }
+          ]"
+        >
           <el-select
             v-model="formLabelAlign.areaName"
             placeholder="请选择"
@@ -214,6 +213,50 @@
               :key="indexs"
               :label="formLabelAlign.patrolType == '区域巡检'?item.PlanAreaName:item.PlanLineName"
               :value="formLabelAlign.patrolType == '区域巡检'?item.PlanAreaId:item.PlanLineId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="计划周期："
+          :rules="[
+          { required: true, message: ' ', trigger: 'change' }
+          ]"
+        >
+          <el-select
+            v-model="formLabelAlign.planCycle"
+            placeholder="请选择"
+            :disabled="isEditPattern"
+            @change="changePlanCycle"
+          >
+            <el-option
+              v-for="item in planCycleData"
+              :key="item.PlanCycleId"
+              :label="item.PlanCycleName"
+              :value="item.PlanCycleId"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          label="计划名称："
+          :rules="[
+          { required: true, message: ' ', trigger: 'blur' }
+          ]"
+        >
+          <el-input v-model="alignNameChangeValue" :maxlength=20></el-input>
+        </el-form-item>
+
+        <el-form-item
+          label="计划类型："
+          :rules="[
+          { required: true, message: ' ', trigger: 'change' }
+          ]"
+        >
+          <el-select v-model="formLabelAlign.planType" placeholder="请选择" :disabled="isEditPattern">
+            <el-option
+              v-for="item in planTypeData"
+              :key="item.PlanTypeId"
+              :label="item.PlanTypeName"
+              :value="item.PlanTypeId"
             ></el-option>
           </el-select>
         </el-form-item>
@@ -233,9 +276,9 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="辅助路径：" v-if="formLabelAlign.patrolType == '区域巡检'">
+        <!-- <el-form-item label="辅助路径：" v-if="formLabelAlign.patrolType == '区域巡检'">
           <el-input v-model="formLabelAlign.route" disabled placeholder="请在地图上选择辅助路线"></el-input>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="是否需要反馈：">
           <el-radio v-model="formLabelAlign.isFeedback" label="1" :disabled="isEditPattern">需反馈</el-radio>
           <el-radio v-model="formLabelAlign.isFeedback" label="0" :disabled="isEditPattern">仅到位</el-radio>
@@ -247,16 +290,6 @@
         <el-form-item label="巡检方式：">
           <el-radio v-model="formLabelAlign.patrolWay" label="1">车巡</el-radio>
           <el-radio v-model="formLabelAlign.patrolWay" label="2">步行</el-radio>
-        </el-form-item>
-        <el-form-item label="计划周期：">
-          <el-select v-model="formLabelAlign.planCycle" placeholder="请选择" :disabled="isEditPattern">
-            <el-option
-              v-for="item in planCycleData"
-              :key="item.PlanCycleId"
-              :label="item.PlanCycleName"
-              :value="item.PlanCycleId"
-            ></el-option>
-          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -282,6 +315,7 @@ import InsPlanArea from "@api/Inspection/PlanArea";
 import InsPlanLine from "@api/Inspection/PlanLine";
 import TableFormTitle from "@common/components/TableFormTitle";
 import InsTable from "@features/InspectionGIS/components/InsTable";
+import utilData from "@util/utilData";
 export default {
   components: {
     TableFormTitle,
@@ -327,7 +361,7 @@ export default {
         routeName: "", //路线名称
         facilityNum: [], //设备实体数字集合
         facility: [], //设备实体名称集合
-        route: "", //辅助路径
+      //  route: "", //辅助路径
         isFeedback: "1", //是否反馈
         planTypeslect: "1", //计划类型
         patrolWay: "1", //巡检方式
@@ -347,14 +381,15 @@ export default {
       staffData: [], //人员数据
       fromAssignDept: "", //部门
       fromAssignStaff: "", //分派人员
-    //  fromAssignStaffId: 0, //分派人员ID
+      //  fromAssignStaffId: 0, //分派人员ID
       fromAssignPlan: {
         deptId: 0, //部门ID
         starTime: new Date(), //开始时间
         endTime: "", //结束时间
         descript: "" //任务描述
       },
-      FeatureData: undefined
+      FeatureData: undefined,
+      dialogTitle: ""
     };
   },
   watch: {
@@ -433,14 +468,47 @@ export default {
   computed: {
     formLabelAlignName() {
       //计划名称
-      return (
-        this.formLabelAlign.areaName + "_" + this.formLabelAlign.patrolType
-      );
+      //this.formLabelAlign.areaName + "_" + this.formLabelAlign.patrolType
+      let planCycleNum = this.formLabelAlign.planCycle;
+      let planCycleVal = "";
+      switch (planCycleNum) {
+        case 1:
+          planCycleVal = "一日一次";
+          break;
+        case 2:
+          planCycleVal = "一日两次";
+          break;
+        case 3:
+          planCycleVal = "隔日一次";
+          break;
+        case 4:
+          planCycleVal = "三日一次";
+          break;
+        case 5:
+          planCycleVal = "一周一次";
+          break;
+        case 6:
+          planCycleVal = "半月一次";
+          break;
+        case 7:
+          planCycleVal = "一月一次";
+          break;
+        case 8:
+          planCycleVal = "每季一次";
+          break;
+        case 9:
+          planCycleVal = "一年一次";
+          break;
+        default:
+          planCycleVal = "巡检周期";
+          break;
+      }
+      return this.formLabelAlign.areaName + "_" + planCycleVal + "_";
     },
-    fromAssignStaffId(){
-      return  _.filter(this.staffData, item => {
-          return item.cAdminName == this.fromAssignStaff;
-        })[0].iAdminID; 
+    fromAssignStaffId() {
+      return _.filter(this.staffData, item => {
+        return item.cAdminName == this.fromAssignStaff;
+      })[0].iAdminID;
     }
   },
   methods: {
@@ -454,6 +522,7 @@ export default {
     //计划分派弹窗
     PlanAssign() {
       if (this.currentRow) {
+        this.fromAssignPlan.descript = "";
         this.assignDialogVisible = true;
         this.alignNameChangeValue = this.currentRow.PlanName;
         this.alignNameChangeTime =
@@ -464,13 +533,21 @@ export default {
       } else {
         this.$message({
           type: "warning",
-          message: "请选择要编辑的行",
+          message: "请选择要分派的内容",
           showClose: true
         });
       }
     },
     //确认计划分派
     submitPlanAssign() {
+      if (this.alignNameChangeTime == "") {
+        this.$message({
+          type: "warning",
+          message: "任务名称不能为空",
+          showClose: true
+        });
+        return;
+      }
       PlanManage.AddPlanManageAssign(
         this.alignNameChangeTime,
         this.fromAssignDept,
@@ -491,7 +568,7 @@ export default {
         });
       });
     },
-
+    //切换区域路线巡检
     onChangeAreaName(el) {
       this.watchFacilityNew = [];
       this.alignNameChangeValue = this.formLabelAlignName;
@@ -540,6 +617,70 @@ export default {
     },
     onChangeStarTime(val) {
       console.log(val);
+      let starTime = new Date(this.fromAssignPlan.starTime + " 23:59:58");
+      let thisTime = new Date();
+      let uToday = utilData.getCurrentDate();
+      let endTIme = this.fromAssignPlan.endTime;
+      if (starTime < thisTime) {
+        this.$message({
+          type: "warning",
+          message: "计划开始时间不能小于当前时间",
+          showClose: true
+        });
+        this.fromAssignPlan.starTime =
+          uToday.year + "-" + uToday.month + "-" + uToday.day;
+      }
+      if (endTIme) {
+        endTIme = new Date(endTIme);
+        if (starTime >= endTIme) {
+          this.$message({
+            type: "success",
+            message: "请注意结束时间已更新",
+            showClose: true
+          });
+          let nextDay = utilData.getCurrentDate(
+            new Date(
+              new Date(this.fromAssignPlan.starTime).getTime() +
+                24 * 60 * 60 * 1000
+            )
+          );
+          this.fromAssignPlan.endTime =
+            nextDay.year + "-" + nextDay.month + "-" + nextDay.day;
+        }
+      }
+      if (!val || val == "") {
+        this.fromAssignPlan.starTime =
+          uToday.year + "-" + uToday.month + "-" + uToday.day;
+      }
+    },
+    onChangeEndTime(val) {
+      let starTime = new Date(this.fromAssignPlan.starTime);
+      let endTime = new Date(val);
+      if (endTime <= starTime) {
+        this.$message({
+          type: "warning",
+          message: "结束时间不能小于或等于开始时间",
+          showClose: true
+        });
+        let EndTime = utilData.getCurrentDate(
+          new Date(
+            new Date(this.fromAssignPlan.starTime).getTime() +
+              24 * 60 * 60 * 1000
+          )
+        );
+        this.fromAssignPlan.endTime =
+          EndTime.year + "-" + EndTime.month + "-" + EndTime.day;
+      }
+      if (!val || val == "") {
+        let EndTime = utilData.getCurrentDate(
+          new Date(
+            new Date(this.fromAssignPlan.starTime).getTime() +
+              24 * 60 * 60 * 1000
+          )
+        );
+        this.fromAssignPlan.endTime =
+          EndTime.year + "-" + EndTime.month + "-" + EndTime.day;
+      }
     },
     //改变部门人员
     deptDataChange(val) {
@@ -564,7 +705,7 @@ export default {
     AdminNameData(val) {
       InsDepartmentUserCycle.GetUserComboboxListNoDelete(val).then(res => {
         this.staffData = res.data.Data.Result;
-        console.log("this.staffData",this.staffData)
+        console.log("this.staffData", this.staffData);
         if (this.staffData.length > 0) {
           this.fromAssignStaff = this.staffData[0].cAdminName;
           // this.fromAssignStaffId = _.filter(this.staffData, item => {
@@ -584,7 +725,10 @@ export default {
     onChangeFacility(val) {
       this.watchFacilityNew = val;
     },
-
+    //切换巡检周期
+    changePlanCycle() {
+      this.alignNameChangeValue = this.formLabelAlignName;
+    },
     GetPlanType(numb) {
       //类别筛选
       if (numb == 0) {
@@ -672,6 +816,22 @@ export default {
 
     //提交添加数据
     SubmitPlanData() {
+      if (this.alignNameChangeValue == this.formLabelAlignName) {
+        this.$message({
+          type: "warning",
+          message: "请完善计划名称",
+          showClose: true
+        });
+        return;
+      }else
+      if(!/^[0-9]{4,6}_[\u4e00-\u9fa5]+_[a-zA-Z0-9\u4e00-\u9fa5]{1,20}$/.test(this.alignNameChangeValue)){
+        this.$message({
+          type: "warning",
+          message: "请填写正确规范的计划名称 ( 完善名称不能超过20个字符 ) ",
+          showClose: true
+        });
+        return;
+      }
       this.formLabelAlign.facility = [];
       this.formLabelAlign.facilityNum = [];
       for (var i = 0; i < this.watchFacilityNew.length; i++) {
@@ -752,7 +912,6 @@ export default {
 
       //watchFacilityGeometryAdd = JSON.stringify(watchFacilityGeometryAdd).replace(/\[|\]/g,"");
       watchFacilityGeometryAdd = JSON.stringify(watchFacilityGeometryAdd);
-      console.log(this.alignNameChangeValue);
       PlanManage.AddPlanManage(
         this.alignNameChangeValue,
         formLabelAlignPatrolType,
@@ -779,11 +938,13 @@ export default {
         });
         this.watchFacilityNew = [];
         this.watchFacilityGeometry = [];
+        this.alignNameChangeValue = "";
+        this.formLabelAlignName = "";
       });
     },
     //编辑区域或路线
     editItem() {
-      this.tableDbClick(this.currentRow);
+      // this.tableDbClick(this.currentRow);
       console.log(this.currentRow);
       if (this.currentRow) {
         this.dialogVisible = true;
@@ -814,9 +975,6 @@ export default {
           showClose: true
         });
         return;
-      } else {
-        this.dialogVisible = true;
-        this.dialogTitle = "编辑";
       }
     },
 
@@ -867,7 +1025,7 @@ export default {
           .catch(_ => {});
         return;
       }
-      this.$confirm("确认删除？")
+      this.$confirm("确定删除么")
         .then(() => {
           PlanManage.DeletePlanManage(this.currentRow.PlanId).then(res => {
             this.$message({
@@ -878,16 +1036,27 @@ export default {
             this.GetData(1);
           });
         })
-        .catch(_ => {});
+        .catch(() => {
+          this.$message({
+            type: "warning",
+            message: "取消删除",
+            showClose: true
+          });
+        });
     },
     //获取巡检类型
     GetPlanTypeRoute(num) {
-      if(this.patrolTypeData.length < 1 ){
+      if (this.patrolTypeData.length < 1) {
         InsPlanType.PlanTypeLoad().then(res => {
-          this.patrolTypeData = res.data.Data.Result;
+          //this.patrolTypeData = res.data.Data.Result;
+          this.patrolTypeData=[{
+            PlanTypeId: 1,
+            PlanTypeName: "区域巡检"
+          }]
           this.formLabelAlign.patrolType = this.patrolTypeData[
             num - 1
           ].PlanTypeName;
+          //console.log(res.data.Data.Result)
           this.alignNameChangeValue = this.formLabelAlignName;
         });
       }
@@ -895,7 +1064,7 @@ export default {
 
     //获取计划类别
     GetPlanTypeClass(num) {
-      if(this.planTypeData.length < 1){
+      if (this.planTypeData.length < 1) {
         InsPlanType.PlanTypeSearch(20, 1, num).then(res => {
           this.planTypeData = res.data.Data.Result;
           //this.formLabelAlign.planType = this.planTypeData[0].PlanTypeName
@@ -905,17 +1074,17 @@ export default {
 
     //获取区域名称
     GetRegionalData() {
-      if(this.areaNameData.length < 1){
+      if (this.areaNameData.length < 1) {
         InsPlanArea.RegionalData().then(res => {
           this.areaNameData = res.data.Data.Result;
           this.RegionalDataPosition();
         });
-      }else{
+      } else {
         this.RegionalDataPosition();
       }
     },
     //获取区域名称显示位置
-    RegionalDataPosition(){
+    RegionalDataPosition() {
       this.formLabelAlign.areaName = this.areaNameData[0].PlanAreaId;
       this.alignNameChangeValue = this.formLabelAlignName;
       //地图上显示区域
@@ -937,7 +1106,7 @@ export default {
     },
     //获取路线名称
     GetPlanLine() {
-      if(this.areaNameData.length < 1){
+      if (this.areaNameData.length < 1) {
         InsPlanLine.GetPlanLine().then(res => {
           console.log(res.data.Data.Result);
           this.$bus.emit("setBusinessLayerGroupVisible", true); //关闭业务图层
@@ -1001,11 +1170,11 @@ export default {
     },
     //查询计划周期
     GetPlanCycle() {
-      if(this.planCycleData.length < 1){
+      if (this.planCycleData.length < 1) {
         InsDepartmentUserCycle.GetPlanCycle().then(res => {
           this.planCycleData = res.data.Data.Result;
         });
-      }   
+      }
     },
     //双击查询行信息
     tableDbClick(row) {

@@ -1,10 +1,10 @@
 <template>
   <div class="Home_container" :class="{ GISDiv: menusDataList === 'GIS' ,iframe:iframe}">
     <el-row class="top-bar" type="flex" justify="space-between">
-      <div>
-        <img class="app-logo" src="@assets/hedalogo.png" />
+      <div class="logo">
+        <img class="app-logo" src="@assets/hedalogo.png" @load="menuMoreControl"/>
       </div>
-      <el-row type="flex" justify="end" class="tag-wraper">
+      <el-row type="flex" justify="end" class="tag-wraper" v-if="!UniWater">
         <el-row
           type="flex"
           class="menu-tag-wraper menuRow"
@@ -61,7 +61,7 @@
             ></i>
           </span>
           <el-dropdown-menu slot="dropdown" class="topUserMenu">
-            <el-dropdown-item @click.native="editUserPassword">
+            <el-dropdown-item @click.native="editUserPassword" v-show="iIsAllowChangePWD">
               <i class="icon-unie604 iconfont"></i> 修改密码
             </el-dropdown-item>
             <el-dropdown-item @click.native="longinOut">
@@ -78,48 +78,7 @@
     >
       <div class="sidebar-body">
         <el-scrollbar>
-          <el-menu class="sidemenu" :class="isCollapse" collapse :menu-trigger="'click'">
-            <template v-for="item in menusData">
-              <el-submenu
-                :index="item.cFunUrl"
-                v-if="item.children"
-                :key="item.cFunUrl"
-                :class="{'active-route': leftMenuDataIndex(item.children)}"
-              >
-                <template slot="title">
-                  <i class="iconfont" :class="item.cFunIcon"></i>
-                  <span class="title">{{item.cFunName}}</span>
-                </template>
-                <router-link
-                  :to="{name:item.cFunUrl}"
-                  v-for="item in item.children"
-                  :key="item.cFunUrl"
-                  active-class="active-route"
-                >
-                  <el-menu-item :index="item.cFunUrl">{{item.cFunName}}</el-menu-item>
-                </router-link>
-              </el-submenu>
-              <router-link
-                v-else
-                :to="{name:item.cFunUrl}"
-                :key="item.cFunUrl"
-                active-class="active-route"
-              >
-                <el-menu-item
-                  :index="item.cFunUrl"
-                  :data-tooltip="item.cFunName "
-                  data-tooltip-positions="right"
-                  v-if="!isCollapse"
-                >
-                  <i class="iconfont" :class="item.cFunIcon"></i>
-                </el-menu-item>
-                <el-menu-item :index="item.cFunUrl" v-else>
-                  <i class="iconfont" :class="item.cFunIcon"></i>
-                  <span class="title">{{item.cFunName}}</span>
-                </el-menu-item>
-              </router-link>
-            </template>
-          </el-menu>
+          <Sidebar :isCollapse="isCollapse" :menusData="menusData" :leftMenuData="leftMenuData" />
         </el-scrollbar>
         <el-button class="el-menu-control" @click="leftMenuControl">
           <i class="icon-qiehuan iconfont"></i>
@@ -147,11 +106,16 @@ import _ from "lodash";
 import { MenusData } from "@features/Home/config.js";
 import { mapState, mapGetters } from "vuex";
 import { POINT_CONVERSION_COMPRESSED } from "constants";
+import Sidebar from "./components/Sidebar";
 export default {
+  components: {
+    Sidebar
+  },
+  inject: ["reload"],
   data() {
     return {
       elDropdownActive: false, //顶部登陆drap
-      menuMoreState: true, //顶部是否显示更多
+      menuMoreState: false, //顶部是否显示更多
       menuShow: true, //顶部menu是否展示
       menuDropdownActive: false, //顶部更多drap
       flexible: false, //是否左侧收缩
@@ -162,10 +126,19 @@ export default {
       width: 60,
       collapsed: true,
       selectedMenu: null,
-      fullScreenList: ["DataKPI", "GIS", "InsOverView", "MaOverView"],
+      fullScreenList: [
+        "DataKPI",
+        "GIS",
+        "InsOverView",
+        "MaOverView",
+        "EssentialFactorManage",
+        "EssentialFactorManageFix"
+      ],
       fullScreenValue: false,
       //一级导航
-      tagData: []
+      tagData: [],
+      //判断路由是否需要刷新
+      olderRoute: ""
     };
   },
   computed: {
@@ -180,12 +153,23 @@ export default {
       }
       this.menusDataList = num;
       this.leftMenuData = this.$route.name;
-      return this.iframe ? MenusData[num] :this.MenusTreeData[num] ;
+      if (this.UniWater) {
+        return this.MenusTreeData[num].children;
+      }
+      return this.iframe ? MenusData[num] : this.MenusTreeData[num];
     },
-    ...mapState("login", [ "iframe" ,"cAdminName"]),
-    ...mapGetters("login", ["routeTree", "MenusTreeData"])
+    ...mapState("login", [
+      "iframe",
+      "cAdminName",
+      "iIsAllowChangePWD",
+      "UniWater"
+    ]),
+    ...mapGetters("login", [ "MenusTreeData" ,"routeTree"])
   },
   created() {
+    //判断是否需要刷新
+    this.olderRoute = this.$route.name;
+
     this.flexibleControl();
     this.fullScreenValue =
       _.indexOf(this.fullScreenList, this.$route.name) != -1;
@@ -223,37 +207,39 @@ export default {
     },
     //是否展示mune更多选项
     menuMoreControl() {
-      if(this.iframe){
-        return
-      }
-      this.menuMoreState = false;
-      this.menuShow = true;
-      if (
-        document.querySelector("div .menuRow").offsetWidth <
-        document.querySelector("div .menuRow").children[0].clientWidth
-      ) {
-        this.menuShow = false;
-        this.menuMoreState = true;
-        _.forEach(
-          document.querySelector("div .menuRow").children,
-          (ele, index) => {
-            this.tagData[index].showMore = true;
-          }
-        );
+      if (this.iframe || this.UniWater) {
         return;
       }
 
-      _.forEach(
-        document.querySelector("div .menuRow").children,
-        (ele, index) => {
-          if (ele.offsetTop > 0) {
-            this.tagData[index].showMore = true;
-            this.menuMoreState = true;
-          } else {
-            this.tagData[index].showMore = false;
-          }
+      this.menuMoreState = false;
+      this.menuShow = true;
+      this.$nextTick(() => {
+        if (
+          document.querySelector("div .menuRow").offsetWidth <
+          document.querySelector("div .menuRow").children[0].clientWidth
+        ) {
+          this.menuShow = false;
+          this.menuMoreState = true;
+          _.forEach(
+            document.querySelector("div .menuRow").children,
+            (ele, index) => {
+              this.tagData[index].showMore = true;
+            }
+          );
+          return;
         }
-      );
+        _.forEach(
+          document.querySelector("div .menuRow").children,
+          (ele, index) => {
+            if (ele.offsetTop > 0) {
+              this.tagData[index].showMore = true;
+              this.menuMoreState = true;
+            } else {
+              this.tagData[index].showMore = false;
+            }
+          }
+        );
+      });
     },
     //左侧导航伸展方法
     leftMenuControl() {
@@ -270,9 +256,6 @@ export default {
     },
     longinOut() {
       this.$confirm("确定退出系统么？", "提示信息").then(res => {
-        localStorage.clear();
-        sessionStorage.clear();
-        // this.$store.dispatch("login/userStatus", undefined);
         if (this.$store.state.system.hashMode) {
           location.replace("/#/Login");
         } else {
@@ -289,6 +272,17 @@ export default {
     //顶部菜单选择
     topMenueChange(item, indexNum) {
       // this.menusData = MenusData[item.value];
+      let num = this.$route.fullPath.split("/")[1];
+      num = num.split("?")[0];
+      console.log(num);
+      if (num == "InspectionGIS" || num == "MaintainGIS") {
+        this.$bus.emit("setCenterCover", 3);
+      }
+      if (this.olderRoute === item.cFunUrl) {
+        this.reload();
+      } else {
+        this.olderRoute = item.cFunUrl;
+      }
     }
   }
 };

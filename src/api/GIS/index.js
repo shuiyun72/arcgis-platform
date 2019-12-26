@@ -19,14 +19,14 @@ const instance = axios.create({
     //     return parsedResData
     // }
     // 该函数指定响应数据进行的预处理，return的值会填到response.data
-    transformResponse: function (resJsonData) {
-        if (typeof (resJsonData) === "object") {
-            return resJsonData
-        } else {
-            return JSON.parse(resJsonData);
-        }
-        // return JSON.parse(resJsonData.replace(/\\/g, '').slice(1, -1))
-    }
+    // transformResponse: function (resJsonData) {
+    //     if (typeof (resJsonData) === "object") {
+    //         return resJsonData
+    //     } else {
+    //         return JSON.parse(resJsonData);
+    //     }
+    //     // return JSON.parse(resJsonData.replace(/\\/g, '').slice(1, -1))
+    // }
 });
 
 
@@ -35,8 +35,9 @@ instance.interceptors.request.use(
     config => {
         // 每次发送请求之前检测都vuex存有token,那么都要放在请求头发送给服务器
         let iAdminID = localStorage.getItem('iAdminID')
-        if(store.state.login.userToken){
-             config.headers.Token = store.state.login.userToken
+        let Token = store.getters['login/userToken']
+        if(Token){
+             config.headers.Token = Token
         }else if(iAdminID ){ 
             config.headers.Token = JSON.parse(iAdminID).Token
         }

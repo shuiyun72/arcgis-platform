@@ -16,7 +16,7 @@ export default {
     },
      //查询人员数据
     AdminNameData(deptId,roleId) {
-        return instance.get('/User/GetUserComboboxList', {
+        return instance.get('/User/GetUserComboboxListNoDelete', {
             params: {
                 deptId: deptId==null?'': Number(deptId),
                 roleId:roleId==null?'': Number(roleId)

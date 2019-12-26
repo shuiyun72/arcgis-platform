@@ -31,15 +31,17 @@
               @click="doubleAnalysis(scope.row)">二次分析</span>
           </template>
         </el-table-column>-->
-        <el-table-column
-          v-for="column in columnList"
-          :key="column.field"
-          :prop="column.field"
-          :width="column.width"
-          :fixed="column.fixed"
-          :label="column.text"
-          align="center"
-        ></el-table-column>
+        <template v-for="column in columnList">
+          <el-table-column
+            v-if="!column.tableHide"
+            :key="column.field"
+            :prop="column.field"
+            :width="column.width"
+            :fixed="column.fixed"
+            :label="column.text"
+            align="center"
+          ></el-table-column>
+        </template>
       </el-table>
     </div>
     <el-pagination

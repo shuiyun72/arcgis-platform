@@ -193,7 +193,6 @@ export default {
           }
           PandectNavSumcount += item.sumcount
         })
-        console.log(PandectNavSumcount)
         PandectNavSumcount = PandectNavSumcount+IsValidNum;
         PandectNavPre.unshift({OperName2:"全部",sumcount:PandectNavSumcount,rank:20})
         PandectNavPre.push({OperName2:"无效",sumcount:IsValidNum,rank:0})
@@ -286,19 +285,13 @@ export default {
 
 .InsOverView .inspectiongis_fixed.flexible .control-show-btn {
     position: fixed;
-    bottom: 10px;
+    top: 60px;
 }
 
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
     color: #fff;
     background-color: #367bc7;
     border-color: #367bc7;
-}
-
-.el-button {
-    background: #367bc7;
-    border: none;
-    color: white;
 }
 
 .InsOverView .inspectiongis_fixed .overview-card .car-list-wrapper .btn-item {

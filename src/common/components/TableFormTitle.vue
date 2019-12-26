@@ -1,7 +1,7 @@
 <template>
   <el-row class="page-title" type="flex" justify="space-between">
       <span class="text">{{titleName}}</span>   
-      <span  @click="flexibleFnc" class="icon">
+      <span  @click="flexibleFnc" class="icon" v-show="Showflexible">
         <span v-show="flexible">展开 </span><i class="iconfont icon-shousuo"></i>
       </span>
     </el-row>
@@ -10,7 +10,21 @@
 import _ from "lodash";
 import { setTimeout } from 'timers';
 export default {
-  props: ["flexible","titleName"],
+  props: {
+    flexible:{
+      type:Boolean,
+      default:true
+    },
+    titleName:{
+      type:String,
+      default:'',
+    },
+    Showflexible:{
+      type: Boolean,
+      default: true,
+    }
+
+  },
   data() {
     return {
     };

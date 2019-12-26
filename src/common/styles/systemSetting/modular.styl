@@ -7,15 +7,21 @@
         // padding-left: 0px;
     }
 
-    .el-scrollbar__wrap {
-         padding: 10px 0;
-        overflow-x: hidden;
+    .scrollbar-moMdular-wrapper {
+        height: 100%;
 
-        .el-scrollbar__view {
+        .el-scrollbar {
             height: 100%;
-            background: #2f3239;
-            
+
+            .el-scrollbar__wrap {
+                padding: 10px 0;
+                overflow-x: hidden;
+
+                .el-scrollbar__view {
+                    height: 100%;
+                    background: #2f3239;
+                }
+            }
         }
     }
-
 }

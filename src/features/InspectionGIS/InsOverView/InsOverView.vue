@@ -20,13 +20,13 @@
         </el-row>
         <el-row>
           <el-col>
-            <el-date-picker v-model="dateDataStart" type="date" placeholder="查询开始日期"></el-date-picker>
-            <el-date-picker v-model="dateDataEnd" type="date" placeholder="查询结束日期"></el-date-picker>
+            <el-date-picker v-model="dateDataStart" type="date" placeholder="查询开始日期" :clearable= false @change="dateDataStartC"></el-date-picker>
+            <el-date-picker v-model="dateDataEnd" type="date" placeholder="查询结束日期" :clearable= false @change="dateDataEndC"></el-date-picker>
             <el-button size="mini" @click="getData()">查询</el-button>
           </el-col>
         </el-row>
         <el-row class="car-list-wrapper">
-          <router-link :to="{name:'InsEven'}">
+          
             <el-col
               span="8"
               v-for="item in inspectionCardData"
@@ -34,10 +34,12 @@
               :class="item.class"
               class="list-item"
             >
-              <p>{{item.title}}</p>
-              <p>{{item.num}} {{item.unit}}</p>
+              <router-link :to="{name:item.name,query:item.query}">
+                <p>{{item.title}}</p>
+                <p>{{item.num}} {{item.unit}}</p>
+               </router-link>
             </el-col>
-          </router-link>
+         
         </el-row>
         <div class="event_pie" label="数据图表" style="height:300px;"></div>
       </div>
@@ -58,8 +60,8 @@ export default {
   data() {
     return {
       dateDataSelect: 0,
-      dateDataStart:"",
-      dateDataEnd:"",
+      dateDataStart:new Date("2000-01-01"),
+      dateDataEnd:new Date("2050-12-31"),
       dateData:[
         {label:"全部",value:0},
         {label:"今天",value:1},
@@ -113,10 +115,30 @@ export default {
     //初始化数据
   },
   mounted() {
+    let beforeYear = new Date().getFullYear() - 4;
+    let nowYear = new Date().getFullYear();
+    this.dateDataStart = new Date(beforeYear +"-01-01");
+    this.dateDataEnd = new Date(nowYear +"-12-31");
     this.getData(this.dateDataStart,this.dateDataEnd);
     this.getEventManageAll(this.dateDataStart,this.dateDataEnd);
   },
   methods: {
+    dateDataStartC(){
+      if(!this.dateDataStart){
+        this.dateDataStart = new Date((new Date().getFullYear() - 4) +"-01-01")
+      }
+      if(this.dateDataStart > this.dateDataEnd){
+        this.dateDataStart = this.dateDataEnd;
+      }
+    },
+    dateDataEndC(){
+      if(!this.dateDataEnd){
+        this.dateDataEnd = new Date(new Date().getFullYear() +"-12-31")
+      }
+      if(this.dateDataEnd < this.dateDataStart){
+        this.dateDataEnd =this.dateDataStart;
+      }
+    },
     changeDataSelect(){
       let getDate = new Date().getDate();
       let FullYear = new Date().getFullYear();
@@ -137,8 +159,8 @@ export default {
       let thisYearEnd = FullYear+'-12-31';
 
       if(this.dateDataSelect == 0){
-        this.dateDataStart = "";
-        this.dateDataEnd = "";
+        this.dateDataStart = new Date("2000-01-01");
+        this.dateDataEnd = new Date("2050-12-31");
       }else if(this.dateDataSelect == 1){  //今天
         this.dateDataStart = new Date();
         this.dateDataEnd = new Date();
@@ -251,6 +273,8 @@ export default {
       current = utilData.myformatStr(current);
       TaskManage.taskCount(current, current).then(res => {
         this.inspectionCardData[0].num = res.data.Data.Result[0].count;
+        this.inspectionCardData[0].name = "PatrolTask";
+        this.inspectionCardData[0].query = {date:1};
       });
       //本月任务统计
       let monthData = utilData.getMonth();
@@ -258,11 +282,28 @@ export default {
       let _endTime = monthData.over;
       TaskManage.taskCount(_startTime, _endTime).then(res => {
         this.inspectionCardData[1].num = res.data.Data.Result[0].count;
+        this.inspectionCardData[1].name = "PatrolTask";
+        this.inspectionCardData[1].query = {date:4};
       });
       //本月事件统计
-      EventManage.EventManageCount(_startTime, _endTime).then(res => {
-        this.inspectionCardData[2].num = res.data.Data.Result[0].count;
+      EventManage.EventManageAll(
+        500,1,
+        _startTime,
+        _endTime,
+        "",
+        "",
+        ""
+      ).then(res => {
+        this.inspectionCardData[2].num = res.data.Data.TotalRows;
+        this.inspectionCardData[2].name = "InsEven";
+        this.inspectionCardData[2].query = {date:4};
       });
+
+      // EventManage.EventManageCount(_startTime, _endTime).then(res => {
+      //   this.inspectionCardData[2].num = res.data.Data.Result[0].count;
+      //   this.inspectionCardData[2].name = "InsEven";
+      //   this.inspectionCardData[2].query = {date:1};
+      // });
     }
   }
 };
@@ -298,19 +339,13 @@ export default {
 
 .InsOverView .inspectiongis_fixed.flexible .control-show-btn {
   position: fixed;
-  bottom: 10px;
+  top: 60px;
 }
 
 .el-radio-button__orig-radio:checked+.el-radio-button__inner {
   color: #fff;
   background-color: #367bc7;
   border-color: #367bc7;
-}
-
-.el-button {
-  background: #367bc7;
-  border: none;
-  color: white;
 }
 
 .InsOverView .inspectiongis_fixed .overview-card .car-list-wrapper .btn-item {

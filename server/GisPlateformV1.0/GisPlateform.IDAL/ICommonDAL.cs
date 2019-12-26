@@ -15,7 +15,7 @@ namespace GisPlateform.IDAL
         Model.P_Admin GetUserInfo(string userId, out string errorMsg);
         Model.P_Admin GetUserInfoByName(string userName, out string errorMsg);
         Model.P_Admin IsUserExist(string userName,string cJobNumber,int adminId, out string errorMsg);
-        MessageEntity GetUsers(string userName, int? roleId,int? deptId, string sort, string ordering, int num, int page);
+        MessageEntity GetUsers(string searchCondition, int? roleId,int? deptId, string sort, string ordering, int num, int page);
         List<Model.P_Function> GetUserAuthority(string userId, int systemType, out string errorMsg);
         List<Model.P_Function> GetRoleAuthority(string roleId, int systemType, out string errorMsg);
         List<Model.P_Admin> GetUserInfoListByDeptId(string deptId, string roleId, out string errorMsg);
@@ -24,6 +24,11 @@ namespace GisPlateform.IDAL
         MessageEntity AddUser(Model.P_Admin admin);
         MessageEntity UpdateUser(Model.P_Admin admin);
         bool UpdateUserPassword(Model.AdminPassword admin,out string errorMsg);
+        bool IsAllowChangePWD(Model.AdminPassword admin, out string errorMsg);
         MessageEntity DeleteUser(int id);
+        bool IsAllowDelete(int id, out string errorMsg);
+        MessageEntity InsertDayFeezing(string loginContent,string islogin);
+        bool IsDayFeezing(string loginContent, out string errorMsg);
+        bool IsLocked(string loginContent, out string errMsg2);
     }
 }

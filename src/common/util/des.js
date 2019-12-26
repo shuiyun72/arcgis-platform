@@ -1,4 +1,5 @@
 import CryptoJS from 'crypto-js'
+import config from '@config/config.js'
 //des加密无密文
 export const encryptDes = (message, key) => {
   var keyHex = CryptoJS.enc.Utf8.parse(key);
@@ -80,3 +81,11 @@ export const encryptSHA1HD = (HDACC ,HDSTAMP)  => {
 export const encryptSHA256 = (waitSignData) => {
   return CryptoJS.SHA256(waitSignData).toString(CryptoJS.enc.Hex); 
 }
+
+//和达SHA256加密 
+export const encryptSHA256HD = (path)  => { 
+  let client_secret = config.apiPath[path].client_secret;
+  let client_id = config.apiPath[path].client_id;
+  let waitSignData = client_id+"$"+client_secret;
+  return CryptoJS.SHA256(waitSignData).toString(CryptoJS.enc.Hex);
+} 

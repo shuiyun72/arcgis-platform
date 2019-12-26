@@ -2,243 +2,271 @@ export const MenusData = {
   GIS: [
     // {
     //   keyName: "EQName",
-    //   text: "设施管理",
-    //   iconCls: "i_map_79",
-    //   target: "DeviceManagement"
+    //   cFunName: "设施管理",
+    //   cFunIcon: "i_map_79",
+    //   cFunUrl: "DeviceManagement"
     // },
     {
-      keyName: "KPIName",
-      text: "管网KPI",
-      iconCls: "icon-caidan-",
-      target: "DataKPI"
+      keyName: "DataKPI",
+      cFunName: "管网KPI",
+      cFunIcon: "icon-caidan-",
+      cFunUrl: "DataKPI"
     },
     {
-      keyName: "SearchName",
-      text: "管网查询",
-      iconCls: "icon-caidan-4",
-      target: "DataSearch",
+      keyName: "DataSearch",
+      cFunName: "管网查询",
+      cFunIcon: "icon-caidan-4",
+      cFunUrl: "DataSearch",
       children: [{
         keyName: "NormalSearch",
-        text: "数据查询",
-        target: "NormalSearch",
+        cFunName: "数据查询",
+        cFunUrl: "NormalSearch",
       }, {
         keyName: "BufferSearch",
-        text: "缓冲区查询",
-        target: "BufferSearch",
+        cFunName: "缓冲区查询",
+        cFunUrl: "BufferSearch",
       }, {
         keyName: "SeniorSearch",
-        text: "高级查询",
-        target: "SeniorSearch",
+        cFunName: "高级查询",
+        cFunUrl: "SeniorSearch",
       }]
     },
     {
-      keyName: "CountName",
-      text: "管网统计",
-      iconCls: "icon-caidan-1",
-      target: "DataCount"
+      keyName: "DataCount",
+      cFunName: "管网统计",
+      cFunIcon: "icon-caidan-1",
+      cFunUrl: "DataCount"
     },
     {
-      keyName: "EQViewName",
-      text: "设备展示",
-      iconCls: "icon-caidan-3",
-      target: "DeviceShow"
+      keyName: "DeviceShow",
+      cFunName: "设备展示",
+      cFunIcon: "icon-caidan-3",
+      cFunUrl: "DeviceShow"
     },
     {
-      keyName: "EQAnalysisName",
-      text: "管网分析",
-      iconCls: "icon-caidan-6",
-      target: "PipeAnalysis",
-      children: [{
-        keyName: "GuanFa",
-        text: "关阀分析",
-        target: "GuanFa",
-      }, {
-        keyName: "LianTongXing",
-        text: "连通性分析",
-        target: "LianTongXing",
-      },
-      //{
-      //  keyName: "HuoZai",
-      //  text: "火灾分析",
-      //  target: "HuoZai",
-      //},
+      keyName: "PipeAnalysis",
+      cFunName: "管网分析",
+      cFunIcon: "icon-caidan-6",
+      cFunUrl: "PipeAnalysis",
+      children: [
+      //   {
+      //   keyName: "GuanFa",
+      //   cFunName: "关阀分析",
+      //   cFunUrl: "GuanFa",
+      // }, {
+      //   keyName: "LianTongXing",
+      //   cFunName: "连通性分析",
+      //   cFunUrl: "LianTongXing",
+      // },
       {
         keyName: "HengDuanMian",
-        text: "横断面分析",
-        target: "HengDuanMian",
+        cFunName: "横断面分析",
+        cFunUrl: "HengDuanMian",
       },
-      {
-        keyName: "ZongDuanMian",
-        text: "纵断面分析",
-        target: "ZongDuanMian",
-      },
-        //{
-        //  keyName: "ChaiQian",
-        //  text: "拆迁分析",
-        //  target: "ChaiQian",
-        //}
+      // {
+      //   keyName: "ZongDuanMian",
+      //   cFunName: "纵断面分析",
+      //   cFunUrl: "ZongDuanMian",
+      // },
       ]
     },
-    // {
-    //   keyName: "EQViewName",
-    //   text: "设备展示",
-    //   iconCls: "icon-caidan-2",
-    //   target: "DeviceShow"
-    // },
-    // {
-    //   keyName: "EQViewName",
-    //   text: "设备展示",
-    //   iconCls: "icon-caidan-5",
-    //   target: "DeviceShow"
-    // }
+    {
+      keyName: "MapGrid",
+      cFunName: "网格管理",
+      cFunIcon: "icon-guanwangGIS-wanggehuaguanli-",
+      cFunUrl: "MapGrid"
+    },
+    {
+      keyName: "DiscardPipe",
+      cFunName: "废管处理",
+      cFunIcon: "icon-guanwangGIS-",
+      cFunUrl: "DiscardPipe",
+      children: [{
+        keyName: "DiscardPipeSearch",
+        cFunName: "废管查询",
+        cFunUrl: "DiscardPipeSearch",
+      }, {
+        keyName: "DiscardPipeCount",
+        cFunName: "废管统计",
+        cFunUrl: "DiscardPipeCount",
+      },
+      {
+        keyName: "PipeDiscard",
+        cFunName: "管网废弃",
+        cFunUrl: "PipeDiscard",
+      },
+      ]
+    },
+    {
+      keyName: "PipeLifeCycle",
+      cFunName: "生命周期",
+      cFunIcon: "icon-guanwangGIS_guanwangshengmingzhouqi-",
+      cFunUrl: "PipeLifeCycle",
+      children: [{
+        keyName: "AccountsManage",
+        cFunName: "台账管理",
+        cFunUrl: "AccountsManage",
+      },
+      // {
+      //   keyName: "DiscardPipeCount",
+      //   cFunName: "台账统计",
+      //   cFunUrl: "DiscardPipeCount",
+      // },
+      // {
+      //   keyName: "PipeDiscard",
+      //   cFunName: "管网废弃",
+      //   cFunUrl: "PipeDiscard",
+      // },
+      ]
+    }
   ],
   InspectionGIS: [{
     keyName: "InsOverView",
-    text: "巡检总览",
-    iconCls: "icon-caidan_guanwangxunjian-",
-    target: "InsOverView"
+    cFunName: "巡检总览",
+    cFunIcon: "icon-caidan_guanwangxunjian-",
+    cFunUrl: "InsOverView"
   },
   {
     keyName: "InsPlan",
-    text: "巡检计划",
-    iconCls: "icon-caidan_guanwangxunjian-5",
-    target: "InsPlan",
+    cFunName: "巡检计划",
+    cFunIcon: "icon-caidan_guanwangxunjian-5",
+    cFunUrl: "InsPlan",
     children: [{
       keyName: "PlanManage",
-      text: "计划管理",
-      target: "PlanManage",
+      cFunName: "计划管理",
+      cFunUrl: "PlanManage",
     }, {
       keyName: "PatrolTask",
-      text: "巡线任务",
-      target: "PatrolTask",
+      cFunName: "巡线任务",
+      cFunUrl: "PatrolTask",
     }, {
       keyName: "RegionalManagement",
-      text: "区域管理",
-      target: "RegionalManagement",
+      cFunName: "区域管理",
+      cFunUrl: "RegionalManagement",
     }, {
       keyName: "RouteManagement",
-      text: "路线管理",
-      target: "RouteManagement",
+      cFunName: "路线管理",
+      cFunUrl: "RouteManagement",
     }
     ]
   },
   {
     keyName: "InsMinitor",
-    text: "巡检监控",
-    iconCls: "icon-caidan_guanwangxunjian-6",
-    target: "InsMinitor"
+    cFunName: "巡检监控",
+    cFunIcon: "icon-caidan_guanwangxunjian-6",
+    cFunUrl: "InsMinitor"
   },
   {
     keyName: "InsEven",
-    text: "事件管理",
-    iconCls: "icon-caidan_guanwangxunjian-3",
-    target: "InsEven"
+    cFunName: "事件管理",
+    cFunIcon: "icon-caidan_guanwangxunjian-3",
+    cFunUrl: "InsEven"
   },
   {
     keyName: "InsAnalysis",
-    text: "统计分析",
-    iconCls: "icon-caidan_guanwangxunjian-4",
-    target: "InsAnalysis",
+    cFunName: "统计分析",
+    cFunIcon: "icon-caidan_guanwangxunjian-4",
+    cFunUrl: "InsAnalysis",
     children: [{
       keyName: "EvenTypeAnalysis",
-      text: "事件类型分析",
-      target: "EvenTypeAnalysis",
+      cFunName: "事件类型分析",
+      cFunUrl: "EvenTypeAnalysis",
     }, {
       keyName: "EvenTrendAnalysis",
-      text: "事件趋势分析",
-      target: "EvenTrendAnalysis",
+      cFunName: "事件趋势分析",
+      cFunUrl: "EvenTrendAnalysis",
     }, {
       keyName: "ReportAnalysis",
-      text: "人员上报分析",
-      target: "ReportAnalysis",
+      cFunName: "人员上报分析",
+      cFunUrl: "ReportAnalysis",
     }
     ]
   },
   {
     keyName: "InsTimeCard",
-    text: "考勤管理",
-    iconCls: "icon-caidan_guanwangxunjian-1",
-    target: "InsTimeCard"
+    cFunName: "考勤管理",
+    cFunIcon: "icon-caidan_guanwangxunjian-1",
+    cFunUrl: "InsTimeCard"
   },
   {
     keyName: "InsSet",
-    text: "巡检设置",
-    iconCls: "icon-caidan_guanwangxunjian-2",
-    target: "InsSet",
+    cFunName: "巡检设置",
+    cFunIcon: "icon-caidan_guanwangxunjian-2",
+    cFunUrl: "InsSet",
     children: [{
       keyName: "EvenContent",
-      text: "事件内容管理",
-      target: "EvenContent",
+      cFunName: "事件内容管理",
+      cFunUrl: "EvenContent",
     }, {
       keyName: "TimeSet",
-      text: "工作时间段管理",
-      target: "TimeSet",
+      cFunName: "工作时间段管理",
+      cFunUrl: "TimeSet",
     }, {
       keyName: "EvenType",
-      text: "事件类型管理",
-      target: "EvenType",
+      cFunName: "事件类型管理",
+      cFunUrl: "EvenType",
     }, {
       keyName: "PlanType",
-      text: "计划类别管理",
-      target: "PlanType",
+      cFunName: "计划类别管理",
+      cFunUrl: "PlanType",
     },
     ]
   }
   ],
   MaintainGIS: [{
     keyName: "MaOverView",
-    text: "事件总览",
-    iconCls: "icon-caidan_guanwangxunjian-",
-    target: "MaOverView"
+    cFunName: "事件总览",
+    cFunIcon: "icon-caidan_guanwangxunjian-",
+    cFunUrl: "MaOverView"
   },
   {
     keyName: "MaEventBills",
-    text: "事件工单",
-    iconCls: "icon-caidan_weixiuyanghu-2",
-    target: "MaEventBills"
+    cFunName: "事件工单",
+    cFunIcon: "icon-caidan_weixiuyanghu-2",
+    cFunUrl: "MaEventBills"
   },
   {
     keyName: "MaAnalysis",
-    text: "统计分析",
-    iconCls: "icon-caidan_guanwangxunjian-4",
-    target: "MaAnalysis"
+    cFunName: "统计分析",
+    cFunIcon: "icon-caidan_guanwangxunjian-4",
+    cFunUrl: "MaAnalysis"
   },
   {
     keyName: "MaSelfDispose",
-    text: "个人处理",
-    iconCls: "icon-caidan_weixiuyanghu-3",
-    target: "MaSelfDispose"
+    cFunName: "个人处理",
+    cFunIcon: "icon-caidan_weixiuyanghu-3",
+    cFunUrl: "MaSelfDispose"
   },
   {
     keyName: "MaBillsReview",
-    text: "工单审核",
-    iconCls: "icon-caidan_weixiuyanghu-",
-    target: "MaBillsReview"
+    cFunName: "工单审核",
+    cFunIcon: "icon-caidan_weixiuyanghu-",
+    cFunUrl: "MaBillsReview"
   },
   {
     keyName: "MaBillsDelete",
-    text: "工单作废",
-    iconCls: "icon-caidan_weixiuyanghu-1",
-    target: "MaBillsDelete"
+    cFunName: "工单作废",
+    cFunIcon: "icon-caidan_weixiuyanghu-1",
+    cFunUrl: "MaBillsDelete"
   }
   ],
   SystemSetting: [{
     keyName: "Modular",
-    text: "模块管理",
-    iconCls: "icon-caidan_xitongguanli-mokuaiguanli-",
-    target: "Modular"
+    cFunName: "模块管理",
+    cFunIcon: "icon-caidan_xitongguanli-mokuaiguanli-",
+    cFunUrl: "Modular"
   },
   {
     keyName: "UserManage",
-    text: "用户管理",
-    iconCls: "icon-caidan_xitongguanli-yonghuguanli-",
-    target: "UserManage"
+    cFunName: "用户管理",
+    cFunIcon: "icon-caidan_xitongguanli-yonghuguanli-",
+    cFunUrl: "UserManage"
   },
   {
     keyName: "RoleManage",
-    text: "岗位管理",
-    iconCls: "icon-caidan_xitongguanli-gangweiguanli-",
-    target: "RoleManage"
+    cFunName: "岗位管理",
+    cFunIcon: "icon-caidan_xitongguanli-gangweiguanli-",
+    cFunUrl: "RoleManage"
   }
-  ],  
+  ],
 }

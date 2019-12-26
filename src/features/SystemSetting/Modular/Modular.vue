@@ -1,17 +1,20 @@
 <template>
   <div class="table_style">
     <el-row type="flex" class="modularWrapper">
-      <el-scrollbar style="min-width:200px;">
-        <el-tree
-          highlight-current
-          class="black"
-          :data="modularList"
-          :props="defaultProps"
-          @node-click="handleNodeClick"
-          :default-expanded-keys="[this.nodeID]"
-          node-key="iFunID"
-        ></el-tree>
-      </el-scrollbar>
+      <div @click="cancleTreeClik" class="scrollbar-moMdular-wrapper">
+        <el-scrollbar style="min-width:200px;">
+          <el-tree
+            highlight-current
+            class="black"
+            ref="tree"
+            :data="modularList"
+            :props="defaultProps"
+            @node-click="handleNodeClick"
+            :default-expanded-keys="[nodeID]"
+            node-key="iFunID"
+          ></el-tree>
+        </el-scrollbar>
+      </div>
       <el-col class="table-flex-wraper">
         <div class="table-btn-control" style="border:none">
           <el-row type="flex" justify="strat">
@@ -20,7 +23,7 @@
               plain
               size="mini"
               @click="addModular"
-              v-if="$options.filters.btnTree('/api/Function/Post' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Function/Post' ,$route.name)"
             >
               <i class="iconfont icon-xinzeng"></i>新增
             </el-button>
@@ -28,7 +31,7 @@
               class="my-tableout"
               size="mini"
               @click="editModular"
-              v-if="$options.filters.btnTree('/api/Function/Put' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Function/Put' ,$route.name)"
             >
               <i class="iconfont icon-bianji"></i>编辑
             </el-button>
@@ -36,7 +39,7 @@
               class="my-tableout"
               size="mini"
               @click="delModular"
-              v-if="$options.filters.btnTree('/api/Function/Delete' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/Function/Delete' ,$route.name)"
             >
               <i class="iconfont icon-shanchu"></i>删除
             </el-button>
@@ -49,7 +52,6 @@
           :paginationShow="false"
           :modularDialog="true"
           @currentChange="currentChange"
-          @modularDialogOpen="modularDialogOpen"
         ></SysTable>
       </el-col>
     </el-row>
@@ -63,10 +65,10 @@
     >
       <el-form label-width="100px" ref="formDialog" size="small" :rules="rules" :model="formValue">
         <el-form-item label="功能名称：" prop="cFunName">
-          <el-input v-model="formValue.cFunName" placeholder="请输入功能名称"></el-input>
+          <el-input v-model="formValue.cFunName" placeholder="请输入功能名称" v-filter-special-char></el-input>
         </el-form-item>
         <el-form-item label="功能URl：" prop="cFunUrl">
-          <el-input v-model="formValue.cFunUrl" placeholder="请输入功能URl"></el-input>
+          <el-input v-model="formValue.cFunUrl" placeholder="请输入功能URl" v-filter-space-char></el-input>
         </el-form-item>
         <el-form-item label="系统类型：">
           <el-select v-model="formValue.System_Type" disabled>
@@ -79,10 +81,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="icon名称：" prop="cFunIcon">
-          <el-input v-model="formValue.cFunIcon" placeholder="请输入icon名称"></el-input>
+          <el-input v-model="formValue.cFunIcon" placeholder="请输入icon名称" v-filter-space-char></el-input>
         </el-form-item>
         <el-form-item label="排序：">
-          <el-input-number v-model="formValue.iFunOrder" controls-position="right" label="描述文字"></el-input-number>
+          <el-input-number v-model="formValue.iFunOrder" controls-position="right"></el-input-number>
         </el-form-item>
         <el-form-item label="是否显示：">
           <el-switch
@@ -99,7 +101,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button class="my-dialog-cancel" @click="dialogVisible = false">取 消</el-button>
+        <el-button class="my-dialog-cancel" @click="editFormSubmitCancle">取 消</el-button>
         <el-button class="my-dialog-submit" @click="editFormSubmit" :loading="sunBtnLoad">确 定</el-button>
       </div>
     </el-dialog>
@@ -119,7 +121,14 @@ export default {
     return {
       rules: {
         cFunName: [
-          { required: true, message: "请输入功能名称", trigger: "blur" }
+          { required: true, message: "请输入功能名称", trigger: "blur" },
+          { message: "长度不能超过50个字符", trigger: "blur", max: 50 }
+        ],
+        cFunUrl: [
+          { message: "长度不能超过100个字符", trigger: "blur", max: 100 }
+        ],
+        cFunIcon: [
+          { message: "长度不能超过80个字符", trigger: "blur", max: 80 }
         ]
       },
       modularList: [],
@@ -131,7 +140,7 @@ export default {
       tableData: [], //表格显示数据
       currentRow: null, //表格当前行
       nodeID: -1, //当前的tree展开行
-      System_Type: 1, //当前的tree展开类别
+      System_Type: 0, //当前的tree展开类别
       dialogVisible: false, //弹窗是否展示
       dialogtype: 0, //弹窗标题0:新增1：修改
       typeList: {
@@ -171,6 +180,7 @@ export default {
     this.getModularList();
   },
   methods: {
+    //获取接口数据
     getModularList() {
       this.loading = true;
       Modular.getModular()
@@ -212,18 +222,19 @@ export default {
           if (active === -1) {
             this.tableData = this.typeListArr;
           } else {
+            let System_Type = this.System_Type;
             this.tableData = this.FatherList[this.System_Type][active];
+            let tableData = this.tableData;
           }
-
           this.loading = false;
+          this.currentRow = null;
+          this.$nextTick(() => {
+            this.$refs.tree && this.$refs.tree.setCurrentKey(this.nodeID);
+          });
         })
         .catch(() => {
           this.loading = false;
-          this.$message({
-            type: "error",
-            message: "获取数据失败",
-            showClose: true
-          });
+          this.$myMessage("error", "获取数据失败");
         });
     },
     //treeData序列化
@@ -259,6 +270,14 @@ export default {
       this.nodeID = data.iFunID;
       this.System_Type = data.System_Type;
     },
+    //取消tree的点击
+    cancleTreeClik() {
+      this.System_Type = -1;
+      this.tableData = [];
+      this.dialogtype = 0;
+      this.currentRow = null;
+      this.$refs.tree && this.$refs.tree.setCurrentNode([]);
+    },
     //表格点击事件
     currentChange(val) {
       this.currentRow = val;
@@ -266,58 +285,34 @@ export default {
     //删除按钮点击
     delModular() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要删除的数据",
-          showClose: true
-        });
+        this.$myMessage("warning", "请选择需要删除的模块");
         return;
       }
       this.$confirm("确定删除么")
         .then(() => {
           if (_.isString(this.currentRow.iFunID)) {
-            this.$message({
-              type: "error",
-              message: "禁止删除系统分类",
-              showClose: true
-            });
+            this.$myMessage("error", "禁止删除系统分类");
             return;
           }
           this.loading = true;
           Modular.delModular(this.currentRow.iFunID)
             .then(() => {
               this.loading = false;
-              this.$message({
-                type: "success",
-                message: "成功删除数据",
-                showClose: true
-              });
+              this.$myMessage("success", "成功删除模块");
               this.getModularList();
             })
             .catch(() => {
-              this.$message({
-                type: "error",
-                message: "删除数据失败",
-                showClose: true
-              });
+              // this.$myMessage("error", "删除模块失败");
             });
         })
         .catch(() => {
-          this.$message({
-            type: "warning",
-            message: "取消删除数据",
-            showClose: true
-          });
+          this.$myMessage("warning", "取消删除模块");
         });
     },
     //编辑按钮点击
     editModular() {
       if (!this.currentRow) {
-        this.$message({
-          type: "warning",
-          message: "请选择需要编辑的数据",
-          showClose: true
-        });
+        this.$myMessage("warning", "请选择需要编辑的模块");
         return;
       }
       this.formValue = _.assign({}, this.currentRow);
@@ -327,6 +322,10 @@ export default {
     },
     //新增按钮点击
     addModular() {
+      if (!this.System_Type) {
+        this.$myMessage("warning", "在根节点添加模块无效");
+        return;
+      }
       this.dialogVisible = true;
       this.dialogtype = 0;
       this.formValue = {
@@ -341,7 +340,16 @@ export default {
       this.formValue.iFunFatherID = this.nodeID;
     },
     handleClose(done) {
-      done();
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        done();
+      });
+    },
+    editFormSubmitCancle() {
+      this.$refs.formDialog.resetFields();
+      this.$nextTick(() => {
+        this.dialogVisible = false;
+      });
     },
     //新增修改提交
     editFormSubmit() {
@@ -356,14 +364,11 @@ export default {
               this.dialogVisible = false;
               this.sunBtnLoad = false;
               this.getModularList();
+              this.$myMessage("success", "编辑模块成功");
             })
             .catch(() => {
               this.dialogVisible = false;
               this.sunBtnLoad = false;
-              this.$message({
-                type: "error",
-                message: "编辑数据失败，请重试"
-              });
             });
           return;
         } else {
@@ -372,14 +377,11 @@ export default {
               this.sunBtnLoad = false;
               this.dialogVisible = false;
               this.getModularList();
+              this.$myMessage("success", "新增模块成功");
             })
             .catch(() => {
               this.sunBtnLoad = false;
               this.dialogVisible = false;
-              this.$message({
-                type: "error",
-                message: "新增数据失败，请重试"
-              });
             });
         }
       });

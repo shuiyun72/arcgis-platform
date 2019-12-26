@@ -114,7 +114,7 @@ namespace GisPlateform.Model.BaseEntity
                         break;
                     case ErrorType.NotUnique:
                         message.Flag = false;
-                        message.Msg = "字段值重复，请重新输入!";
+                        message.Msg = "不允许有重复数据，请重新输入!";
                         message.Title = "提示信息";
                         break;
                     case ErrorType.NoLogin:

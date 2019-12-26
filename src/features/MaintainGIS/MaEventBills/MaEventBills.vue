@@ -11,6 +11,7 @@
         @maPlcSearch="maPlcSearch"
         @resetSearchBTn="resetSearchBTn"
         @deleteSearchBTn="WorkorderInvalid"
+        @ExportSearchBTn="ExportSearchBTn"
       ></ma-plc-search>
     </el-form>
     <!-- 公用table -->
@@ -167,6 +168,11 @@ export default {
         this.SubmitResult();
       }
     },
+    //导出
+    ExportSearchBTn(){
+      this.$refs("table").ExportSearchBTn("事件管理");
+
+    },
     //是否显示详情弹窗
     detailBtn(row) {
       this.currentRow = row;
@@ -194,7 +200,7 @@ export default {
     nowStatus(EventFormID, EventType) {
       this.obj.nowStatusSt = EventType;
       this.obj.nowStatusStID = EventFormID;
-      if (this.obj.nowStatusSt == "无 效") {
+      if (EventType == "无 效") {
         this.SubmitWuXiaoResult();
       } else {
         this.SubmitResult();
@@ -203,7 +209,7 @@ export default {
     //事件状态组件传值
     maPlcSearch(source, dept, type, typeid, name, isSummit) {
       this.obj.eventSourceSelect = source; //事件来源
-      this.obj.deptDataSelect = dept; //上报部门
+      this.obj.deptDataSelect = dept?dept:""; //上报部门
       this.obj.evevtTypeSelect = type; //事件类型
       this.obj.evevtTypeSelectID = typeid; //事件类型id
       this.obj.eventContentName = name; //事件查找
@@ -238,6 +244,7 @@ export default {
         page
       ).then(res => {
         this.eventOrderResult = res.data.Data.Result;
+        console.log(this.eventOrderResult )
         this.eventOrderResultLength = res.data.Data.TotalRows;
         for (var i in res.data.Data.Result) {
           res.data.Data.Result[i].ExecTime += "小时";

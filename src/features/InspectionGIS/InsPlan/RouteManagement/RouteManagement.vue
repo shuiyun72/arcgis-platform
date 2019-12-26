@@ -1,22 +1,22 @@
 <template>
-  <div class="table_style formItem" :class="{flexible:flexible}">
+  <div class="table_style formItem calcHeight" :class="{flexible:flexible}">
     <TableFormTitle :titleName="'巡检路线管理'" :flexible.sync="flexible"></TableFormTitle>
     <el-form label-width="48px">
       <el-row>
         <el-col span="16" style="padding-left: 20px;text-align: left;">
-          <el-button class="my-allArea" size="mini" @click="allAreaShow" v-if="$options.filters.btnTree('/api/PlanLine/Get' ,$route.meta.iFunID)">全部区域</el-button>
-          <el-button class="my-closeChoose" size="mini" @click="clearArea" v-if="$options.filters.btnTree('clear' ,$route.meta.iFunID)">关闭选择</el-button>
+          <el-button class="my-allArea" size="mini" @click="allAreaShow" v-if="$options.filters.btnTree('/api/PlanLine/Get' ,$route.name)">全部区域</el-button>
+          <el-button class="my-closeChoose" size="mini" @click="clearArea" v-if="$options.filters.btnTree('clear' ,$route.name)">关闭选择</el-button>
         </el-col>
       </el-row>
       <div class="table-btn-control">
         <el-row type="flex" justify="start">
-          <el-button class="my-tableout" plain size="mini" @click="AddRowMsg" v-if="$options.filters.btnTree('/api/PlanLine/Post' ,$route.meta.iFunID)">
+          <el-button class="my-tableout" plain size="mini" @click="AddRowMsg" v-if="$options.filters.btnTree('/api/PlanLine/Post' ,$route.name)">
             <i class="iconfont icon-xinzeng"></i>新增
           </el-button>
-          <el-button class="my-tableout" size="mini" @click="EditRowMsg" v-if="$options.filters.btnTree('/api/PlanLine/Put' ,$route.meta.iFunID)">
+          <el-button class="my-tableout" size="mini" @click="EditRowMsg" v-if="$options.filters.btnTree('/api/PlanLine/Put' ,$route.name)">
             <i class="iconfont icon-bianji"></i>编辑
           </el-button>
-          <el-button class="my-tableout" size="mini" @click="DelectPlanArea" v-if="$options.filters.btnTree('/api/PlanLine/Delete' ,$route.meta.iFunID)">
+          <el-button class="my-tableout" size="mini" @click="DelectPlanArea" v-if="$options.filters.btnTree('/api/PlanLine/Delete' ,$route.name)">
             <i class="iconfont icon-shanchu"></i>删除
           </el-button>
         </el-row>
@@ -33,7 +33,7 @@
       :dataTotal="squareQueryTotal"
       :layeName="'RouteManagement'"
       :tableIndex.sync = "tableIndex"
-      :addShow="$options.filters.btnTree('/api/PlanLineDetail/Post' ,$route.meta.iFunID)"
+      :addShow="$options.filters.btnTree('/api/PlanLineDetail/Post' ,$route.name)"
       @tableDbClick = "tableDbClick"
       @GetData="GetData"
       @currentChange = "currentChange"
@@ -68,8 +68,8 @@
       :currentRow="currentRow"
       :layerDataValue="'RouteManagement'"
       ref="bottomTable"
-      :editShow="$options.filters.btnTree('/api/PlanLineDetail/Put' ,$route.meta.iFunID)"
-      :delShow="$options.filters.btnTree('/api/PlanLineDetail/Delete' ,$route.meta.iFunID)"
+      :editShow="$options.filters.btnTree('/api/PlanLineDetail/Put' ,$route.name)"
+      :delShow="$options.filters.btnTree('/api/PlanLineDetail/Delete' ,$route.name)"
       @tableClick="tableClick"
       @endDrawRoint="endDrawRoint"
       @tableDbClick ="tableDbClick"
@@ -407,16 +407,12 @@ export default {
     //删除巡检路线
     DelectPlanArea() {
       this.$bus.emit("CloseModifyInteraction");
-      var thisPlanLineId = this.currentRow.PlanLineId;
-      if (thisPlanLineId) {
+      let thisPlanLineId = this.currentRow.PlanLineId;
+      if (thisPlanLineId) {    
         this.$confirm("确认删除？")
           .then(_ => {
             InsPlanLine.DeletePlanLine(thisPlanLineId).then(res => {
-              this.$message({
-                type: "success",
-                message: "删除成功",
-                showClose: true
-              });
+              this.$myMessage("success" , "删除成功")
               //区域管理数据
               this.GetData("first");
               this.tableClick()
@@ -424,11 +420,7 @@ export default {
           })
           .catch(_ => {});
       } else {
-        this.$message({
-          type: "warning",
-          message: "请选择要删除的路线",
-          showClose: true
-        });
+        this.$myMessage("warning" , "请选择要删除的路线")
       }
     },
 

@@ -22,5 +22,8 @@ namespace GisPlateform.Model
         public string cRoleExplain { set; get; }
         [DataMember]
         public bool isSuperAdmin { set; get; }
+        [DataMember]
+        //是否是巡检员 0:否 1：是
+        public int IsInspector { set; get; }
     }
 }

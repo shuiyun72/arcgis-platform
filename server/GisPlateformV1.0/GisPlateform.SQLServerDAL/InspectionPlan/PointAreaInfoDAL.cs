@@ -18,6 +18,12 @@ namespace GisPlateform.SQLServerDAL
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
             {
                 var rows = 0;
+                string sql = $@"select count(0) as count from PointAreaInfo p where p.PlanAreaId = {pointTable.PlanAreaId} and p.PointName='{ pointTable.PointName}'";
+                List<dynamic> pointcc = conn.Query<dynamic>(sql).ToList();
+                if (pointcc[0].count > 0)
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.NotUnique, "同一区域内不能添加相同关键点");
+                }
                 var updateSql = DapperExtentions.MakeInsertSql(pointTable);
                 if (string.IsNullOrEmpty(updateSql))
                 {
@@ -90,6 +96,12 @@ namespace GisPlateform.SQLServerDAL
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.PipeInspectionBase_Gis_OutSide))
             {
                 var rows = 0;
+                string sql = $@"select count(0) as count from PointAreaInfo p where p.PlanAreaId = {pointTable.PlanAreaId} and p.PointName='{ pointTable.PointName}'";
+                List<dynamic> pointcc = conn.Query<dynamic>(sql).ToList();
+                if (pointcc[0].count > 0)
+                {
+                    return MessageEntityTool.GetMessage(ErrorType.SqlError, "同一区域内不能添加相同关键点");
+                }
                 var updateSql = DapperExtentions.MakeUpdateSql(pointTable);
                 if (string.IsNullOrEmpty(updateSql))
                 {

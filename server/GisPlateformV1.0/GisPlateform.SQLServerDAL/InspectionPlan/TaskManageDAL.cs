@@ -39,7 +39,7 @@ namespace GisPlateform.SQLServerDAL.InspectionPlan
             if (startTime != null)
             { sqlwhere += $" and lt.VisitStarTime>= '{startTime}' "; }
             if (endTime != null)
-            { sqlwhere += $" and lt.VisitOverTime<='{endTime}' "; }
+            { sqlwhere += $" and lt.VisitStarTime<='{endTime}' "; }
             if (isNomalPlan != null)
             { sqlwhere += $" and lp.BoolNormalPlan= {isNomalPlan} "; }
             if (isAssigned != null)

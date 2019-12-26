@@ -97,9 +97,11 @@ import _ from "lodash";
 import { MapConfigure, LayerType } from "@common/consts/GisConst/MapConfigure";
 import * as listViewColumn from "@common/consts/GisConst/GisTableColumn";
 export default {
-  props: ["searchType"],
+  //图层名称
+  props: ["searchName"],
   data() {
     return {
+      searchType: "", //表格所属的图层
       squareQueryDialogVisible: false, //弹窗显示
       featureLayerData: [], //查询返回的数据集合
       squareQueryRawTableData: [], //框选的数据当前layer全部集合（为分页前数据）
@@ -211,6 +213,7 @@ export default {
         let featureGroup = this.featureGroup[Object.keys(this.featureGroup)[0]]
           .featureLayers;
         this.searchType = featureGroup[0].labelValue; //"PipeLineLayer";
+        this.$emit("updated:searchName", this.searchType);
         let squareQueryRawTableData = _.filter(result, ObjValue => {
           return ObjValue.layerName === this.searchType;
         })[0].layerData; //result[0].layerData;
@@ -229,7 +232,7 @@ export default {
     onTreeLabelClick(item) {
       if (this.searchType !== item.labelValue) {
         this.searchType = item.labelValue;
-        this.$emit("updated:searchType", this.searchType);
+        this.$emit("updated:searchName", this.searchType);
         this.refreshColumnList();
         //更新数据集
         let squareQueryRawTableData = _.filter(
@@ -267,7 +270,7 @@ export default {
     onTreeNodeClick(def, node, ref) {
       if (node.isLeaf) {
         this.searchType = node.data.labelValue;
-        this.$emit("updated:searchType", this.searchType);
+        this.$emit("updated:searchName", this.searchType);
         this.refreshColumnList();
         //更新数据集
         let squareQueryRawTableData = _.filter(

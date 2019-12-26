@@ -104,7 +104,7 @@ FROM
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
             {
                 errorMsg = "";
-                string query = "SELECT a.*,r.* FROM dbo.P_Admin a LEFT JOIN dbo.P_Role r ON r.iRoleID = a.iRoleID WHERE a.cAdminName = @loginContent and a.cAdminPassWord=@password ";
+                string query = "SELECT a.*,r.* FROM dbo.P_Admin a LEFT JOIN dbo.P_Role r ON r.iRoleID = a.iRoleID WHERE a.cAdminName = @loginContent and a.cAdminPassWord=@password  and a.IsDelete!=1";
                 //string query = "SELECT a.* FROM dbo.P_Admin a  WHERE a.cAdminName = @loginContent and a.cAdminPassWord=@password";
                 try
                 {
@@ -321,11 +321,13 @@ FROM
             }
         }
         
-        public MessageEntity GetUsers(string userName, int? roleId, int? deptId, string sort, string ordering, int num, int page)
+        public MessageEntity GetUsers(string searchCondition, int? roleId, int? deptId, string sort, string ordering, int num, int page)
         {
             string strWhere = " where IsDelete!=1 ";
-            if (!string.IsNullOrEmpty(userName))
-                strWhere += $" and a.cAdminName like '%{userName}%' ";
+            if (!string.IsNullOrEmpty(searchCondition))
+            {
+                strWhere += " and (a.cAdminName like '%" + searchCondition + "%'or a.CJobNumber like '%" + searchCondition + "%' or a.cAdminTel like '%" + searchCondition + "%')";
+            }
             if (roleId != null)
                 strWhere += $" and a.iRoleID = {roleId} ";
             if (deptId != null)
@@ -355,7 +357,7 @@ FROM
        a.AllPinyin,
        a.IsDelete ,
 	   p.cDepName,
-	   r.cRoleName,a.IsAssignment
+	   r.cRoleName,a.IsAssignment,a.iDeptIDs
 	   FROM dbo.P_Admin a LEFT JOIN dbo.P_Department p ON a.iDeptID=p.iDeptID
 	   LEFT JOIN dbo.P_Role r ON r.iRoleID = a.iRoleID  {strWhere}";
 
@@ -431,6 +433,160 @@ FROM
 
             }
         }
+        public bool IsAllowChangePWD(AdminPassword admin, out string errorMsg)
+        {
+            errorMsg = "";
+            string sql =$@"select iIsAllowChangePWD from  P_Admin WHERE  iAdminID ={ admin.iAdminID }";
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                    try
+                    {
+                        List<dynamic> list = conn.Query<dynamic>(sql).ToList();
+                    if (list.Count > 0 && list[0].iIsAllowChangePWD == 1)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                    catch (Exception e)
+                    {
+                       
+                        errorMsg = e.Message;
+                        return false;
+                    }
+               
+               
+
+            }
+        }
+        public MessageEntity InsertDayFeezing(string loginContent, string islogin)
+        {
+            string updateSql = @"   insert into P_AdminDayFreezing(cAdminName,LoginTime,islogin) values(@cAdminName,@LoginTime,@islogin)  ";
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                //conn.Open();
+                using (var transaction = conn.BeginTransaction())
+                {
+
+                    try
+                    {
+                        conn.Execute(updateSql, new { cAdminName = loginContent, LoginTime =DateTime.Now , IsLogin =islogin}, transaction);
+                        transaction.Commit();
+                        return MessageEntityTool.GetMessage(1, null, true);
+                    }
+                    catch (Exception e)
+                    {
+                        transaction.Rollback();
+                        return MessageEntityTool.GetMessage(ErrorType.SqlError, e.Message);
+                    }
+                }
+
+            }
+        }
+        public bool IsDayFeezing(string loginContent, out string errorMsg)
+        {
+            errorMsg = "";
+            string sql = $@"select  DATEDIFF(MINUTE,max( logintime), GETDATE()) AS xcminute ,count(0) as count from [P_AdminDayFreezing] where islogin=0 and cAdminName ='{ loginContent }'   and logintime>
+(
+select case loginCount when 0 then '1990-01-01' else (select max(logintime)  from [P_AdminDayFreezing] where islogin=1 and cAdminName ='{ loginContent }') end as lastLoginTime
+from (select count(0) loginCount from [P_AdminDayFreezing] where  islogin=1  and cAdminName ='{ loginContent }' ) t) ";
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                try
+                {
+                    List<dynamic> list = conn.Query<dynamic>(sql).ToList();
+                    //十分钟之内不允许输错十次密码
+                    if (list.Count > 0 && list[0].count >=4 && list[0].xcminute < 10)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception e)
+                {
+
+                    errorMsg = e.Message;
+                    return false;
+                }
+
+
+
+            }
+        }
+        public bool IsLocked(string loginContent, out string errorMsg)
+        {
+            errorMsg = "";
+            string sql = $@"select iIsLocked from  P_Admin WHERE  cAdminName ='{ loginContent }'";
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                try
+                {
+                    List<dynamic> list = conn.Query<dynamic>(sql).ToList();
+                   
+                        if (list.Count > 0 && list[0].iIsLocked == 1)
+                        {
+                            return true;
+                        }
+                    
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception e)
+                {
+
+                    errorMsg = e.Message;
+                    return false;
+                }
+
+
+
+            }
+        }
+        /// <summary>
+        /// 是否允许删除
+        /// </summary>
+        /// <param name="admin"></param>
+        /// <param name="errorMsg"></param>
+        /// <returns></returns>
+        public bool IsAllowDelete(int id, out string errorMsg)
+        {
+            errorMsg = "";
+            string sql = $@"  select r.isSuperAdmin from P_Admin as p left join P_Role as r on p.iRoleID=r.iRoleID where p.iAdminID= {id} ";
+            string sql1 = $@"  select p.cAdminName from P_Admin as p  where p.iAdminID= {id} ";
+
+            using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
+            {
+                try
+                {
+                    List<dynamic> list = conn.Query<dynamic>(sql).ToList();
+                    List<dynamic> listadmin = conn.Query<dynamic>(sql1).ToList();
+
+                    if (list.Count > 0 && (list[0].isSuperAdmin == true || listadmin[0].cAdminName == "admin"))
+                    {
+                        return true;
+                    }
+
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception e)
+                {
+
+                    errorMsg = e.Message;
+                    return false;
+                }
+            }
+            }
         public P_Admin IsUserExist(string userName, string cJobNumber, int adminId, out string errorMsg)
         {
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))

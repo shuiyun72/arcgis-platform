@@ -44,7 +44,7 @@ export default {
         planPath,          //string
         equmentInfo        //后期添加的设备json
     ) {
-
+        equmentInfo = equmentInfo ? JSON.parse(equmentInfo) :[]
         return instance({
             method: 'post',
             url: '/InspectionPlan/PlanManage/Post',
@@ -63,9 +63,7 @@ export default {
                 planLineId: Number(planLineId),
                 planPath: String(planPath), 
             },
-            data:{
-                equmentInfo: String(equmentInfo),
-            }
+            data:equmentInfo
         })
 
     },

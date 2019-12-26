@@ -49,7 +49,7 @@ namespace GisPlateformV1_0.Controllers
         /// <returns></returns>
         public MessageEntity Post([FromBody]L_PlanArea value)
         {
-            value.OperateAddTime = DateTime.Now;
+            value.OperateAddTime = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             value.AreaState = 1;
             var messageEntity = _planAreaDAL.AddPlanArea(value);
 

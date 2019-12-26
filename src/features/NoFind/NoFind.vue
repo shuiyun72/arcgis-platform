@@ -1,5 +1,5 @@
 <template>
-    <el-row class="no-find-wraper" type="flex" justify="center"><img src="@assets/toolIcon/nofind.png" alt=""></el-row>
+    <el-row class="no-find-wraper" type="flex" justify="center"><img src="@assets/toolIcon/UI/nofind.png" alt=""></el-row>
 </template>
 
 <script>

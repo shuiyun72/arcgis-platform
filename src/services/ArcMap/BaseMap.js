@@ -1,6 +1,7 @@
 /*地图操作模块*/
 import * as esriLoader from 'esri-loader';
 import _ from 'lodash';
+import config from "@config/config.js";
 
 import {
     MapConfigure,
@@ -174,18 +175,26 @@ class BaseMap {
             // maxZoom:11,
             // lods:MapConfigure.lods
         });
+        //设置标注的labelinfo
+        map.on('layer-add-result', res => {
+            let labelingInfo = res.layer.labelingInfo
+            if (labelingInfo && labelingInfo.length) {
+                _.forEach(labelingInfo, item => {
+                    item.labelExpression = item.labelExpression.replace('CONCAT', '')
+                })
+                map.getLayer(res.layer.id).setLabelingInfo(labelingInfo)
+            }
+        })
         //加载基础图层信息
         _.forEach(MapConfigure.BaseLayers, ObjValue => {
             let CurrentLayer = undefined;
-            if(!ObjValue.layertype || ObjValue.layertype===1)
-            {
+            if (!ObjValue.layertype || ObjValue.layertype === 1) {
                 CurrentLayer = new this.modules.ArcGISTiledMapServiceLayer(ObjValue.layerURL);
             }
-            if(ObjValue.layertype===2)
-            {
-                CurrentLayer=new this.modules.ArcGISDynamicMapServiceLayer(ObjValue.layerURL);
+            if (ObjValue.layertype === 2) {
+                CurrentLayer = new this.modules.ArcGISDynamicMapServiceLayer(ObjValue.layerURL);
             }
-            
+
             CurrentLayer.id = ObjValue.layerName;
             CurrentLayer.visible = ObjValue.isActive;
             map.addLayer(CurrentLayer);
@@ -215,36 +224,30 @@ class BaseMap {
                         }
                     });
                     //图层类别判断
-                    if (featureValue.layerType === 1) { //1：代表管线 2：代表节点
-                        // featureLayer.setSelectionSymbol(new this.modules.SimpleLineSymbol(
-                        //     this.modules.SimpleLineSymbol.STYLE_SOLID,
-                        //     new this.modules.Color([255, 255, 0]),
-                        //     2
-                        // ));
-                        //featureLayer.setSelectionSymbol(new this.modules.SimpleLineSymbol().setColor(new this.modules.Color([255,0,0,1])));
-                    } else {
-                        // featureLayer.setDefinitionExpression("equipment_type_ <> ''");
-                        // featureLayer.minScale = 20000;
-                        // featureLayer.setSelectionSymbol(new this.modules.SimpleMarkerSymbol(
-                        //     this.modules.SimpleMarkerSymbol.STYLE_CIRCLE,
-                        //     12,
-                        //     new this.modules.SimpleLineSymbol(this.modules.SimpleLineSymbol.STYLE_NULL, new this.modules.Color([0, 255, 255]), 1),
-                        //     new this.modules.Color([0, 255, 255])
-                        // ));
-                    }
+
                     //弹出框内容
                     let popupContent = [];
                     _.forEach(featureValue.featureColumn, ColumnValue => {
-                        popupContent.push(ColumnValue.text + ":${" + ColumnValue.field + "}");
+                        if (ColumnValue.type === 'Date') {
+                            popupContent.push(ColumnValue.text + ":${" + ColumnValue.field + ":DateFormat(selector: 'date', datePattern: 'yyyy-MM-dd HH:mm:ss',)}");
+                        } else if (ColumnValue.type === 'img') {
+                            popupContent.push(ColumnValue.text + ":<a target='blank' href='" + config.apiPath.insURL + "${" + ColumnValue.field + " ? }' style='display:none"+ "${" + ColumnValue.field + "}'><img class='GISImage' src='" + config.apiPath.insURL + "${" + ColumnValue.field + "}'/></a>");
+                        } else {
+                            popupContent.push(ColumnValue.text + ":${" + ColumnValue.field + "}");
+                        }
+
                     });
-                    //标注层
-                    let json = {
-                        //title: "${OBJECTID}",
-                        title: featureValue.layerCName,
-                        content: popupContent.join("<br/>") //"${*}"
-                    };
-                    let infoTemplate = new this.modules.InfoTemplate(json);
-                    featureLayer.infoTemplate = infoTemplate;
+
+                    if (popupContent.length) {
+                        //标注层
+                        let json = {
+                            //title: "${OBJECTID}",
+                            title: featureValue.layerCName,
+                            content: popupContent.join("<br/>") //"${*}"
+                        };
+                        let infoTemplate = new this.modules.InfoTemplate(json);
+                        featureLayer.infoTemplate = infoTemplate;
+                    }
                     featureLayer.visible = featureValue.isActive; //图层是否显示
                     featureLayer.name = featureValue.layerCName;
                     map.addLayer(featureLayer);

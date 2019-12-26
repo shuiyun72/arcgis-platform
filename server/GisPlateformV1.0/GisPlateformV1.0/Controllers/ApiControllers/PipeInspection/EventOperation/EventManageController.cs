@@ -43,6 +43,8 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.EventManage
         /// <returns></returns>
         public MessageEntity Get(DateTime? startTime = null, DateTime? endTime = null, int? eventType = null, int? eventStatus = null, string searchCondition = "", string sort = "EventID", string ordering = "desc", int num = 20, int page = 1)
         {
+            if (endTime != null)
+                endTime = endTime.Value.AddDays(1).AddSeconds(-1);
             var messageEntity = _eventManage.GetEventListForInspection(startTime, endTime, eventType, eventStatus, searchCondition, sort, ordering, num, page);
 
             return messageEntity;
@@ -55,6 +57,8 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.EventManage
         /// <returns></returns>
         public MessageEntity GetCount(DateTime startTime, DateTime endTime)
         {
+            if (endTime != null)
+                endTime = endTime.AddDays(1).AddSeconds(-1);
             var messageEntity = _eventManage.GetEventListCount(startTime, endTime);
 
             return messageEntity;
@@ -150,6 +154,31 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.EventManage
                 DispatchPersonID=personId,
                 ExecDetpID= execDetpId
             });
+        }
+
+        ///// <summary>
+        ///// 获取分派员分派的工单超期未接单总数统计
+        ///// </summary>
+        ///// <param name="iAdminID">当前登陆人员id(分派人员id)</param>
+        ///// <returns></returns>
+        //public MessageEntity GetOvertimeNoReceipt(string iAdminID)
+        //{
+           
+        //    var messageEntity = _eventManage.GetOvertimeNoReceipt(iAdminID);
+
+        //    return messageEntity;
+        //}
+        /// <summary>
+        /// 获取分派员分派的工单超期未接单信息
+        /// </summary>
+        /// <param name="iAdminID">当前登陆人员id(分派人员id)</param>
+        /// <returns></returns>
+        public MessageEntity GetOvertimeNoReceipt(string iAdminID)
+        {
+
+            var messageEntity = _eventManage.GetOvertimeNoReceiptInfo(iAdminID);
+
+            return messageEntity;
         }
     }
 }

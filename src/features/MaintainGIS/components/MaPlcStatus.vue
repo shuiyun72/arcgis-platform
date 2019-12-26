@@ -59,7 +59,7 @@ export default {
         rank: 0
       };
       let inVailid = {
-        OperId: "",
+        OperId: 0,
         OperName: "无 效",
         OperName2: "无 效",
         rank: 0

@@ -24,20 +24,20 @@ namespace GisPlateformV1_0.App_Authorize
                 catch {
                     return ErrorType.NotAvilebalToken;
                 }
-                if (UserInfoCache.Authorize.ExpireTime < DateTime.Now)
-                {
-                    //暂时不需要验证时间 需要打开验证权限功能就取消下面注释
-                    return ErrorType.OutOfTime;
-                }
-                else
-                {
-                    //暂时不需要验证权限 需要打开验证权限功能就取消下面注释
+                //if (UserInfoCache.Authorize.ExpireTime < DateTime.Now)
+                //{
+                //    //暂时不需要验证时间 需要打开验证权限功能就取消下面注释
+                //    return ErrorType.OutOfTime;
+                //}
+                //else
+                //{
+                //    //暂时不需要验证权限 需要打开验证权限功能就取消下面注释
 
-                    if (!RequestAuthorizeCheck(UserInfoCache.Authorize.UserId, rawUrl))
-                    {
-                        return ErrorType.NoAuthority;
-                    }
-                }
+                //    if (!RequestAuthorizeCheck(UserInfoCache.Authorize.UserId, rawUrl))
+                //    {
+                //        return ErrorType.NoAuthority;
+                //    }
+                //}
             }
             return ErrorType.Success;
         }

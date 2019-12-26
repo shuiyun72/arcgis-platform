@@ -263,6 +263,14 @@ namespace GisPlateform.Model
             set;
             get;
         }
+        /// <summary>
+        /// iDeptIDs 部门权限，关于待办事项，人员选择所有部门权限，待办可以查询所有部门下的工单信息，如果只查询自己的待办，部门权限不用勾选
+        /// </summary>		
+        [DataMember]
+        public string iDeptIDs
+        {
+            set; get;
+        }
         [DataMember]
         [Column(FilterType = FilterType.IsNotEdit)]
         public P_Role P_Role { set; get; }

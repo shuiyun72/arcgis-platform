@@ -42,7 +42,6 @@
   line-height: $MapActionBarBgHeight;
   height: $MapActionBarBgHeight;
   color: #444;
-  font-family: arial;
   z-index: 2;
   background-color: rgba(47, 50, 57, 0.9);
 
@@ -79,6 +78,11 @@
   .Map_Action_Bar_Search {
     padding-left: $leftBarWidth;
     transition: all 0.5s ease;
+
+    // 统计文本
+    .textShowWraper {
+      word-break: keep-all;
+    }
   }
 
   .row {
@@ -202,15 +206,28 @@
   }
 }
 
-// 图层控制弹窗样式
-.Map_Action_Bar_Layer_Win {
-  height: auto;
-  border: 1px solid #3b3d44;
-  background: transprant;
+#bookmarks {
   position: absolute;
   top: 41px;
   right: 0;
-  box-shadow: -1.5px 1.3px 6px 0px rgba(179, 179, 179, 0.38);
+  background: #fff;
+  padding: 10px 0 0;
+  z-index: 2;
+
+  .esriBookmarkItem {
+    padding: 6px 10px;
+  }
+}
+
+// 图层控制弹窗样式
+.Map_Action_Bar_Layer_Win {
+  height: auto;
+  // border: 1px solid #3b3d44;
+  background: rgba(255, 255, 255, 0.94);
+  position: absolute;
+  top: 41px;
+  right: 0;
+  box-shadow: -1.5px 1.3px 6px 0px rgba(26, 26, 26, 0.26);
   font-size: $fontSizeNormal;
 
   .el-input__icon {
@@ -224,7 +241,6 @@
     height: $MapActionBarBgHeight;
     line-height: $MapActionBarBgHeight;
     font-size: 14px;
-    background: #fff;
     color: #199cdd;
     padding: 0 4px;
 
@@ -257,7 +273,6 @@
     height: $MapActionBarWraperHeight - $MapActionBarBgHeight;
     color: #707070;
     position: relative;
-    background: #fff;
 
     .el-scrollbar {
       height: 100%;
@@ -277,29 +292,54 @@
     .Win_Img_List {
       display: flex;
       flex-wrap: wrap;
-      width: 240px;
+      width: 280px;
     }
 
     .List_Item {
       border-top: solid #e6e6e3 1px;
       padding: 10px 0px 10px 10px;
-      width: 110px;
       box-sizing: border-box;
 
+      &.active {
+        .Win_Img_List_Item {
+          border-color: #13a3eb;
+
+          &:after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 4px 0px 4px 0px;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: url('~@assets/toolIcon/UI/treeCheck.png') center no-repeat;
+            background-size: 70% 70%;
+            background-color: #13a3eb;
+          }
+
+          span {
+            opacity: 1;
+            background-color: #0091da;
+          }
+        }
+
+        .Win_Text_List_Item {
+          color: #13a3eb;
+        }
+      }
+
       .Win_Img_List_Item {
-        height: 72px;
-        border: 1px #0091da solid;
+        width: 80px;
+        border: solid 1px #c4c9cc;
         position: relative;
         text-align: center;
-
-        &.active span {
-          opacity: 1;
-          background-color: #0091da;
-        }
+        border-radius: 4px;
+        line-height: 0;
+        box-sizing: border-box;
 
         img {
           width: 100%;
-          height: 100%;
         }
 
         span {
@@ -307,7 +347,6 @@
           height: 25px;
           line-height: 25px;
           text-align: center;
-          position: absolute;
           background-color: rgba(47, 50, 57, 0.5);
           color: #fff;
           bottom: 0;
@@ -322,6 +361,8 @@
         line-height: 24px;
         color: #333;
         overflow: hidden;
+        color: #808080;
+        text-align: center;
 
         .el-slider {
           width: 90%;
@@ -359,21 +400,92 @@
 
     // 图层弹窗多选列表
     .She_Shi_Layer {
-      border-top: solid #e6e6e3 1px;
-      padding: 10px 0;
-      padding-right: 10px;
+      // border-top: solid #e6e6e3 1px;
+      // padding-right: 10px;
+      .el-collapse-item__header {
+        height: 34px;
+        line-height: 34px;
+        background-color: #f2f4f5;
+        box-shadow: 0px 1px 0px 0px rgba(26, 26, 26, 0.2);
+        padding: 0 10px;
 
-      .el-checkbox {
-        with: 100%;
-        display: block;
-        color: #fff;
-        line-height: 28px;
+        .title-wrapper {
+          display: flex;
+          justify-content: space-between;
+          width: 100%;
 
-        .el-checkbox__input.is-checked .el-checkbox__inner {
+          .title {
+            &:before {
+              content: '';
+              display: inline-block;
+              width: 0;
+              height: 0;
+              border-top: 4px solid #999;
+              border-bottom: 0 solid transparent;
+              border-left: 4px solid transparent;
+              border-right: 4px solid transparent;
+              margin-right: 6px;
+              transition: transform 0.3s ease;
+              transform: rotate(-90deg);
+              vertical-align: middle;
+            }
+          }
+
+          .action {
+            letter-spacing: 0.7px;
+            color: #939799;
+            font-size: 14px;
+          }
         }
 
-        .el-checkbox__label {
-          padding-left: 5px;
+        .el-collapse-item__arrow {
+          display: none;
+        }
+
+        &.is-active {
+          .title {
+            &:before {
+              transform: rotate(0);
+            }
+          }
+        }
+      }
+
+      .el-collapse-item__wrap {
+        padding: 0 10px;
+
+        .el-collapse-item__content {
+          padding-bottom: 0;
+        }
+      }
+
+      .list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: solid 1px #edeff0;
+        line-height: 32px;
+        height: 32px;
+
+        img {
+          width: 18px;
+          height: 18px;
+          display: inline-block;
+        }
+
+        .pipe-color {
+          display: inline-block;
+          width: 10px;
+          height: 3px;
+        }
+
+        .el-checkbox {
+          padding: 0 6px;
+          color: #333;
+
+          .el-checkbox__label {
+            display: none;
+          }
         }
       }
 
@@ -418,7 +530,6 @@
     text-align: center;
     color: #333333;
     position: relative;
-    background: #fff;
 
     .el-scrollbar {
       height: 100%;
@@ -488,7 +599,6 @@
   .print_List {
     height: auto;
     position: relative;
-    background: #fff;
 
     .el-scrollbar {
       height: 100%;
@@ -498,9 +608,165 @@
       }
     }
   }
+
+  .bookMark_List {
+    height: $MapActionBarWraperHeight - $MapActionBarBgHeight;
+    margin: 0;
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: #333333;
+    position: relative;
+    background: #fff;
+    padding-top: 10px;
+    border-top: 1px solid rgba(225, 231, 235, 0.9);
+
+    .table-btn-control {
+      padding: 10px 0;
+      line-height: 15px;
+
+      .my-tableout {
+        letter-spacing: 0.6px;
+        color: #939799;
+        padding: 0 10px;
+        border-right: 1px solid #c4c8cc;
+        cursor: pointer;
+      }
+    }
+
+    .inputWrapper {
+      padding: 0 10px;
+
+      .el-input, .el-input__inner {
+        box-sizing: content-box;
+        height: 34px;
+        line-height: 34px;
+      }
+
+      .el-input-group__append {
+        width: 34px;
+        padding: 0;
+        background: #0085ec;
+        color: #fff;
+      }
+    }
+
+    .el-pagination {
+      height: 28px;
+      line-height: 28px;
+      padding: 10px 0;
+
+      .el-pager {
+        li {
+          color: #626566;
+          border-radius: 2px;
+          border: solid 1px #dce2e5;
+          margin-right: 4px;
+          min-width: 22px;
+
+          &.active {
+            color: #428ff7;
+            border: solid 1px #428ff7;
+          }
+        }
+      }
+
+      .btn-next {
+        min-width: 22px;
+        color: #626566;
+        padding: 0;
+        border: solid 1px #dce2e5;
+      }
+
+      .btn-prev {
+        padding: 0;
+        color: #626566;
+        margin-right: 4px;
+        min-width: 22px;
+        border: solid 1px #dce2e5;
+      }
+
+      .el-pagination__editor.el-input {
+        width: 22px;
+      }
+
+      .el-pagination__jump {
+        margin-left: 8px;
+      }
+    }
+
+    .el-scrollbar {
+      height: 100%;
+      flex: 1;
+      flex-basis: auto;
+
+      // border-bottom: solid 1px rgba(225, 231, 235, 0.9);
+
+      // border-top: solid 1px rgba(225, 231, 235, 0.9);
+      &:before, &:after {
+        display: block;
+        content: '';
+        margin: 0 10px;
+        height: 1px;
+        background: rgba(225, 231, 235, 0.9);
+      }
+
+      &:after {
+        position: relative;
+        top: -1px;
+      }
+
+      .el-scrollbar__wrap {
+        // padding-bottom: 20px;
+        border-bottom: dashed 1px rgba(225, 231, 235, 0.9);
+
+        li {
+          color: #444444;
+          text-align: left;
+          height: 46px;
+          line-height: 46px;
+          cursor: pointer;
+          padding: 0 10px;
+
+          span {
+            display: inline-block;
+            border-bottom: dashed 1px rgba(225, 231, 235, 0.9);
+            width: 100%;
+          }
+
+          &.active {
+            color: #428ff7;
+            background: #f5f8fa;
+            // background: gray;
+            // border: solid 1px #428ff7;
+          }
+        }
+      }
+    }
+  }
 }
 
 // 右侧地图操作图标样式
+.MapActionBar-icon-wrapper {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+
+  .el-scrollbar__bar.is-vertical {
+    display: none;
+  }
+
+  .el-scrollbar__wrap {
+    overflow-y: hidden;
+    margin-right: 0!important;
+
+    .el-scrollbar__view {
+      width: min-content;
+    }
+  }
+}
+
 .Map_Action_Bar_container {
   display: flex;
   flex-direction: row-reverse;
@@ -518,6 +784,7 @@
 
     &:hover, &.active {
       opacity: 1;
+      color: #49bffb;
     }
 
     .el-button {

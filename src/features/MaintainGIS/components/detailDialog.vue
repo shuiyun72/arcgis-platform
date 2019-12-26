@@ -352,6 +352,7 @@
             value-format="yyyy-MM-dd"
             placeholder="选择日期"
             :disabled="IsTimeoutSure"
+            @change="timeoutValueC"
           ></el-date-picker>
         </el-form-item>
         <el-form-item label="延时完成内容:">
@@ -535,6 +536,15 @@ export default {
   },
   //切换数据/地图
   methods: {
+    //验证延期日期
+    timeoutValueC(){   
+      let thisDate = new Date();
+      let valDate = new Date(this.timeoutValue)
+      if(valDate <= thisDate){
+        this.$message("延期完成日期不能小于或等于当前日期");
+        this.timeoutValue = null;
+      }
+    },
     loadData(id) {
       let EventID = this.currentRow.EventID || id;
       this.loading = true;
@@ -717,6 +727,10 @@ export default {
     },
     // 延期
     timeout() {
+      if(this.currentRow.IsValid != 5 ){
+        this.timeoutContent = "";
+        this.timeoutValue = null;
+      }
       this.timeoutDialog = true;
       this.IsTimeoutSure = this.currentRow.IsValid == 5 ?  true : false;
     },

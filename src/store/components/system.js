@@ -27,7 +27,6 @@ export default {
         },
         setState(state, obj) {
             state[obj.name] = obj.value
-            console.log(state[obj.name])
         },
     },
     actions: {

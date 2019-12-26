@@ -79,7 +79,7 @@ export default {
                     }),
                     image: new Icon({
                         scale: scale * 4,
-                        src: require('@assets/toolIcon/dingwei.png')
+                        src: require('@assets/toolIcon/baselayer/dingwei.png')
                     })
                 })
             case 'businessLayers.monitorLayer':
@@ -96,7 +96,7 @@ export default {
                 return new Style({
                     image: new Icon({
                         scale: scale * 4,
-                        src: require('@assets/toolIcon/dingweistart.png'),
+                        src: require('@assets/toolIcon/baselayer/dingweistart.png'),
                         anchor: [0.5, 1],
                     })
                 })
@@ -104,7 +104,7 @@ export default {
                 return new Style({
                     image: new Icon({
                         scale: scale * 4,
-                        src: require('@assets/toolIcon/dingweiend.png'),
+                        src: require('@assets/toolIcon/baselayer/dingweiend.png'),
                         anchor: [0.5, 1],
                     })
                 })
@@ -120,7 +120,7 @@ export default {
                     //把点的样式换成ICON图标
                     image: new Icon({
                         scale: scale * 4,
-                        src: require('@assets/toolIcon/dingwei.png'),
+                        src: require('@assets/toolIcon/baselayer/dingwei.png'),
                         anchor: [0.5, 1],
                         offset: [0, -4]
                     })
@@ -145,7 +145,7 @@ export default {
                         scale: scale * 5,
                         // anchor:[0.5,0.5],
                         // size: [70,70],
-                        src: require('@assets/toolIcon/' + styleName + '.png')
+                        src: require('@assets/toolIcon/mapIcon/' + styleName + '.png')
                     })
                 })
         }

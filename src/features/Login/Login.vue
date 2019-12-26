@@ -21,7 +21,7 @@
           </span>
         </el-form-item>
         <el-form-item class="Login-submit-wrapper">
-          <el-button class="Login-submit" @click="IsLocked" :loading="loginLoading">提 交</el-button>
+          <el-button class="Login-submit" @click="loginSubmit" :loading="loginLoading">提 交</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -30,7 +30,6 @@
 
 <script>
 import loginSystem from "@api/SystemSetting/loginSystem";
-import User from "@api/SystemSetting/User";
 import { mapState, mapActions, mapGetters } from "vuex";
 import VueRoute from "@router/route";
 
@@ -56,63 +55,47 @@ export default {
   },
   computed: {
     ...mapState("login", ["cAdminName", "userToken"]),
-    ...mapGetters("login", ["addRoute"])
+    ...mapGetters("login", ["addRoute", "MenusTreeData"])
   },
   methods: {
     ...mapActions("login", ["userStatus"]),
-    // 判断用户是否被锁定
-    IsLocked() {
+    loginSubmit() {
       this.$refs.formRule.validate(valid => {
         if (valid) {
-          // User.getUserList(res=>{
-          //   console.log(res.data.Data.result);
-          //   let temp = res.data.Data.result;
-          //   let user = temp.filter(res => {
-          //     return item.cAdminName == this.formData.loginContent;
-          //   });
-          //   if (user.iIsLocked) {
-          //     this.loginSubmit();
-          //   } else {
-          //     this.$message("此账号已被锁定,请联系管理员");
-          //   }
-          // })
-          this.loginSubmit();
-        }
-      });
-    },
-    loginSubmit() {
-      this.loginLoading = true;
-      loginSystem.loginSystem(this.formData).then(res => {
-        this.loginLoading = false;
-        if (res.data.ErrorType == 3) {
-          let currentUser = res.data.Data.Result;
-          let allowStamptime = new Date();
-          let UserID = {};
-          UserID.iAdminID = currentUser.iAdminID;
-          allowStamptime.setDate(allowStamptime.getDate() + 1);
-          UserID.Token = currentUser.Token;
-          UserID.cAdminName = currentUser.cAdminName;
-          UserID.exprise = allowStamptime.getTime();
-          UserID.dExpireDate = currentUser.dExpireDate;
-          UserID.iDeptID = currentUser.iDeptID;
-          localStorage.setItem("iAdminID", JSON.stringify(UserID));
-          this.userStatus(currentUser);
-          sessionStorage.setItem(
-            "store",
-            JSON.stringify(this.$store.state.login)
-          );
-          this.$router.addRoutes(this.addRoute);
-          location.replace("/");
-        } else {
-          localStorage.removeItem("iAdminID");
-          this.userStatus(undefined);
-          this.formData = {
-            loginContent: "",
-            password: ""
-          };
-          this.$message({
-            type: "error",
-            message: "用户名或密码错误，请重新登陆"
+          this.loginLoading = true;
+          loginSystem.loginSystem(this.formData).then(res => {
+            this.loginLoading = false;
+            if (res.data.ErrorType == 3) {
+              let currentUser = res.data.Data.Result;
+              let allowStamptime = new Date();
+              let UserID = {};
+              UserID.iAdminID = currentUser.iAdminID;
+              allowStamptime.setDate(allowStamptime.getDate() + 1);
+              UserID.Token = currentUser.Token;
+              UserID.cAdminName = currentUser.cAdminName;
+              UserID.exprise = allowStamptime.getTime();
+              UserID.iDeptID = currentUser.iDeptID;
+              localStorage.setItem("iAdminID", JSON.stringify(UserID));
+              this.userStatus(currentUser);
+              let addRoute = this.addRoute
+              sessionStorage.setItem("store", true);
+              if (_.keys(this.MenusTreeData).length) {
+                this.$router.addRoutes(this.addRoute);
+                location.replace("/");
+              } else {
+                this.$router.push({ name: "NoPermission" });
+                return;
+              }
+            } else {
+              localStorage.removeItem("iAdminID");
+              sessionStorage.setItem("store", false);
+              this.userStatus(undefined);
+              this.formData = {
+                loginContent: "",
+                password: ""
+              };
+              this.$myMessage("error", res.data.Msg);
+            }
           });
         }
       });

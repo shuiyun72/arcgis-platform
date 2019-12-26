@@ -29,8 +29,8 @@
           </el-form-item>
         </el-col>
         <el-col :span="7" :xs="11" :sm="11" :lg="7">
-          <el-form-item label="事件查找：" placeholder="类型、上报人、编号" @keyup.enter.native="GetData">
-            <el-input v-model="detailValue"></el-input>
+          <el-form-item label="事件查找："  @keyup.enter.native="GetData">
+            <el-input v-model="detailValue" placeholder="上报人、编号"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -39,13 +39,13 @@
           class="my-search"
           size="mini"
           @click="GetData"
-          v-if="$options.filters.btnTree('/api/EventManage/Get' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('/api/EventManage/Get' ,$route.name)"
         >查询</el-button>
         <el-button
           class="my-export"
           @click="exportExcel"
           size="mini"
-          v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('export' ,$route.name)"
         >导出</el-button>
       </el-row>
     </el-form>
@@ -87,13 +87,14 @@
               class="wrapperCol"
               :class="{'dialog_img-wrapper': isarray(item) && item.length}"
             >
-              <td class="dialog-table-lable">{{index}}</td>
-              <td colspan="3" class="dialog_img" v-if="isarray(item)">
-                <!-- <a :href="image" target="_blank" v-for="(image,index) in item" :key="index">
-                  <img :src="image" alt />
-                </a>-->
+                     
+              <td class="dialog-table-lable">{{item.name}}</td>
+              <td colspan="3" class="dialog_img dialog_img_small" v-if="isarray(item.val)">
+                <a :href="imgUrl+image" target="_blank" v-for="(image,index) in item.val" :key="index">
+                  <img :src="imgUrl+image" alt style="height:60px;vertical-align: middle;padding: 6px 2px;"/>
+                </a>
               </td>
-              <td colspan="3" v-else>{{item}}</td>
+              <td colspan="3" v-else>{{item.val}}</td>
             </tr>
           </table>
           <p v-show="mapHide" style="line-height:40px;">没有点数据，暂不展示地图</p>
@@ -119,6 +120,8 @@ import EventManage from "@api/Inspection/EventManage";
 import DateBtnChoose from "@features/InspectionGIS/components/DateBtnChoose";
 import TableFormTitle from "@common/components/TableFormTitle";
 import InsTable from "@features/InspectionGIS/components/InsTable";
+import utilData from "@util/utilData";
+
 export default {
   components: {
     DateBtnChoose,
@@ -127,6 +130,7 @@ export default {
   },
   data() {
     return {
+      imgUrl:config.apiPath.insURL,
       flexible: false, //是否收缩左侧表格
       loading: true,
       // 分页相关
@@ -154,6 +158,15 @@ export default {
   created() {
     //初始化数据
     this.loadLayerData();
+   
+  },
+  mounted(){
+    let queryDate = this.$route.query.date;
+    if(queryDate && queryDate == 4){
+      let data = utilData.getMonth();
+      this.startTime = data.begin;
+      this.endTime = data.over;
+    }
     this.GetData();
     this.$bus.emit("setBusinessLayerGroupVisible", true);
   },
@@ -320,22 +333,35 @@ export default {
       let point = [];
       this.detailDialogVisible = true;
       this.detailDialogTwo = [
-        ["事件编号", row.EventCode, "上报人", row.PName],
+        ["事件编号", row.EventCode, "上报人", row.LinkMan],
         ["上报时间", row.UpTime, "所属部门", row.DeptName],
-        ["事件内容", , row.ET1, "事件类型", row.ET1],
-        ["紧急程度", row.HandlerLevelName, "事件来源", row.EventFromName],
-        ["处理级别", row.UrgencyName, "派单员", row.DispatchPerson]
+        ["事件内容", row.ET2, "事件类型", row.ET1],
+        ["紧急程度", row.UrgencyName, "事件来源", row.EventFromName],
+        ["处理级别", row.UrgencyName, "派单员", row.PName]
       ];
       let EventPictures = row.EventPictures.split("|");
       EventPictures = _.map(EventPictures, item => {
         return config.apiPath.insURL + item;
       });
-      this.detailDialogOne = {
-        事件地址: row.EventAddress,
-        现场照片: EventPictures,
-        // 缩略图预览: [],
-        事件描述: row.EventDesc
-      };
+      // this.detailDialogOne = [
+      //   "事件地址",row.EventAddress,
+      //   "现场照片",row.EventPictures,
+      //   // 缩略图预览: [],
+      //   "事件描述",row.EventDesc
+      // ];
+      let EventPicturesArray = _.without(row.EventPictures.split("|"),"");
+      console.log(EventPicturesArray);
+      this.detailDialogOne = [{
+          "name":"事件地址",
+          "val":row.EventAddress
+        },{
+           "name":"现场照片",
+          "val":EventPicturesArray
+        },{
+           "name":"事件描述",
+          "val":row.EventDesc
+        }    
+      ];
       if (row.EventX && row.EventY) {
         point = [Number(row.EventX), Number(row.EventY)];
         this.mapHide = false;
@@ -399,9 +425,10 @@ export default {
     },
     //日期选择
     dateBtn(startTime, endTime) {
+      console.log(startTime, endTime)
       this.startTime = startTime;
       this.endTime = endTime;
-      //this.GetData();
+     // this.GetData();
     },
     //删除
     deltableItem(row) {

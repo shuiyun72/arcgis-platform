@@ -19,8 +19,9 @@ instance.interceptors.request.use(
         // 每次发送请求之前检测都vuex存有token,那么都要放在请求头发送给服务器
          
         let iAdminID = localStorage.getItem('iAdminID')
-        if(store.state.login.userToken){
-             config.headers.Token = store.state.login.userToken
+        let Token = store.getters['login/userToken']
+        if(Token){
+             config.headers.Token = Token
         }else if(iAdminID ){ 
             config.headers.Token = JSON.parse(iAdminID).Token
         }

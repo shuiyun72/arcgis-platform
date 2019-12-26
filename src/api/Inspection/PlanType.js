@@ -1,6 +1,6 @@
 import instance from  './index'
 export default {
-     //计划类别下拉框数据
+     //计划类型下拉框数据
      PlanTypeLoad(){
         return instance.get('/PlanType/GetCommboboxList')
     },
@@ -19,10 +19,11 @@ export default {
         })
     },
     //计划类别添加
-    PlanTypeAdd(PlanTypeName,ParentTypeId){
+    PlanTypeAdd(PlanTypeName,ParentTypeId,Operater){
         return instance.post('/PlanType/Post' , {
             PlanTypeName: String(PlanTypeName),
             ParentTypeId: Number(ParentTypeId),
+            Operater:Number(Operater)
         })
     },
     //计划类别修改

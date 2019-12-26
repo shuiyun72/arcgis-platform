@@ -29,8 +29,8 @@ export default {
         component: (res) => require(['@features/MaintainGIS/MaAnalysis'], res)
       },
       {
-        path: "MaSelfDispose",
-        name: "MaSelfDispose",
+        path: "MaSelf",
+        name: "MaSelf",
         component: (res) => require(['@features/MaintainGIS/MaSelfDispose'], res),
         children: [{
           path: 'MaSelfDispose',

@@ -21,13 +21,13 @@
               class="my-search"
               size="mini"
               @click="GetData(1)"
-              v-if="$options.filters.btnTree('/api/EventContent/Get' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/EventContent/Get' ,$route.name)"
             >查询</el-button>
             <el-button
               class="my-reset"
               size="mini"
               @click="onLoadData"
-              v-if="$options.filters.btnTree('/api/EventContent/Get' ,$route.meta.iFunID)"
+              v-if="$options.filters.btnTree('/api/EventContent/Get' ,$route.name)"
             >重置</el-button>
           </el-row>
         </el-col>
@@ -39,7 +39,7 @@
             plain
             size="mini"
             @click="addItem"
-            v-if="$options.filters.btnTree('/api/EventContent/Post' ,$route.meta.iFunID)"
+            v-if="$options.filters.btnTree('/api/EventContent/Post' ,$route.name)"
           >
             <i class="iconfont icon-xinzeng"></i>新增
           </el-button>
@@ -47,7 +47,7 @@
             class="my-tableout"
             size="mini"
             @click="editItem"
-            v-if="$options.filters.btnTree('/api/EventContent/Put' ,$route.meta.iFunID)"
+            v-if="$options.filters.btnTree('/api/EventContent/Put' ,$route.name)"
           >
             <i class="iconfont icon-bianji"></i>编辑
           </el-button>
@@ -55,7 +55,7 @@
             class="my-tableout"
             size="mini"
             @click="delItem"
-            v-if="$options.filters.btnTree('/api/EventContent/Delete' ,$route.meta.iFunID)"
+            v-if="$options.filters.btnTree('/api/EventContent/Delete' ,$route.name)"
           >
             <i class="iconfont icon-shanchu"></i>删除
           </el-button>
@@ -71,7 +71,7 @@
       class="myDialog"
     >
       <el-form label-width="80px" size="small">
-        <el-form-item label="事件分类：">
+        <el-form-item label="上报类型：">
           <el-select v-model="formValue.ParentTypeId">
             <el-option
               v-for="item in attRFormList"
@@ -81,23 +81,30 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="事件名称：">
-          <el-input v-model="formValue.EventTypeName" placeholder="请输入事件名称"></el-input>
+        <el-form-item label="上报内容：">
+          <el-input
+            v-model="formValue.EventTypeName"
+            placeholder="请输入事件名称(限制20字符内)"
+            @blur="EventTypeNameB"
+            maxlength="20"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="执行时间：">
-          <el-input-number
-            ref="numberInput"
+        <el-form-item label="处理时间：">
+          <el-input
+            v-model="numberInput"
             v-if="dialogTitle == '新增'"
             @change="ExecTimeChange"
             controls-position="right"
             placeholder="请输入执行时间"
-          ></el-input-number>
-          <el-input-number
+            maxlength="4"
+          ></el-input>
+          <el-input
             v-else
             v-model="formValue.ExecTime"
             controls-position="right"
             placeholder="请输入执行时间（小时）"
-          ></el-input-number>
+            maxlength="4"
+          ></el-input>
           <!--  <el-input v-model="formValue.ExecTime" type="number"  placeholder="请输入执行时间"></el-input> -->
         </el-form-item>
       </el-form>
@@ -149,7 +156,8 @@ export default {
       }, //弹框formvalue
       attRFormList: [], //弹框form的上报类型列表(去除全部选项)
       attRList: [], //上报类型列表
-      attRListValue: "all" //上报类型选中值
+      attRListValue: "all", //上报类型选中值
+      numberInput: ""
     };
   },
   ///**select选择列信息 *//**点击高亮行信息 *//**表格一页显示的行数 *//**表格页码 *///
@@ -158,6 +166,23 @@ export default {
   },
   watch: {},
   methods: {
+    EventTypeNameB() {
+      this.formValue.EventTypeName = this.formValue.EventTypeName.replace(
+        /\s+/g,
+        ""
+      );
+      let isTrueE = /^[A-Za-z0-9\u4e00-\u9fa5]{0,20}$/.test(
+        this.formValue.EventTypeName
+      );
+      if (!isTrueE) {
+        this.$message({
+          type: "error",
+          message: "事件名称不合法（不能使用特殊字符且不能超过20个字符）",
+          showClose: true
+        });
+        this.formValue.EventTypeName = "";
+      }
+    },
     onLoadData() {
       //获取上报类型下拉seclect数据
       EvenType.EventContentLoad().then(res => {
@@ -174,7 +199,17 @@ export default {
     },
     //input输入框绑定事件
     ExecTimeChange(value) {
-      this.formValue.ExecTime = value;
+      if (Number(value) && Number(value) > 0) {
+        this.formValue.ExecTime = value;
+      } else {
+        this.$message({
+          type: "error",
+          message: "执行时间只能为数字且为正数",
+          showClose: true
+        });
+        this.numberInput = "";
+        this.formValue.ExecTime = "";
+      }
     },
     GetData(pageNumber, pageSize) {
       this.loading = true;
@@ -198,16 +233,21 @@ export default {
         );
       } else {
         //根据id查询使用id查询的接口
-        EventContent.EventContentSearch(
-          this.pageSize,
-          this.pageNumber,
-          this.attRListValue
-        ).then(res => {
+        this.eventContentSearch(this.attRListValue, res => {
           this.loading = false;
           this.columnListData = res.data.Data.Result;
           this.dataTotal = res.data.Data.TotalRows;
         });
       }
+    },
+    eventContentSearch(typeId, back) {
+      EventContent.EventContentSearch(
+        this.pageSize,
+        this.pageNumber,
+        typeId
+      ).then(res => {
+        back instanceof Function && back(res);
+      });
     },
     //新增修改提交方法
     editFormSubmit() {
@@ -235,7 +275,7 @@ export default {
           showClose: true
         });
         return;
-      } else if (_ExecTime <= 0) {
+      } else if (Number(_ExecTime) <= 0) {
         this.$message({
           type: "error",
           message: "请输入正确的执行时间",
@@ -243,39 +283,57 @@ export default {
         });
         return;
       }
-      //修改提交方法
-      if (this.formValue.edit) {
-        let _EventTypeId = this.formValue.EventTypeId;
-        EventContent.EventContentEdit(
-          _ParentTypeId,
-          _EventTypeName,
-          _ExecTime,
-          _EventTypeId
-        ).then(res => {
-          this.dialogVisible = false;
+      this.eventContentSearch(_ParentTypeId, res => {
+        let _ParentTypeIdResult = res.data.Data.Result;
+        let isSome = 0;
+        let filterEvent = _.map(_ParentTypeIdResult, Event => {
+          if (Event.EventTypeName == _EventTypeName) {
+            isSome++;
+          }
+        });
+        if (isSome > 0) {
           this.$message({
-            type: "success",
-            message: "修改成功",
+            type: "error",
+            message: "事件类型下的内容已存在",
             showClose: true
           });
-          this.loading = true;
-          this.GetData();
-        });
-        return;
-      }
-      //新增提交方法
-      EventContent.EventContentAdd(
-        _ParentTypeId,
-        _EventTypeName,
-        _ExecTime
-      ).then(res => {
-        this.dialogVisible = false;
-        this.$message({
-          type: "success",
-          message: "添加成功",
-          showClose: true
-        });
-        this.GetData();
+          return false;
+        } else {
+          //修改提交方法
+          if (this.formValue.edit) {
+            let _EventTypeId = this.formValue.EventTypeId;
+            EventContent.EventContentEdit(
+              _ParentTypeId,
+              _EventTypeName,
+              _ExecTime,
+              _EventTypeId
+            ).then(res => {
+              this.dialogVisible = false;
+              this.$message({
+                type: "success",
+                message: "修改成功",
+                showClose: true
+              });
+              this.loading = true;
+              this.GetData();
+            });
+            return;
+          }
+          //新增提交方法
+          EventContent.EventContentAdd(
+            _ParentTypeId,
+            _EventTypeName,
+            _ExecTime
+          ).then(res => {
+            this.dialogVisible = false;
+            this.$message({
+              type: "success",
+              message: "添加成功",
+              showClose: true
+            });
+            this.GetData();
+          });
+        }
       });
     },
     //关闭弹窗方法
@@ -293,7 +351,7 @@ export default {
       if (!this.currentRow) {
         this.$message({
           type: "warning",
-          message: "请选择需要操作的数据",
+          message: "请选择您要编辑的内容",
           showClose: true
         });
         return;
@@ -311,7 +369,7 @@ export default {
         this.formValue.EventTypeId = row.EventTypeId;
         this.formValue.ParentTypeId = row.ParentTypeId;
       } else {
-        this.$refs.numberInput.currentValue = undefined;
+        this.numberInput = "";
         this.formValue = {
           ExecTime: "", //时间
           EventTypeName: "", //上报内容
@@ -328,26 +386,45 @@ export default {
       if (!this.currentRow) {
         this.$message({
           type: "warning",
-          message: "请选择需要操作的数据",
+          message: "请选择您要删除的内容",
           showClose: true
         });
         return;
       }
-      this.$confirm("确认删除？").then(() => {
-        this.loading = true;
-        EventContent.EventContentDel(this.currentRow.EventTypeId).then(res => {
+      this.$confirm("确认删除？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.loading = true;
+          EventContent.EventContentDel(this.currentRow.EventTypeId).then(
+            res => {
+              this.$message({
+                type: "success",
+                message: "删除成功",
+                showClose: true
+              });
+              this.GetData();
+            }
+          );
+        })
+        .catch(() => {
           this.$message({
-            type: "success",
-            message: "删除成功",
+            type: "Info",
+            message: "已取消删除",
             showClose: true
           });
-          this.GetData();
         });
-      });
     },
     cancelBtn() {
       this.dialogVisible = false;
       this.formValueSet();
+      this.$message({
+        type: "Info",
+        message: "已取消" + this.dialogTitle,
+        showClose: true
+      });
     },
     //改变上报类型属性时，更新数据列表
     AttrChange() {

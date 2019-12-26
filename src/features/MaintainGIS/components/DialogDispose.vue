@@ -175,7 +175,7 @@ export default {
         EventPictures = img.split("|");
         let temp = [];
         _.forEach(EventPictures,element => {
-          temp.push(config.apiPath.systemUrl + element)
+          temp.push(config.apiPath.insURL + element)
         });
         return temp;
       }

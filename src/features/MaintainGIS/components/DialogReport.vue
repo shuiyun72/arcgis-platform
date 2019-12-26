@@ -19,6 +19,14 @@
           <td>{{item[1]}}</td>
           <td class="dialog-table-lable">{{item[2]}}</td>
           <td>{{item[3]}}</td>
+      </tr>  
+      <tr class="wrapperCol" v-if="EventPicturesArray.length > 0">
+        <td class="dialog-table-lable">预览图片：</td>
+        <td colspan="3">
+          <a :href="imgUrl+image" target="_blank" v-for="(image,index) in EventPicturesArray" :key="index">
+            <img :src="imgUrl+image" alt style="height:60px;vertical-align: middle;padding: 6px 2px;"/>
+          </a>
+        </td>
       </tr>
       <tr class="wrapperCol" >
         <td class="dialog-table-lable">事件备注：</td>
@@ -35,12 +43,13 @@
 import _ from "lodash";
 //事件查询
 import EventManageForMaintain from "@api/Maintain/EventManageForMaintain";
+import config from "@config/config.js";
 
 export default {
   components: {},
   data() {
     return {
-     
+      imgUrl:config.apiPath.insURL
     };
   },
  props:{
@@ -98,10 +107,13 @@ export default {
           this.currentRow.ExecPersonName
         ]
       ];
+    },
+    EventPicturesArray(){
+      return _.compact(this.currentRow.EventPictures.split("|"));
     }
   },
   created() {
-    
+   
   },
   methods: {
     //查询数据 

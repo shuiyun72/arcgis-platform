@@ -1,0 +1,23 @@
+<template>
+  <el-scrollbar wrap-class="scrollbar-wrapper">
+    <el-menu class="sidemenu" :class="isCollapse" collapse :menu-trigger="'click'">
+      <sidebar-item
+        v-for="route in menusData"
+        :key="route.cFunUrl"
+        :leftMenuData="leftMenuData"
+        :item="route"
+        :isCollapse="isCollapse"
+      />
+    </el-menu>
+  </el-scrollbar>
+</template>
+
+<script>
+import SidebarItem from "./SidebarItem";
+
+export default {
+  props: ["isCollapse", "menusData", "leftMenuData"],
+  components: { SidebarItem },
+  methods: {}
+};
+</script>

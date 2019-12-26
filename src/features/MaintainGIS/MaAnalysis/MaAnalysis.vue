@@ -190,6 +190,16 @@ export default {
       // this.chartBrokenLine.xAxis[0].data = _.map(this.getLineData, "Xarr");
       this.chartBrokenLine.series = this.getLineData.p3;
       this.chartBrokenLine.xAxis[0].data = this.Xarr;
+      this.chartBrokenLine.xAxis[0].axisLabel = { rotate : 45 };
+      this.chartBrokenLine.xAxis[0].boundaryGap = false;
+      this.chartBrokenLine.grid = {
+        top: "100px",
+        left: "40px",
+        right: "30px",
+        bottom: "2px",
+        containLabel: true
+      }
+      
       // 折线图去掉legend
       // this.chartBrokenLine.legend[0].data = [];
       this.chartLine = echarts.init(document.querySelector(".charWraper.job2"))

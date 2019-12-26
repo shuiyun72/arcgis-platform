@@ -20,25 +20,25 @@ export const Ins_EvenContent_Columns = [
 
 //工作时段管理
 export const Ins_TimeSet_Columns = [
-   { field:"IntervalId",text: "编号",align: "center",fixed:false,sortable:true},
-   { field:"StartTime",text: "开始时间",align: "center",fixed:false},
-   { field:"EndTime",text: "结束时间",align: "center",fixed:false},
-   { field:"Remarks",text: "备注",align: "center",fixed:false}
+   { field:"IntervalId",text: "编号",align: "center",fixed:false,sortable:true,width: 60},
+   { field:"StartTime",text: "开始时间",align: "center",fixed:false,width: 100},
+   { field:"EndTime",text: "结束时间",align: "center",fixed:false,width: 100},
+   { field:"Remarks",text: "备注",align: "center",fixed:false,class:'text_ellipsis'}
 ]
 //事件类型管理
 export const Ins_EvenType_Columns = [
-    { field:"EventTypeName",text: "上报类型",align: "center",fixed:false},
-    { field:"ExecTime",text: " 处理时间(小时)",align: "center",fixed:false},
+    { field:"EventTypeName",text: "事件类型",align: "center",fixed:false},
+   //  { field:"ExecTime",text: " 处理时间(小时)",align: "center",fixed:false},
  ]
 
 
 //计划类别管理
 export const Ins_PlanType_Columns = [
-    { field:"ParPlanTypeName",text: "计划类型名称",align: "center",fixed:false},
-    { field:"PlanTypeId",text: "计划类别编号",align: "center",fixed:false,sortable:true},
-    { field:"PlanTypeName",text: "计划类别名称",align: "center",fixed:false},
+    { field:"PlanTypeName",text: "类型名称",align: "center",fixed:false},
+    { field:"PlanTypeId",text: "类别编号",align: "center",fixed:false,sortable:true},
+    { field:"ParPlanTypeName",text: "类别名称",align: "center",fixed:false},
     { field:"PersonName",text: "添加人",align: "center",fixed:false},
-    { field:"OperateDate",text: "添加时间",align: "center",fixed:false},
+    { field:"OperateDate",text: "添加时间",align: "center",fixed:false,width:200},
  ]
 
 
@@ -62,16 +62,16 @@ export const Ins_PlanManage_Columns = [
 
 //巡线任务
 export const Ins_PatrolTask_Columns = [
-   { field:"TaskName",text: "计划名称",align: "left",fixed:false,sortable:true},
+   { field:"TaskName",text: "计划名称",align: "left",fixed:false,sortable:true,width:280},
    { field:"ProraterName",text: "巡检员",align: "center",fixed:false},
-   { field:"TaskCode",text: "任务编号",align: "center",fixed:false},
+   { field:"TaskCode",text: "任务编号",align: "center",fixed:false,width:120},
    { field:"BoolNormalPlan",text: "计划类型",align: "center",fixed:false},
    { field:"PlanCycleName",text: "巡检周期",align: "center",fixed:false},
-   { field:"VisitStarTime",text: "开始时间",align: "center",fixed:false},
-   { field:"VisitOverTime",text: "结束时间",align: "center",fixed:false},
+   { field:"VisitStarTime",text: "开始时间",align: "center",fixed:false,width:160},
+   { field:"VisitOverTime",text: "结束时间",align: "center",fixed:false,width:160},
    { field:"ProraterDeptName",text: "部门",align: "center",fixed:false},
    { field:"Operator",text: "创建人",align: "center",fixed:false},
-   { field:"OperateDate",text: "创建时间",align: "center",fixed:false},
+   { field:"OperateDate",text: "创建时间",align: "center",fixed:false,width:160},
 ]
 
 //区域管理
@@ -79,7 +79,7 @@ export const Ins_RegionalManagement_Columns = [
    { field:"PlanAreaName",text: "片区名称",align: "center",fixed:false,sortable:true},
    { field:"DeptName",text: "责任部门",align: "center",fixed:false},
    { field:"PersonName",text: "区域负责人",align: "center",fixed:false},
-   { field:"OperateAddTime",text: "创建日期",align: "center",fixed:false,sortable:true}
+   { field:"OperateAddTime",text: "创建日期",align: "center",fixed:false,sortable:true,width:160}
 ]
 
 export const Ins_RegionalManagementBottom_Columns = [
@@ -105,6 +105,7 @@ export const Ins_RouteManageBottom_Columns = [
 //事件总览
 export const Ins_EvenOverview_Columns = [
    { field:"ET1",text: "上报类型",align: "center",fixed:false},
+   { field:"OrderCode",text: "工单编号",align: "center",fixed:false,sortable:true,width:120},
    { field:"EventCode",text: "事件编号",align: "center",fixed:false,sortable:true,width:120},
    { field:"statusName",text: "事件状态",align: "center",fixed:false},
    { field:"PName",text: "上报人",align: "center",fixed:false},
@@ -116,7 +117,8 @@ export const Ins_EvenOverview_Columns = [
 
 /*考勤管理 */
 export const Ins_TimeCard_Columns = [
-   { field:"PersonName",text: "上报人",align: "center",fixed:false},
+   { field:"PersonName",text: "上报人",align: "center",fixed:false},  
+   { field:"cDepName",text: "所属部门",align: "center",fixed:false},
    { field:"work_start",text: "上班时间",align: "center",fixed:false,sortable:true,width:200},
    { field:"work_over",text: "下班时间",align: "center",fixed:false,width:200},
    { field:"times",text: "工作时长（小时）",align: "center",fixed:false},

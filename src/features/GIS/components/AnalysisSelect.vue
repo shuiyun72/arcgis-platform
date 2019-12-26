@@ -2,6 +2,7 @@
   <el-button class="anilaysisCascaderWraper my-choose-point" size="mini" @click="btnClick">
     {{btnMessage.text}}
     <el-cascader
+      ref="select"
       v-if="this.layerData.length > 1"
       size="mini"
       :options="layerData"
@@ -11,6 +12,7 @@
       class="anilaysisCascader"
     ></el-cascader>
     <el-select
+      ref="select"
       class="anilaysisCascader"
       size="mini"
       v-model="layerDataValue"
@@ -29,7 +31,7 @@
 <script>
 import _ from "lodash";
 export default {
-  props: ["layerData", "selectLayerValue", "btnMessage","listViewColumn"],
+  props: ["layerData", "selectLayerValue", "btnMessage", "listViewColumn"],
   data() {
     return {
       layerDataValue: "",
@@ -38,25 +40,29 @@ export default {
   },
   methods: {
     btnClick() {
-      if ( this.layerData.length == 1 && this.layerData[0].children.length == 1) {
+      if (
+        this.layerData.length == 1 &&
+        this.layerData[0].children.length == 1
+      ) {
         this.$emit("searchFnc");
       }
     },
     layerChange(item) {
-      let layerTableName = _.filter(this.layerData[0].children , child => {
-        return  child.id === item
-      })[0].listViewColumn
+      let layerTableName = _.filter(this.layerData[0].children, child => {
+        return child.id === item;
+      })[0].listViewColumn;
       this.selectLayerValue[1] = item;
-      if(this.listViewColumn){
+      if (this.listViewColumn) {
         this.$emit("update:listViewColumn", layerTableName);
       }
-      
       this.$emit("update:selectLayerValue", this.selectLayerValue);
       this.$emit("searchFnc");
+      this.layerDataValue = "";
     },
     changeSelect(item) {
       this.$emit("update:selectLayerValue", item);
       this.$emit("searchFnc");
+      this.selectLayerValue = [];
     }
   }
 };

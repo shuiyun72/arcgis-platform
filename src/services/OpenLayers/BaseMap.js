@@ -51,7 +51,7 @@ OpenLayer地图基础数据操作
 class BaseMap {
 
     constructor() {
-        this._DefaultProjection = "EPSG:"+MapConfigure.MapExtent.SpatialReference;
+        this._DefaultProjection = "EPSG:" + MapConfigure.MapExtent.SpatialReference;
         //定义坐标系
         _.forEach(MapConfigure.CoordinateDefinition, InfoValue => {
             if (InfoValue.IsDeFault) {
@@ -66,43 +66,43 @@ class BaseMap {
         this._ProjectionExtent = this._Projection.getExtent();
         this.select = new Select({
             active: false
-        }),
-            this.mapInstance = {
-                map: undefined,
-                groups: {
-                    tileLayerGroup: undefined,
-                    vectorLayerGroup: undefined,
-                    businessLayerGroup: undefined,
-                    tempLayerGroup: undefined,
-                    spatialSearchLayerGroup: undefined
-                },
-                businessLayers: {
-                    polygonLayer: new Vectorlayer(),
-                    lineStringLayer: new Vectorlayer(),
-                    pointLayer: new Vectorlayer(),
-                    monitorLayer: new Vectorlayer({
-                        source: new VectorSource()
-                    }),
-                },
-                tempLayers: {
-                    drawAndModifyLayer: new Vectorlayer(),
-                    bufferLayr: new Vectorlayer()
-                },
-                spatialSearchLayers: {},
-                overlay: undefined,
-                interactions: {
-                    select: this.select,
-                    modify: new Modify({
-                        active: false,
-                        features: this.select.getFeatures()
-                    }),
-                    snap: new Snap({
-                        source: new VectorSource()
-                    })
-                },
+        });
+        this.mapInstance = {
+            map: undefined,
+            groups: {
+                tileLayerGroup: undefined,
+                vectorLayerGroup: undefined,
+                businessLayerGroup: undefined,
+                tempLayerGroup: undefined,
+                spatialSearchLayerGroup: undefined
+            },
+            businessLayers: {
+                polygonLayer: new Vectorlayer(),
+                lineStringLayer: new Vectorlayer(),
+                pointLayer: new Vectorlayer(),
+                monitorLayer: new Vectorlayer({
+                    source: new VectorSource()
+                }),
+            },
+            tempLayers: {
+                drawAndModifyLayer: new Vectorlayer(),
+                bufferLayr: new Vectorlayer()
+            },
+            spatialSearchLayers: {},
+            overlay: undefined,
+            interactions: {
+                select: this.select,
+                modify: new Modify({
+                    active: false,
+                    features: this.select.getFeatures()
+                }),
+                snap: new Snap({
+                    source: new VectorSource()
+                })
+            },
 
 
-            }
+        }
 
     }
 
@@ -120,14 +120,16 @@ class BaseMap {
         let businessLayersGroup = []
         let spatialSearchLayerGroup = []
 
-        //遥感图加载
-        let _SatellLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlSatell), "SatellLayer", true);
-        _tileLayers.push(_SatellLayer);
+        //遥感图加载 
+        // let _SatellLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlSatell), "SatellLayer", true);
+        // _tileLayers.push(_SatellLayer);
+        // _tileLayers.push(this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlCADVector), "CADVectorLayer", true));
 
-
-        // //街道图加载
-        let _VectorLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlPipeLine), "PipeLayer", true);
+        let _VectorLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlPipeLine), "VectorLayer", true);
         _vectorLayers.push(_VectorLayer);
+        //街道图加载
+        let _StreetLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlStreet), "StreetLayer", true);
+        _tileLayers.push(_StreetLayer);
 
         // //地形图加载
         // let _TerrainLayer = this.createTileLayer(this.createArcGISRestSource(MapConfigure.url.urlTerrain), "TerrainLayer", true);
@@ -149,11 +151,14 @@ class BaseMap {
 
         //管网数据加载==>管线，阀门，消防栓等
         _.forEach(MapConfigure.LayerConfiguration, ObjValue => {
+            // let _VectorLayer = this.createVectorlayer( new Vectorlayer({
+            //     url:MapConfigure.url.urlPipeLine + "/" + ObjValue.layerIndex + "?f=pjson"
+            // }))
+
             // let _VectorLayer = this.createVectorlayer(this.createVectorSource(ObjValue.layerIndex), ObjValue.layerName, true);
             // _vectorLayers.push(_VectorLayer);
             //空间查询
             if (ObjValue.isSpatialSearch) {
-                console.log('IconName',ObjValue.IconName)
                 this.mapInstance.spatialSearchLayers[ObjValue.layerName] = new Vectorlayer({
                     style: mapStyle.getStyle(ObjValue.IconName)
                 })
@@ -203,7 +208,7 @@ class BaseMap {
                 extent: this._ProjectionExtent || undefined,
                 center: [MapConfigure.MapCenter.Center_X, MapConfigure.MapCenter.Center_Y],
                 zoom: MapConfigure.MapCenter.Center_Zoom,
-                minZoom: 3
+                minZoom: MapConfigure.MapCenter.Min_Zoom || 3
             })
         });
         return this;

@@ -4,24 +4,31 @@
       <el-col class="table-flex-wraper">
         <el-form label-width="80px">
           <el-row>
-            <el-col span="5" :xs="14" :lg="3">
-              <el-form-item label="版本号：">
-                <el-input v-model="VersionId" size="mini"></el-input>
-              </el-form-item>
-            </el-col>
-            <el-col span="19" :xs="24" >
+            <el-col span="19" :xs="24">
               <el-row type="flex" justify="start" style="padding:0">
                 <el-form-item label-width="20px">
+                  <!-- <el-upload
+                    class="uploadWrapper"
+                    :http-request="httpRequest"
+                    :show-file-list="false"
+                  >
+                    <el-button
+                      slot="trigger"
+                      size="mini"
+                      class="my-choose-point"
+                      type="primary"
+                    >上传文件</el-button>
+                    <div slot="tip" class="el-upload__tip">
+                      <p>只能上传apk文件，且文件名为V x.x.x格式</p>
+                    </div>
+                  </el-upload>-->
                   <el-upload
+                    :action="appUploadList + '?VersionId=' + VersionId"
+                    :auto-upload="false"
                     class="uploadWrapper"
                     ref="upload"
-                    :action="appUploadList + '?VersionId=' + VersionId "
                     :headers="uploadHeaders"
-                    :on-remove="handleRemove"
-                    :auto-upload="false"
                     name="filds"
-                    :on-exceed="handleExceed"
-                    :limit="1"
                     :on-success="successUpload"
                     :on-error="errorUpload"
                     :on-change="handleChange"
@@ -31,28 +38,14 @@
                       size="mini"
                       class="my-choose-point"
                       type="primary"
-                    >选取文件</el-button>
-                    <div style="padding-left:20px;">
-                      <el-button
-                        class="my-search"
-                        size="mini"
-                        @click="submitUpload"
-                        :loading="sunBtnLoad"
-                      >上传到服务器</el-button>
-                    </div>
-                    <div slot="tip" class="el-upload__tip" v-show="!fileList.length">
+                    >上传文件</el-button>
+                    <div slot="tip" class="el-upload__tip" v-show="!uploading" style="order: 8;">
                       <p>只能上传apk文件，且文件名为V x.x.x格式</p>
                     </div>
                   </el-upload>
                 </el-form-item>
               </el-row>
             </el-col>
-            <!-- <el-button
-                class="my-search"
-                size="mini"
-                @click="submitUpload"
-                :loading="sunBtnLoad"
-            >上传到服务器</el-button>-->
           </el-row>
         </el-form>
         <SysTable
@@ -83,8 +76,7 @@ export default {
       loading: false,
       appUploadList: CellphoneManage.appUploadList,
       uploadHeaders: {},
-      VersionId: "",
-      fileList: [],
+      VersionId: "", //版本号
       tableData: [], //表格显示数据
       dataTotal: 1, //表格显示总数据
       currentRow: null, //表格当前行
@@ -103,15 +95,6 @@ export default {
   },
   computed: {},
   methods: {
-    filePreview(filds) {
-      console.log(filds);
-    },
-    handleRemove(file, fileList) {
-      this.fileList = fileList;
-    },
-    handleChange(file, fileList) {
-      this.fileList = fileList;
-    },
     //获取app列表
     getAppList() {
       this.loading = true;
@@ -121,60 +104,48 @@ export default {
         this.tableData = res.data.Data.Result;
       });
     },
-    //限制上传一个
-    handleExceed(files, fileList) {
-      this.$message.warning(
-        `当前限制选择 1 个文件，本次选择了 ${
-          files.length
-        } 个文件，共选择了 ${files.length + fileList.length} 个文件`
-      );
+    handleChange(file, fileList) {
+      if (!file) return;
+      let filename = file.name;
+      let pattern = /V(\d+(\.\d+){2})/;
+      this.VersionId = "1.1.2";
+      console.log(this.VersionId);
+      if (!pattern.test(filename)) {
+        this.$myMessage("error", "文件名应为V x.x.x格式");
+        this.$refs.upload.clearFiles();
+        return;
+      } else {
+        this.VersionId = filename.match(pattern)[1];
+      }
+      pattern = /\.apk$/;
+      if (!pattern.test(filename)) {
+        this.$myMessage("error", "请上传apk文件");
+        this.$refs.upload.clearFiles();
+        return;
+      }
+      this.$nextTick(() => {
+        this.$refs.upload.submit();
+      });
     },
     //上传成功
     successUpload(res) {
-      this.sunBtnLoad = false;
       if (res.ErrorType === 3) {
-        this.$message({
-          type: "success",
-          message: "上传成功"
-        });
-        this.$refs.upload.clearFiles()
+        this.$myMessage("success", "上传成功");
+        this.$refs.upload.clearFiles();
         this.getAppList();
       } else {
         this.$message({
           type: "error",
-          message: res.Msg
+          message: res.Msg,
+          showClose: true
         });
-        this.$refs.upload.clearFiles()
+        this.$refs.upload.clearFiles();
       }
     },
     //上传失败
     errorUpload(res) {
-      this.sunBtnLoad = false;
-      this.$message({
-        type: "error",
-        message: res.Msg
-      });
-      this.$refs.upload.clearFiles()
-    },
-    //上传事件
-    submitUpload() {
-      console.log(this.fileList)
-      if (!this.VersionId) {
-        this.$message({
-          type: "warning",
-          message: "版本号为必填项",
-          showClose: true
-        });
-      } else if(!this.fileList.length){
-        this.$message({
-          type: "warning",
-          message: "文件未选择",
-          showClose: true
-        });
-      }else {
-        this.sunBtnLoad = true;
-        this.$refs.upload.submit();
-      }
+      this.$myMessage("error", res.Msg);
+      this.$refs.upload.clearFiles();
     },
     //表格点击事件
     currentChange(val) {

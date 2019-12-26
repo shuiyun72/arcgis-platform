@@ -1,50 +1,100 @@
 
-@import '~@common/styles/common/variables.styl'
-@import "~@common/styles/fix-slide-expand.styl";
-//引入加载条样式
-@import "~@common/styles/common/permission.styl"
-//左侧表格css样式
-@import "~@common/styles/common/table.styl"
-//chart样式
-@import '~@common/styles/common/chart.styl'
-//btn的样式
-@import '~@common/styles/common/btn.styl'
-//dialog的样式
-@import '~@common/styles/common/dialog.styl'
-//step的样式
-@import '~@common/styles/common/step.styl'
-//tab的样式
-@import '~@common/styles/common/tab.styl'
-//form的样式
-@import "~@common/styles/common/form.styl"
-//tree的样式
-@import "~@common/styles/common/tree.styl"
-//olMap的样式
-@import "~@common/styles/common/olMap.styl"
+@import '~@common/styles/common/variables.styl';
+@import '~@common/styles/fix-slide-expand.styl';
+// 引入加载条样式
+@import '~@common/styles/common/permission.styl';
+// 左侧表格css样式
+@import '~@common/styles/common/table.styl';
+// chart样式
+@import '~@common/styles/common/chart.styl';
+// btn的样式
+@import '~@common/styles/common/btn.styl';
+// dialog的样式
+@import '~@common/styles/common/dialog.styl';
+// step的样式
+@import '~@common/styles/common/step.styl';
+// tab的样式
+@import '~@common/styles/common/tab.styl';
+// form的样式
+@import '~@common/styles/common/form.styl';
+// olMap的样式
+@import '~@common/styles/common/olMap.styl';
+// el-tree的样式
+@import '~@common/styles/common/tree.styl';
+// 登陆样式
+@import '~@common/styles/Login.styl';
+@import '~@common/styles/changePassword.styl';
+// 根据页面名称对应的css样式
+@import '~@common/styles/Home.styl';
+@import '~@common/styles/GIS/DataCount.styl';
+@import '~@common/styles/GIS/MapActionBar.styl';
+@import '~@common/styles/GIS/PipeQuery.styl';
+@import '~@common/styles/GIS/SeniorSearch.styl';
+@import '~@common/styles/GIS/hengduanmian.styl';
+@import '~@common/styles/GIS/PipeKPI.styl';  
+@import '~@common/styles/InspectionGIS/InsMinitor.styl';
+@import '~@common/styles/InspectionGIS/ins-chart.styl';
+@import '~@common/styles/InspectionGIS/InsOverView.styl';
+@import '~@common/styles/InspectionGIS/event-trend.styl';
+@import '~@common/styles/MaintainGIS/MaintainGIS.styl';
+@import '~@common/styles/MaintainGIS/Initiate.styl';
+@import '~@common/styles/systemSetting/modular.styl';
 
-//登陆样式
-@import '~@common/styles/Login.styl'    
+.blue-text {
+    color: #0091da;
+}
 
-//根据页面名称对应的css样式
-@import "~@common/styles/Home.styl"
-@import "~@common/styles/GIS/DataCount.styl";
-@import "~@common/styles/GIS/MapActionBar.styl"
-@import "~@common/styles/GIS/PipeQuery.styl"
-@import "~@common/styles/GIS/SeniorSearch.styl"
-@import "~@common/styles/GIS/hengduanmian.styl"
-@import "~@common/styles/GIS/PipeKPI.styl"
+.heightFlex1 {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    flex-basis: auto;
+    overflow: hidden;
+}
 
+.height100 {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 
-@import '~@common/styles/InspectionGIS/InsMinitor.styl'
-@import '~@common/styles/InspectionGIS/ins-chart.styl'
-@import '~@common/styles/InspectionGIS/InsOverView.styl'
-@import '~@common/styles/InspectionGIS/event-trend.styl'
+.max130 {
+  max-width: 130px;
+}
 
-@import '~@common/styles/MaintainGIS/MaintainGIS.styl'
-@import '~@common/styles/MaintainGIS/Initiate.styl'
+.max230 {
+  max-width: 230px;
+}
 
+.GISImage {
+    width: 100px;
+    vertical-align: top;
+    margin: 0 10px;
+}
 
-@import '~@common/styles/systemSetting/modular.styl'
-.blue-text{
-    color:#0091da;
+// 上传
+.avatar-uploader .el-upload {
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.avatar-uploader .el-upload:hover {
+    border-color: #409EFF;
+}
+
+.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+}
+
+.avatar {
+    width: 100px;
+    display: block;
 }

@@ -17,7 +17,6 @@
 </template>
 <script>
 // import axios from "axios";
-import InsOverView from "@features/InspectionGIS/InsOverView";
 import BaseMap from "@services/OpenLayers/BaseMap";
 import MapNavigate from "@services/OpenLayers/MapNavigate";
 import MapConfigure from "@common/consts/OpenLayersConfig/MapConfigure";
@@ -27,7 +26,6 @@ import { setTimeout } from "timers";
 
 export default {
   components: {
-    InsOverView,
     MapDialog,
     mapLayer
   },

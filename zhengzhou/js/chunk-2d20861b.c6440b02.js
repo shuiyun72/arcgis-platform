@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d20861b"],{a50a:function(n,e,t){"use strict";t.r(e);var a=function(){var n=this,e=n.$createElement,t=n._self._c||e;return t("router-view")},u=[],r=(t("cadf"),t("551c"),t("097d"),t("2ef0"),{data:function(){return{}},methods:{}}),s=r,c=t("2877"),o=Object(c["a"])(s,a,u,!1,null,null,null);o.options.__file="InsAnalysis.vue";var i=o.exports;e["default"]=i}}]);
-//# sourceMappingURL=chunk-2d20861b.c6440b02.js.map

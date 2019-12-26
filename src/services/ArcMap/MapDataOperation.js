@@ -105,7 +105,11 @@ class MapDataOperation {
         }
         //构造查询条件
         let query = new this.modules.query();
-        query.outFields = [_GroupField];
+        if (_GroupField && _GroupField instanceof Array) {
+            query.outFields = _GroupField
+        } else {
+            query.outFields = [_GroupField];
+        }
         query.returnGeometry = false;
         query.where = "1=1";
         query.groupByFieldsForStatistics = [_GroupField];
@@ -204,6 +208,7 @@ class MapDataOperation {
             gisField.push(objValue.outStatisticFieldName);
         });
         query.outFields = gisField; //输出字段
+        query.orderByFields = _GroupField//排序字段
         query.outStatistics = outStatistics; //统计字段
         //添加空间数据
         if (!_.isNull(_GData)) {
@@ -245,8 +250,8 @@ class MapDataOperation {
         }
 
         Promise.all(taskList).then(result => {
-            let resultFeatures =[]
-            _.forEach(result, item =>{
+            let resultFeatures = []
+            _.forEach(result, item => {
                 resultFeatures.push(...item.features)
             })
             let returnValue = _.map(resultFeatures, resultValue => {
@@ -266,7 +271,7 @@ class MapDataOperation {
      * @param {*} _layerUrl         选择图层
      * @param {*} allDoneCallback   回调函数
      */
-    featureQuery(_GData, _SearchCondition, _layerUrl, allDoneCallback) {
+    featureQuery(_GData, _SearchCondition, _layerUrl, allDoneCallback , errorCallback) {
         //声明空间数据查询条件
         let query = this.modules.query();
         query.outFields = ["*"];
@@ -318,6 +323,7 @@ class MapDataOperation {
             allDoneCallback(resultFeatures);
         }).catch(err => {
             console.log("数据查询错误", err);
+            errorCallback(err)
         });
     }
 
@@ -422,7 +428,7 @@ class MapDataOperation {
                     distinctValue.push(...objvalue.value.features)
                 });
                 _.forEach(distinctValue, objvalue => {
-                    objvalue.attributes.OBJECTID = objvalue.attributes.equipment_number
+                    objvalue.attributes.OBJECTID = objvalue.attributes.PID
                 });
                 distinctValue.push(...handleQueryResultAll)
                 allDoneCallback instanceof Function && allDoneCallback(distinctValue);

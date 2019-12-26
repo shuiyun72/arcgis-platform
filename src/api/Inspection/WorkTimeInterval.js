@@ -3,7 +3,7 @@ export default {
     //工作时间段全部查询
     TimeSetAll(numValue, pageValue,sortName, orderingValue){
         sortName = sortName || 'IntervalId'
-        orderingValue = orderingValue || 'asc'
+        orderingValue = orderingValue || 'desc'
         return instance.get('/WorkTimeInterval/Get', {
             params: {
                 sort: String(sortName),

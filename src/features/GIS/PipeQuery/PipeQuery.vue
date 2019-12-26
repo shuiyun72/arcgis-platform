@@ -19,8 +19,10 @@
       <p>纵坐标：{{coordinate[1]}}</p>
     </div>
     <!-- <div id="legendDiv" style="display:none;" ref="legendDiv"></div> -->
-    <div id="mapNode">
+    <div id="mapNode" v-loading="mapLoading">
+      <!-- 卷帘 -->
       <div id="swipeDiv"></div>
+      <!-- 放大镜 -->
       <div id="mmapWrapper">
         <div id="mmap"></div>
       </div>
@@ -51,7 +53,8 @@ export default {
       _mapEdit: null, //编辑地图信息方法
       coordinate: [], //地图坐标
       selectEQ: null,
-      searchType: ""
+      searchType: "",
+      mapLoading: false //地图加载中
     };
   },
   created() {
@@ -67,15 +70,16 @@ export default {
     this.$bus.on("bufferAnalysis", this.bufferAnalysis); //缓冲区查询分析
     this.$bus.on("lineAnalysis", this.lineAnalysis); //根据地图上选中的线进行分析
     this.$bus.on("facilitiesView", this.facilitiesView); //设施高亮
+    this.$bus.on("facilitiesViewClick", this.facilitiesViewClick); //设施高亮并回调
     this.$bus.on("pipeLineView", this.pipeLineView); //管线高亮
     this.$bus.on("dataSearchByLayerName", this.dataSearchByLayerName); //根据图层进行检索数据信息
-    this.$bus.on("getNeedLayer", this.getNeedLayer); //根据图层字符串查询获得需要的图层数组信息
     this.$bus.on("onLayerViewAllVisibale", this.onLayerViewAllVisibale); //是否展示管线等地图标志信息
     this.$bus.on("drawPolygon", this.drawPolygon); //绘制多边形
     this.$bus.on("pointSelect", this.pointSelect); //点击设备事件
     this.$bus.on("featureQueryTask", this.featureQueryTask); //全图层数据查询
-    this.$bus.on("addMapPoint", this.addMapPoint); //地图添加点展示
-    this.$bus.on("addMapLine", this.addMapLine); //地图添加线展示
+    this.$bus.on("addMapPoint", this.addMapPoint); //矢量图层添加点展示
+    this.$bus.on("addMapLine", this.addMapLine); //矢量图层添加线展示
+    this.$bus.on("addGeometry", this.addGeometry); //矢量图层添加空间信息展示
     this.$bus.on("drawPonit", this.drawPonit); //地图添加点展示
     this.$bus.on("mapEditinit", this.mapEditinit); //地图编辑启动
     this.$bus.on("mapEditadd", this.mapEditadd); //地图编辑添加
@@ -88,6 +92,9 @@ export default {
     this.$bus.on("featureLayerApplyEdits", this.featureLayerApplyEdits); //图层新增编辑属性删除操作方法
 
     this.$bus.on("onLayerViewOrHidden", this.onLayerViewOrHidden); //地图是否显示某一要素
+    this.$bus.on("MapsetExtentGeomory", this.MapsetExtentGeomory); //地图根据范围geomory居中
+    this.$bus.on("setDefinitionExpression", this.setDefinitionExpression); //展示部分图层信息
+    this.$bus.on("infoWindowUnseen", this.infoWindowUnseen); //pop隐藏到不可见区域
   },
   beforeDestroy() {
     this.$bus.off("setMapLocation", this.SetMapLocation); //开启空间数据定位
@@ -102,16 +109,17 @@ export default {
     this.$bus.off("bufferAnalysis", this.bufferAnalysis); //缓冲区查询分析
     this.$bus.off("lineAnalysis", this.lineAnalysis); //根据地图上选中的线进行分析
     this.$bus.off("facilitiesView", this.facilitiesView); //设施高亮
+    this.$bus.off("facilitiesViewClick", this.facilitiesViewClick); //设施高亮并回调
     this.$bus.off("pipeLineView", this.pipeLineView); //管线高亮
     this.$bus.off("dataSearchByLayerName", this.dataSearchByLayerName); //根据图层进行检索数据信息
-    this.$bus.off("getNeedLayer", this.getNeedLayer); //根据图层字符串查询获得需要的图层数组信息
     this.$bus.off("onLayerViewAllVisibale", this.onLayerViewAllVisibale); //是否展示管线等地图标志信息
     this.$bus.off("drawPolygon", this.drawPolygon); //根据点位绘制多边形
     this.$bus.off("pointSelect", this.pointSelect); //点击设备事件
     this.$bus.off("featureQueryTask", this.featureQueryTask); //全图层数据查询
     this.$bus.off("mapEditinit", this.mapEditinit); //地图编辑启动
-    this.$bus.off("addMapPoint", this.addMapPoint); //地图添加点展示
-    this.$bus.off("addMapLine", this.addMapLine); //地图添加线展示
+    this.$bus.off("addMapPoint", this.addMapPoint); //矢量图层添加点展示
+    this.$bus.off("addMapLine", this.addMapLine); //矢量图层添加线展示
+    this.$bus.off("addGeometry", this.addGeometry); //矢量图层添加空间信息展示
     this.$bus.off("drawPonit", this.drawPonit); //地图添加点展示
     this.$bus.off("mapEditadd", this.mapEditadd); //地图编辑添加
     this.$bus.off("mapEditupdate", this.mapEditupdate); //地图编辑修改
@@ -123,6 +131,9 @@ export default {
     this.$bus.off("featureLayerApplyEdits", this.featureLayerApplyEdits); //图层新增编辑属性删除操作方法
 
     this.$bus.off("onLayerViewOrHidden", this.onLayerViewOrHidden); //地图是否显示某一要素
+    this.$bus.off("MapsetExtentGeomory", this.MapsetExtentGeomory); //地图根据范围geomory居中
+    this.$bus.off("setDefinitionExpression", this.setDefinitionExpression); //展示部分图层信息
+    this.$bus.off("infoWindowUnseen", this.infoWindowUnseen); //pop隐藏到不可见区域
   },
   mounted() {
     // 页面顶部显示progress bar
@@ -171,19 +182,22 @@ export default {
         this._map.on("click", evt => {
           this._toolBar.mapMeasureClick(evt);
         });
+        this._map.on("extent-change", evt => {
+          this.mapLoading = false;
+        });
 
         // this._mapEdit.init().then(() => {
         //   this.$store.dispatch("mapStation/setEditStation");
         // });
       });
-      // this._mapEdit = new MapDataEditing(this._map);
+      //this._mapEdit = new MapDataEditing(this._map);
       //记录mapedit加载成功
 
       //空间数据查询
       this._MapDataOperation = new MapDataOperation();
       this._MapDataOperation.init(); //初始化
-      this._MapDataOperation.init().then(() => {  
-          this.$refs.MapActionBar.getCount(this._MapDataOperation);
+      this._MapDataOperation.init().then(() => {
+        this.$refs.MapActionBar.getCount(this._MapDataOperation);
       });
       //实例化提示框
       this.$progress.done();
@@ -198,31 +212,44 @@ export default {
      * featureLayerName需要查找的图层名称
      * evt 编辑状态时需要传递的查询后图层存储的信息
      */
-    mapEditinit(featureLayerName, evt) {
-      this._mapEdit.initEditing(featureLayerName, evt);
+    mapEditinit(featureLayerName, evt, changeStation) {
+      this._mapEdit.initEditing(featureLayerName, evt, changeStation);
     },
+
     //编辑空间地图信息
     /**
      * featureLayerName :操作的featureLayer名称
-     * result：选区的结果集
+     * Gata：选区的结果集
      * AtrObj：属性列表
      * oldgraphic：原来的空间信息
      * newgraphic：现在的空间信息
      * objectID： 唯一标志
      */
-
-    mapEditadd(featureLayerName, result, AtrObj, callBack, errorBack) {
+    //地图添加空间数据
+    mapEditadd(featureLayerName, Gata, AtrObj, callBack, errorBack) {
       this._mapEdit.featurAdd(
         featureLayerName,
-        result,
+        Gata,
         AtrObj,
         callBack,
         errorBack
       );
     },
+
+    featurAddPoint(featureLayerName, Gata, AtrObj, callBack, errorBack) {
+      this._mapEdit.featurAddPoint(
+        featureLayerName,
+        Gata,
+        AtrObj,
+        callBack,
+        errorBack
+      );
+    },
+    //地图编辑空间数据
     mapEditupdate(newGraphic, callBack, errorBack) {
       this._mapEdit.featurUpdate(newGraphic, callBack, errorBack);
     },
+    //地图删除空间数据
     mapEditDel(featureLayerName, objectID, callBack, errorBack) {
       this._mapEdit.featureDelete(
         featureLayerName,
@@ -231,6 +258,7 @@ export default {
         errorBack
       );
     },
+    //地图取消编辑
     mapEditCancle() {
       this._mapEdit.initEditcancle();
     },
@@ -293,14 +321,10 @@ export default {
      * 空间数据查询，按照全图层进行查询
      * @param {*} _GData            空间数据
      * @param {*} allDoneCallback   回调函数
+     * @param {*} LayerType   查询图层类型
      */
-    featureQueryTask(_GData, allDoneCallback, meter) {
-      this._toolBar.featureQueryTask(_GData, allDoneCallback, meter);
-    },
-    // 获取需要展示的图层信息
-    getNeedLayer(special, callBack) {
-      let data = this._MapDataOperation.getNeedLayer(special);
-      callBack(data);
+    featureQueryTask(_GData, allDoneCallback, meter, LayerType) {
+      this._toolBar.featureQueryTask(_GData, allDoneCallback, meter, LayerType);
     },
     //清除基础图层操作
     clearGraphics() {
@@ -311,40 +335,98 @@ export default {
       this._toolBar.clearGraphicslayer();
     },
     //地图定位
-    SetMapLocation(_OBJECTID, _layerName) {
+    SetMapLocation(_OBJECTID, _layerName, result, html) {
+      this.mapLoading = true;
+      if (html) {
+        this.infoWindowSet(result, [result], html);
+        return;
+      }
       this._toolBar.featureSearch(_OBJECTID, _layerName, resultValue => {
         if (resultValue.length > 0) {
-          if (_.isNull(this.selectEQ)) {
-            this.selectEQ = this._mapController.createPoint(0, 0);
-          }
           //弹出对话框
-          let centerPoint = null;
-          switch (resultValue[0].geometry.type) {
-            case "point":
-              this.selectEQ = resultValue[0].geometry;
-              break;
-            case "polyline":
-              centerPoint = resultValue[0].geometry.getExtent();
-              this.selectEQ.x = (centerPoint.xmax + centerPoint.xmin) / 2;
-              this.selectEQ.y = (centerPoint.ymax + centerPoint.ymin) / 2;
-              break;
-            case "polygon":
-              centerPoint = resultValue[0].geometry.getCentroid();
-              break;
-            default:
-              break;
-          }
-          //气泡弹出
-          this._map.infoWindow.setFeatures(resultValue);
-          this._map.infoWindow.show(this.selectEQ);
-          //定位
-          this._toolBar.featureSetLocation(resultValue[0]);
+          this.infoWindowSet(resultValue[0], resultValue);
         }
       });
     },
-    //管网设施高亮
-    facilitiesView(facilitiesCollection, pictureName, tempateValue, templateJson) {
-      this._toolBar.facilitiesView(facilitiesCollection, pictureName, tempateValue, templateJson); //地图上高亮设施
+    //根据点位数据展示地图信息
+    infoWindowSet(info, resultValue, html) {
+      let centerPoint = null;
+      if (!info.geometry) {
+        this.mapLoading = false;
+        this.$myMessage("error", "此数据没有空间信息");
+        return;
+      }
+      switch (info.geometry.type) {
+        case "point":
+          this.selectEQ = info.geometry;
+          break;
+        case "polyline":
+          centerPoint = info.geometry.getExtent();
+          this.selectEQ.x = (centerPoint.xmax + centerPoint.xmin) / 2;
+          this.selectEQ.y = (centerPoint.ymax + centerPoint.ymin) / 2;
+          break;
+        case "polygon":
+          this.selectEQ = info.geometry.getCentroid();
+          break;
+        default:
+          break;
+      }
+      //气泡弹出
+      if (html) {
+        this._map.infoWindow.setContent(html.html);
+        this._map.infoWindow.setTitle(html.title);
+      } else {
+        this._map.infoWindow.setFeatures(resultValue);
+      }
+
+      this._map.infoWindow.show(this.selectEQ);
+      //定位
+      this._toolBar.featureSetLocation(info);
+    },
+    //地图根据范围geomory居中
+    MapsetExtentGeomory(geometry) {
+      this.mapLoading = true;
+      this._map.setExtent(geometry.getExtent(), true);
+    },
+    //setInfo 地图弹框展示
+    infoWindowShow(_OBJECTID, _layerName, geometry) {
+      this._toolBar.featureSearch(_OBJECTID, _layerName, resultValue => {
+        this._map.infoWindow.setFeatures(resultValue);
+        this._map.infoWindow.show(geometry.getCentroid());
+      });
+    },
+    /**
+     * 点击Graphicslayer并回调
+     * facilitiesCollection, 需要展示的包含地址信息的列表
+     * pictureName, 需要展示的icon
+     * callBack, 回调
+     */
+    facilitiesViewClick(facilitiesCollection, pictureName, callBack) {
+      this._toolBar.facilitiesViewClick(
+        facilitiesCollection,
+        pictureName,
+        callBack
+      );
+    },
+    /**
+     * 管网设施高亮
+     * facilitiesCollection, 需要展示的包含地址信息的列表
+     * pictureName, 需要展示的icon
+     * tempateValue, 需要展示的信息列表
+     * templateJson 需要展示的template 设置绘制图层为该json
+     */
+    facilitiesView(
+      facilitiesCollection,
+      pictureName,
+      tempateValue,
+      templateJson
+    ) {
+      this._toolBar.facilitiesView(
+        facilitiesCollection,
+        pictureName,
+        tempateValue,
+        templateJson
+      ); //地图上高亮设施
     },
     //管网管线高亮
     pipeLineView(pipeCollection) {
@@ -377,6 +459,7 @@ export default {
         }
       });
     },
+
     //空间数据
     getSpaceData(_datalist, _layerName, allDoneCallback) {
       let pipeIDC = _.map(_datalist, "OBJECTID");
@@ -423,26 +506,42 @@ export default {
       );
     },
     //根据图层进行检索数据信息
-    dataSearchByLayerName(_GData, _layerName, allDoneCallback) {
-      this._toolBar.featureQueryFeature(_GData, _layerName, resultValue => {
-        allDoneCallback instanceof Function && allDoneCallback(resultValue);
-      });
+    dataSearchByLayerName(
+      _GData,
+      _layerName,
+      _SearchCondition,
+      allDoneCallback
+    ) {
+      this._toolBar.featureQueryFeature(
+        _GData,
+        _layerName,
+        _SearchCondition,
+        resultValue => {
+          allDoneCallback instanceof Function && allDoneCallback(resultValue);
+        }
+      );
     },
     //根据线获取空间数据
     lineAnalysis(_layerName, _GLineData, allDoneCallback) {
-      this._toolBar.featureQueryFeature(_GLineData, _layerName, resultValue => {
-        allDoneCallback instanceof Function &&
-          allDoneCallback(_.map(resultValue, "attributes"));
-      });
+      this._toolBar.featureQueryFeature(
+        _GLineData,
+        _layerName,
+        "",
+        resultValue => {
+          allDoneCallback instanceof Function &&
+            allDoneCallback(_.map(resultValue, "attributes"));
+        }
+      );
     },
-    //从地图上获取分析 isSnap 是否启动吸附功能，allDoneCallback：回调函数
-    getMapPoint(isSnap, allDoneCallback) {
+    //从地图上获取分析 isSnap 是否启动吸附功能，allDoneCallback：回调函数  NoSympol是否显示点Sympol样式
+    getMapPoint(isSnap, allDoneCallback, NoSympol) {
       this._toolBar.clearAction(); //清除操作
       this._toolBar.getMapPoint(isSnap, {
         featureQueryCompleted: _GData => {
           //回调函数调用
           allDoneCallback(_GData.geometry);
-        }
+        },
+        NoSympol: NoSympol
       });
     },
     //从地图上获取线
@@ -460,7 +559,11 @@ export default {
     onLayerViewOrHidden(layerName, isDisplay, addtreeNode) {
       //图层显示与不控制
       if (addtreeNode) {
-        this.$refs.MapActionBar.setCheckedTreeNodes(false , layerName, isDisplay);
+        this.$refs.MapActionBar.setCheckedTreeNodes(
+          false,
+          layerName,
+          isDisplay
+        );
       }
       this._toolBar.layerDiaplayOrHidden(layerName, isDisplay);
     },
@@ -469,9 +572,9 @@ export default {
       let layerData = [];
       _.forEach(MapConfigure.FeatureLayerGroup, item => {
         if (item.isEnable) {
-          _.forEach(item.featureLayers, layer =>{
-            if(layer.isActive){
-              layerData.push(layer.layerName)
+          _.forEach(item.featureLayers, layer => {
+            if (layer.isActive) {
+              layerData.push(layer.layerName);
             }
           });
         }
@@ -506,10 +609,10 @@ export default {
       this._toolBar.setMapLocation(x, y);
     },
     /**
-     * 右上角搜索功能 
+     * 右上角搜索功能
      * searchCallBack 为函数时为查询功能 为空时为定位功能
      * */
-    onMapSearch(searchContent, searchCallBack,template) {
+    onMapSearch(searchContent, searchCallBack, template) {
       if (searchCallBack && searchCallBack instanceof Function) {
         this._MapDataOperation.featureQuery(
           null,
@@ -518,19 +621,28 @@ export default {
             "/" +
             MapConfigure.POILayers.featureLayers[0].layerIndex,
           resultValue => {
-            searchCallBack(resultValue)
+            searchCallBack(resultValue);
             // this._toolBar.setPOIView(resultValue[0]);
           }
         );
       } else {
-        this._toolBar.setPOIView(searchContent,template);
+        this._toolBar.setPOIView(searchContent, template);
       }
     },
+    //在矢量绘画图层添加点
     addMapPoint(geometry) {
       this._toolBar.addMapPoint(geometry);
     },
+    //在矢量绘画图层添加线
     addMapLine(geometry) {
       this._toolBar.addMapLine(geometry);
+    },
+    //在矢量绘画图层添加空间信息
+    addGeometry(geometry) {
+      this._toolBar.addGeometry(geometry);
+    },
+    infoWindowUnseen() {
+      this._toolBar.infoWindowUnseen();
     }
   }
 };

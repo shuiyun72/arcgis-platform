@@ -50,11 +50,11 @@
       </el-row>
       <el-row type="flex" justify="end" class="btn-div">
         <span
-          v-if="$options.filters.btnTree('play' ,$route.meta.iFunID) && $options.filters.btnTree('suspend' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('play' ,$route.name) && $options.filters.btnTree('suspend' ,$route.name)"
         >
           <span @click=" ()=> palying ? pause() : play()">
             <svg class="icon" aria-hidden="true" viewBox="0 0 36 36">
-              <circle cx="18" cy="18" r="17" fill="#2fb8ee" opacity="0.56"/>
+              <circle cx="18" cy="18" r="17" fill="#2fb8ee" opacity="0.56" />
               <circle cx="18" cy="18" r="14" fill="#2f3239" />
               <path :class="{pause :palying}" />
 
@@ -91,13 +91,19 @@
                 :class="{active:uesrInfo.iAdminID == userlistValue,online:uesrInfo.IsOnline == 'Y'}"
                 @click="getRoute(uesrInfo)"
               >
-                <div class="img-wraper" style="background:none;width:unset;height:unset;"> 
-                <!-- <i class="img-shadow" v-show="uesrInfo.IsOnline == 'N'"></i> -->
-                <div style="background-color:#b3b3b3;width:10px;height:10px;opacity:0.6;" v-show="uesrInfo.IsOnline == 'N'"></div>
-                <div style="background-color:#5bc863;width:10px;height:10px" v-show="uesrInfo.IsOnline == 'Y'"></div>
-                <!-- <img
+                <div class="img-wraper" style="background:none;width:unset;height:unset;">
+                  <!-- <i class="img-shadow" v-show="uesrInfo.IsOnline == 'N'"></i> -->
+                  <div
+                    style="background-color:#b3b3b3;width:10px;height:10px;opacity:0.6;"
+                    v-show="uesrInfo.IsOnline == 'N'"
+                  ></div>
+                  <div
+                    style="background-color:#5bc863;width:10px;height:10px"
+                    v-show="uesrInfo.IsOnline == 'Y'"
+                  ></div>
+                  <!-- <img
                 src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1555167380380&di=347b5f13b120723a41ca6cfa3edc3d03&imgtype=0&src=http%3A%2F%2Fuserimg.yingyonghui.com%2Fhead%2F56%2F1431005490560%2F2210156.png-thumb"
-              > -->
+                  >-->
                 </div>
 
                 <span style="font-size: 14px;">{{uesrInfo.cAdminName}}</span>
@@ -238,6 +244,7 @@ export default {
             _point = _.map(res.data.Data.Result, item => {
               return [item.PositionX, item.PositionY];
             });
+            this.$bus.emit("setCenter", ..._point);
           }
           console.log(_point);
           this.pointList = _point;
@@ -284,7 +291,38 @@ export default {
       User.UserInfo().then(res => {
         this.userList = res.data.Data.Result;
         console.log(this.userList);
-        // this.userList[0].Persons[0].IsOnline = "Y";
+        let t2 = [];
+        _.map(this.userList, obj => {
+          _.map(obj.Persons, result => {
+            if (result.IsOnline == "Y") {
+              t2.push(result);
+            }
+          });
+        });
+        console.log(t2)
+        let _startTime = this.dateValue + " " + this.timeValue[0];
+        let _endTime = this.dateValue + " " + this.timeValue[1];
+        let _point = [];
+        let _pointProperies = [];
+        if (t2.length > 0) {
+          _.map(t2, obj => {
+            User.UserRoute(_startTime, _endTime, obj.iAdminID).then(res => {
+              debugger
+              if (res.data.Data.Result.length > 0) {
+                let objArr = t2.filter(item => {
+                  return item.iAdminID == obj.iAdminID;
+                });
+                _pointProperies.push(objArr);
+                let temp = res.data.Data.Result[0];
+                _point.push([Number(temp.PositionX), Number(temp.PositionY)]);
+                console.log(_pointProperies, _point);
+                this.drawPoint(_pointProperies, _point);
+              }
+              
+            });
+          });
+        }
+
         this.loadLayerData();
       });
     },
@@ -298,6 +336,28 @@ export default {
       this.stateValue = this.stateList[0].value;
       //tab页默认第一行展开
       this.activeNames = this.userList[0].DepName;
+    },
+    // 展示实时位置
+    drawPoint(data, pointArrayData) {
+      //点坐标的集合
+      console.log(data);
+      // let objArray = [];
+      // objArray.push({
+      //   cAdminName: data.cAdminName || "",
+      //   UpTime: data.UpTime || "",
+      // });
+      //console.log(objArray)
+      //开启地图hover点
+      this.$bus.emit("onPointermoveControl");
+      //绘点
+      this.$bus.emit(
+        "setPointOnMap",
+        pointArrayData,
+        false,
+        () => {},
+        "InsMinitor",
+        data
+      );
     }
   }
 };

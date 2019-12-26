@@ -41,13 +41,13 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.Common
         {
             return _cellphoneManageDAL.Get(sort, ordering, num, page);
         }
-        /// <summary>
-        /// 获取最新版本号
-        /// </summary>
-        /// <returns></returns>
-        public MessageEntity GetLatestVersionId(){
-            return _cellphoneManageDAL.GetLatestVersionId();
-        }
+        ///// <summary>
+        ///// 获取最新版本号
+        ///// </summary>
+        ///// <returns></returns>
+        //public MessageEntity GetLatestVersionId(){
+        //    return _cellphoneManageDAL.GetLatestVersionId();
+        //}
         /// <summary>
         /// 上传APP版本信息
         /// </summary>
@@ -58,45 +58,43 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.Common
             HttpFileCollection files = HttpContext.Current.Request.Files;
             if (files.Count > 0)
             {
+                //获取apk版本号
                 if (string.IsNullOrEmpty(VersionId) || string.IsNullOrEmpty(VersionId.Trim()))
                 {
-                    return MessageEntityTool.GetMessage(ErrorType.FieldError, "", "版本号必须输入");
+                    return MessageEntityTool.GetMessage(ErrorType.FieldError, "", "版本号必须传入");
                 }
-                else
-                {
-                    VersionId = VersionId.Trim();
+                VersionId = VersionId.Trim();
                     MessageEntity ms=  _cellphoneManageDAL.getCount(VersionId);
-                  if(ms.Data.Rows > 0)
+                  if(ms.Data.Rows 
+                    > 0)
                     {
                         return MessageEntityTool.GetMessage(ErrorType.FieldError, "", "不能提交重复版本");
                     }
-                    for (int i = 0; i < files.Count; i++)
-                    {
-                        HttpPostedFile file = files[i];
+                   
+                        HttpPostedFile file = files[0];
                         if (file.ContentLength > 0)
                         {
                             //全路径 
                             string FullFullName = file.FileName;
                             string filehz = FullFullName.Split('V')[1];
                             string ver = filehz.Remove(filehz.Length - 4, 4);
-                            //验证APK名称后缀版本号名必须与版本号是否一致，否则返回
-                            if (ver != VersionId)
+                   
+                          //验证APK名称后缀版本号名必须与版本号是否一致，否则返回
+                          if (ver != VersionId)
                             {
                                 return MessageEntityTool.GetMessage(ErrorType.FieldError, "", "APK名称后缀版本号名必须与版本号一致");
                             }
                             String fileName = "H5188E903_0425021627.apk";
                             file.SaveAs(AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "\\" + fileName);
-                            return _cellphoneManageDAL.UploadApk(file.FileName,VersionId);
+                            return _cellphoneManageDAL.UploadApk(file.FileName, ver);
 
                         }
                         else
                         {
                             return MessageEntityTool.GetMessage(ErrorType.FieldError, "", "文件内容为空");
                         }
-                    }
-                    return MessageEntityTool.GetMessage(ErrorType.FieldError, "", "文件为空");
 
-                }
+                
             }
             else
             {

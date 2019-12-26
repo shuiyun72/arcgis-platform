@@ -168,6 +168,8 @@ export default {
 }
 
 .multi-line-row {
+   text-align: left;
+    padding-left: 20px;
   .color-span {
     padding: 2px 5px;
     color: #fff;

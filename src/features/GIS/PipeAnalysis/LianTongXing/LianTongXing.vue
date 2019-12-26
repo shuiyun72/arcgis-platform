@@ -9,7 +9,7 @@
           :selectLayerValue.sync="selectLayerValue"
           @searchFnc="choosePipe"
           :listViewColumn.sync="listViewColumn"
-          v-if="$options.filters.btnTree('choose' ,$route.meta.iFunID)"
+          v-if="$options.filters.btnTree('choose' ,$route.name)"
         ></AnalysisSelect>
         <template v-for="item in btnList">
           <el-button
@@ -18,7 +18,7 @@
             :key="item.text"
             :class="item.class"
             @click="btnChange(item.text)"
-            v-if="$options.filters.btnTree(item.model ,$route.meta.iFunID)"
+            v-if="$options.filters.btnTree(item.model ,$route.name)"
           >
             <i class="iconfont" :class="item.icon"></i>
             {{item.text}}

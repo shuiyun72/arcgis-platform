@@ -53,7 +53,7 @@ namespace GisPlateform.SQLServerDAL.InspectionMonitor
             string sqlPerson = @"SELECT *,
                                    CASE
                                        WHEN t.MinuteDiff IS NULL
-                                            OR t.MinuteDiff > 15 THEN
+                                            OR t.MinuteDiff > 5 THEN
                                            'N'
                                        ELSE
                                            'Y'
@@ -77,7 +77,7 @@ namespace GisPlateform.SQLServerDAL.InspectionMonitor
                                         GROUP BY PersonId
                                     ) p
                                         ON p.PersonId = a.iAdminID
-                                WHERE r.IsInspector = 1) t;";
+                                WHERE r.IsInspector = 1 and a.IsDelete!=1 ) t;";
 
             using (var conn = ConnectionFactory.GetDBConn(ConnectionFactory.DBConnNames.GisPlateform))
             {

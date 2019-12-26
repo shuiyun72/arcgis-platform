@@ -65,8 +65,8 @@ namespace GisPlateformV1_0.Controllers.ApiControllers.InspectionSettings
                 return MessageEntityTool.GetMessage(ErrorType.FieldError);
             }
 
-            value.Operater = int.Parse(UserInfoCache.Authorize.UserId);
-            value.OperateDate = DateTime.Now;
+            value.Operater = value.Operater;
+            value.OperateDate = DateTime.Parse(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             var messageEntity = _planTypeDAL.Add(value);
             return messageEntity;
         }

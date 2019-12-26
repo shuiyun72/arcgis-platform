@@ -8,6 +8,7 @@
       @change="dbSelectChange"
     ></el-cascader>
     <el-select
+      :disabled="layerData.length === 1"
       v-else
       v-model="layerDataValue"
       placeholder="关阀展示"
@@ -15,7 +16,7 @@
       size="mini"
     >
       <el-option
-         v-for="item in layerData"
+        v-for="item in layerData"
         :key="item.layerNode"
         :value="item.value"
         :label="item.label"
@@ -35,8 +36,7 @@ export default {
     "loading",
     "layerListName"
   ],
-  created() {
-  },
+  created() {},
   data() {
     return {};
   },
@@ -44,40 +44,37 @@ export default {
     dbSelectChange() {
       this.$emit("update:groupLayerDataValue", this.groupLayerDataValue);
       this.$emit("update:layerDataValue", this.groupLayerDataValue[1]);
-      this.$emit("update:loading", true);
-      if (this.groupLayerDataValue[1] != "all") {
-        this.$emit(
-          "update:layerListName",
-          FeatureLayerOperation.getLayerFeatureByName(this.groupLayerDataValue[1])
-            .listViewColumn
-        );
-      } else {
-         this.$emit("update:layerListName", "all");
+      // this.$emit("update:loading", true);
+      if (this.layerListName) {
+        if (this.groupLayerDataValue[1] != "all") {
+          this.$emit(
+            "update:layerListName",
+            FeatureLayerOperation.getLayerFeatureByName(
+              this.groupLayerDataValue[1]
+            ).listViewColumn
+          );
+        } else {
+          this.$emit("update:layerListName", "all");
+        }
       }
 
       this.$emit("onGroupLayerSelectChange");
     },
-    oneSelectChange() {
-      
+    oneSelectChange(item) {
       this.$emit("update:layerDataValue", this.layerDataValue);
-      if( this.$route.name === 'BufferSearch' ){
-         return 
+      if (this.layerListName) {
+        if (this.layerDataValue == "all") {
+          this.$emit("update:layerListName", "all");
+        } else {
+          this.$emit(
+            "update:layerListName",
+            FeatureLayerOperation.getLayerFeatureByName(this.layerDataValue)
+              .listViewColumn
+          );
+        }
       }
-      if(this.$route.name === 'NormalSearch'||this.$route.name === 'SeniorSearch' || this.$route.name === 'DeviceShow' || this.$route.name === 'DataCount'){
-        this.$emit("onLayerSelectChange");
-        return
-      }
-      this.$emit("update:loading", true);
-      if (this.layerDataValue == "all") {
-        this.$emit("update:layerListName", "all");
-      } else {
-        this.$emit(
-          "update:layerListName",
-          FeatureLayerOperation.getLayerFeatureByName(this.layerDataValue)
-            .listViewColumn
-        );
-      }
-      this.$emit("onLayerSelectChange");
+
+      this.$emit("onLayerSelectChange", item);
     }
   }
 };

@@ -31,7 +31,7 @@
       <el-row>
         <el-col :xs="12" :sm="12">
           <el-form-item label="事件类型：">
-            <el-select v-model="EvevtClassDataSelect" size="small">
+            <el-select v-model="EvevtClassDataSelect" size="small" @change="EvevtClassDataSelectC">
               <el-option
                 v-for="item in evevtType"
                 :label="item.EventTypeName"
@@ -60,13 +60,13 @@
       </el-row>
       <el-row>
         <el-col :xs="12" :sm="12">
-          <el-form-item label="报修人：">
-            <el-input v-model="Linkman" size="mini" placeholder="请输入报修人" class="width_bi80"></el-input>
+          <el-form-item label="报 修 人：">
+            <el-input v-model="Linkman" size="mini" placeholder="请输入报修人(10个字符内)" class="width_bi80"   maxlength=10 @blur="LinkmanC"></el-input>
           </el-form-item>
         </el-col>
         <el-col :xs="12" :sm="12">
           <el-form-item label="报修电话：">
-            <el-input v-model="Phone" size="mini" placeholder="请输入报修电话" class="width_bi80"></el-input>
+            <el-input v-model="Phone" size="mini" placeholder="请输入报修电话" class="width_bi80" @blur="PhoneC"></el-input>
           </el-form-item>
         </el-col>
       </el-row>
@@ -85,7 +85,7 @@
           </el-form-item>
         </el-col>
         <el-col :xs="12" :sm="12">
-          <el-form-item label="处理人：">
+          <el-form-item label="处 理 人：">
             <el-select
               v-model="DisposeUserSelect"
               size="small"
@@ -104,21 +104,21 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="事件地址：">
-            <el-input v-model="EventAddress" size="mini" placeholder="请输入事件地址"></el-input>
+            <el-input v-model="EventAddress" size="mini" placeholder="请输入事件地址(限制50字符内)" maxlength=50></el-input>
           </el-form-item>
         </el-col>
         </el-row>
         <el-row>
         <el-col :span="24">
           <el-form-item label="位置坐标：">
-            <el-col :span="7">
-              <el-input v-model="Coordinate.x" size="mini"></el-input>
+            <el-col :span="7"> 
+              <el-input v-model="Coordinate.x" size="mini" maxlength=20 type="number"></el-input>
             </el-col>
             <el-col :span="1">
               <span>_</span>
             </el-col>
             <el-col :span="7">
-              <el-input v-model="Coordinate.y" size="mini"></el-input>
+              <el-input v-model="Coordinate.y" size="mini" maxlength=20 type="number"></el-input>
             </el-col>
             <el-col :span="4" :offset="1">
               <el-button size="mini" class="my-setCoordinate" @click="settingPosition">设定位置</el-button>
@@ -133,8 +133,9 @@
             <el-input
               type="textarea"
               :autosize="{ minRows: 6, maxRows: 20}"
-              placeholder="请输入内容"
+              placeholder="请输入内容(限制160字符内)"
               v-model="EventNote"
+              maxlength=160
             ></el-input>
           </el-form-item>
         </el-col>
@@ -200,6 +201,23 @@ export default {
       this.axiosEventFrom();
       this.axiosEventType();
       this.GetUrgencyList();
+    },
+    //手机号码验证
+    PhoneC(){
+      if(!/^1[345678]\d{9}$/.test(this.Phone)){
+        this.$message("请输入正确的手机号码");
+        this.Phone = "";
+      }
+    },
+    //报修人
+    LinkmanC(){
+      if(/[^\u4e00-\u9fa5a-zA-Z\d]+/.test(this.Linkman)){
+        this.$message("请输入正确的报修人");
+        this.Linkman = "";
+      }
+    },
+    EvevtClassDataSelectC(){
+      this.EvevtContentDataSelect = "";
     },
     // 事件上报
     eventUpload() {
@@ -340,7 +358,7 @@ export default {
     },
     // 获取处理人
     getUser(depid) {
-      EventStartForMaintain.GetUserComboboxListAssigment(depid).then(res => {
+      EventStartForMaintain.GetUserComboboxListNoDelete(depid).then(res => {
         this.DisposeUser = res.data.Data.Result;
       });
     },

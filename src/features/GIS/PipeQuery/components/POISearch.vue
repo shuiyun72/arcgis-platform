@@ -154,11 +154,8 @@ export default {
               this.searchCoordinate.Y
             );
           } else {
-            this.$message({
-              type: "warning",
-              message: "请输入正确的坐标",
-              showClose: true
-            });
+            this.$myMessage("warning", "请输入正确的坐标");
+            return;
           }
           this.searchLoading = false;
           break;

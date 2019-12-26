@@ -16,7 +16,7 @@ namespace GisPlateform.SQLServerDAL
 
         public MessageEntity Get(DateTime startTime, DateTime endTime, int? deptId,int ? iAdminID, string sort, string ordering, int num, int page)
         {
-            var sqlString = @"SELECT * FROM ( SELECT p.DeptId,p.PersonName,d.*,CAST(CONVERT(DECIMAL(10,2),DATEDIFF(MINUTE,d.work_start,d.work_over))/60 AS DECIMAL(10,2)) AS times
+            var sqlString = @"SELECT * FROM ( SELECT p.DeptId,p.cDepName,p.PersonName,d.*,CAST(CONVERT(DECIMAL(10,2),DATEDIFF(MINUTE,d.work_start,d.work_over))/60 AS DECIMAL(10,2)) AS times
                                 FROM PipeInspectionBase_Gis_OutSide.dbo.L_Person AS p INNER JOIN
                                 (SELECT * FROM(SELECT ss.work_start, ss.PersonId, de.Date FROM(SELECT MIN(UpTime) AS work_start, PersonId
                                 FROM dbo.L_AttendanceManage WHERE PersonStatus = '上班正常'  GROUP BY PersonId, Date)AS ss

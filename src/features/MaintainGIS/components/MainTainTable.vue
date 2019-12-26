@@ -16,6 +16,7 @@
       @cell-dblclick="tableDbClick"
       @row-click="tableClick"
       :row-class-name="tableRowClassName"
+      class="merge_rows_table_export"
       >
       <el-table-column width="42px" fixed>
         <template slot-scope="scope">
@@ -281,9 +282,9 @@ export default {
       this.getData();
     },
     //导出数据
-    ExportSearchBTn(){
-     // merge_rows_table
-     ExportExcel(".merge_rows_table","事件工单")
+    ExportSearchBTn(el){
+      el = el ? el : "事件工单";
+     ExportExcel(".merge_rows_table_export",el)
     }
   }
 };

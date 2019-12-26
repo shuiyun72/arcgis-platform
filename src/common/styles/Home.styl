@@ -33,18 +33,12 @@ a {
     box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
 
-    .app-logo {
-      height: 20px;
-      color: #fff;
-      margin-left: $topLogoBarLeft;
-      vertical-align: middle;
-    }
-
     .tag-wraper {
       font-size: $fontSizeNormal;
 
       .menu-tag-wraper {
         flex: 1;
+        flex-basis: auto;
         flex-wrap: wrap;
         justify-content: flex-end;
         overflow: hidden;
@@ -66,6 +60,7 @@ a {
         height: $topLogoBar;
         background: $topBarBg;
         position: relative;
+        display: block;
 
         & > span {
           padding-right: 10px;
@@ -77,7 +72,7 @@ a {
         }
 
         &:hover, &.active {
-          background: url('~@assets/toolIcon/topbtnBg.png');
+          background: url('~@assets/toolIcon/UI/topbtnBg.png');
           background-size: contain;
 
           &:after {
@@ -106,12 +101,13 @@ a {
         height: $topLogoBar;
         color: #fff;
         background-color: $topBarBg;
-        overflow: hidden;
+        // overflow: hidden;
 
         .el-dropdown-link {
           height: $topLogoBar;
           padding: 0 20px;
           display: inline-block;
+          white-space:nowrap
 
           &:focus {
             outline: none;
@@ -123,7 +119,7 @@ a {
         }
 
         &:hover, &:active {
-          background: url('~@assets/toolIcon/topbtnBg.png');
+          background: url('~@assets/toolIcon/UI/topbtnBg.png');
           background-size: contain;
         }
 
@@ -257,15 +253,22 @@ a {
       box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.2);
       transition: width 0.5s ease;
       z-index: 3;
+      display: flex;
+      flex-direction: column;
 
       .el-scrollbar {
         background: $leftBarBgColor;
-        height: 100%;
+        flex: 1;
+        flex-basis: auto;
       }
 
       .el-scrollbar__view {
         background: $leftBarBgColor;
-        margin-bottom: 34px;
+        // margin-bottom: 34px;
+      }
+
+      .el-scrollbar__wrap {
+        overflow-x: hidden;
       }
 
       .tooltipWraper {
@@ -282,7 +285,7 @@ a {
 
       .el-menu-control {
         padding: 0;
-        position: absolute;
+        // position: absolute;
         width: $leftBarWidth;
         bottom: 0;
         display: block;
@@ -319,6 +322,9 @@ a {
           top: 0;
           bottom: 0;
           margin: auto;
+          white-space: pre-wrap;
+          line-height: 1;
+          white-space:nowrap
         }
 
         &.el-menu--collapse {
@@ -366,18 +372,6 @@ a {
           &:hover {
             opacity: 1;
             background-color: $leftBarActiveColor;
-
-            .title {
-              width: auto;
-              opacity: 1;
-              background: #23252a;
-              font-size: #fff;
-              position: absolute;
-              left: $leftBarWidth - 6;
-              padding: 2px 4px;
-              border-radius: 2px;
-              transition: opacity 0.3s ease;
-            }
           }
 
           .el-tooltip {
@@ -545,12 +539,36 @@ a {
       }
     }
 
-    .el-menu-item {
+    .el-submenu, .el-menu-item {
       color: #afbcc4;
       height: 60px;
       line-height: 60px;
       font-size: 16px;
       background: #23252a;
+
+      .el-submenu__title {
+        background: #23252a;
+        color: #afbcc4;
+
+        &:before {
+          content: '';
+          display: block;
+          position: absolute;
+          bottom: 2px;
+          left: 0;
+          right: 0;
+          margin: 0 auto;
+          width: 95%;
+          height: 1px;
+          background-color: #000000;
+          box-shadow: 0px 1px 0px 0px rgba(49, 66, 74, 0.69);
+        }
+      }
+
+      .el-submenu__icon-arrow {
+        top: 53%;
+        right: 8px;
+      }
 
       &:hover {
         color: #00a9ff;
@@ -582,7 +600,7 @@ a {
 // 更多菜单
 .moreMenu {
   .el-dropdown-link {
-    vertical-align: sub;
+    vertical-align: middle;
     position: relative;
   }
 
@@ -641,7 +659,7 @@ a {
     }
 
     &:hover, &.active {
-      background: url('~@assets/toolIcon/topbtnBg.png');
+      background: url('~@assets/toolIcon/UI/topbtnBg.png');
       background-size: contain;
 
       &:after {
@@ -655,8 +673,31 @@ a {
   }
 }
 
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1460px) {
   .textShowWraper {
-    display: none;
+    // display: none;
+  }
+}
+
+.logo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  .app-logo {
+    height: 20px;
+    color: #fff;
+    margin-left: $topLogoBarLeft;
+    vertical-align: middle;
+  }
+
+  .logo-text {
+    word-break: keep-all;
+    font-family: '阿里普惠体';
+    color: #0085c7;
+    font-size: 20px;
+    font-weight: bolder;
+    vertical-align: bottom;
+    letter-spacing: 1px;
   }
 }

@@ -27,7 +27,7 @@ namespace GisPlateform.IDAL.EventOperation
         /// <param name="ordering">desc/asc</param>
         /// <param name="num">默认20</param>
         /// <param name="page">默认1</param>
-        MessageEntity GetEventWorkorderListForMaintain(DateTime? startTime, DateTime? endTime, int? EventFromId, int? eventType,int? EventID, string OperId, int? IsValid, int? DeptId, string EventContenct,string ExecPersonId, string sort, string ordering, int num, int page);
+        MessageEntity GetEventWorkorderListForMaintain(DateTime? startTime, DateTime? endTime, int? EventFromId, int? eventType,int? EventID, string OperId, int? IsValid, int? DeptId, string EventContenct,string ExecPersonId,string iDeptIDs, string sort, string ordering, int num, int page);
         /// <summary>
         /// 事件工单处理信息
         /// </summary>
@@ -92,6 +92,10 @@ namespace GisPlateform.IDAL.EventOperation
         DataTable GetEventExecTime(int eventTypeID);
         DataTable  GetPostponeOrderSQ(string eventId, String orderId);
         DataTable GetPostponeOrderFH(string eventId, String orderId);
+        bool IsExecute(string eventID,string  StepNum,out string errorMsg);
+        bool IsValid(string eventID, string isValid, out string errorMsg);
+        MessageEntity GetOvertimeNoReceipt(string iAdminID);
+        MessageEntity GetOvertimeNoReceiptInfo(string iAdminID);
 
     }
 }

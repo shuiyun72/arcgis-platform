@@ -197,9 +197,11 @@
     <Compile Include="AttributePack\ActionAttribute.cs" />
     <Compile Include="AttributePack\WebApiFilterAttribute.cs" />
     <Compile Include="Controllers\ApiControllers\AttendanceRecordController.cs" />
+    <Compile Include="Controllers\ApiControllers\Common\APPVersionController.cs" />
     <Compile Include="Controllers\ApiControllers\Common\CellphoneManageController.cs" />
     <Compile Include="Controllers\ApiControllers\Common\CurrentPositionController.cs" />
     <Compile Include="Controllers\ApiControllers\Common\DepartmentController.cs" />
+    <Compile Include="Controllers\ApiControllers\Common\UpLoadFileController.cs" />
     <Compile Include="Controllers\ApiControllers\Common\UserController.cs" />
     <Compile Include="Controllers\ApiControllers\MainTain\Statistics\MainTainStatisticsController.cs" />
     <Compile Include="Controllers\ApiControllers\PipeInspection\EventOperation\EventFromController.cs" />

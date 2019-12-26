@@ -2,8 +2,8 @@ import instance from  './index'
 export default {
      // 事件内容
      EventContentAll(numValue, pageValue,sortName, orderingValue) {
-        sortName = sortName || 'EventTypeName'
-        orderingValue = orderingValue || 'asc'
+        sortName = sortName || 'EventTypeId'
+        orderingValue = orderingValue || ' desc'
         return instance.get('/EventContent/Get', {
             params: {
                 sort: String(sortName),

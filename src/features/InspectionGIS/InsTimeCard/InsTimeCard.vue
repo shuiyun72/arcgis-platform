@@ -28,15 +28,16 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format="yyyy-MM-dd"
+            :clearable = false
             >
           </el-date-picker>
           </el-form-item>
         </el-col>
         <el-col :span="8" :xs="24" :sm="24" :lg="{span:8,offset:1}">
           <el-row type="flex" justify="end" style="padding:0">
-            <el-button class="my-add" size="mini" @click="GetData" v-if="$options.filters.btnTree('/api/AttendanceRecord/Get' ,$route.meta.iFunID)">查询</el-button>
-            <el-button class="my-reset" size="mini" @click="reset" hidden-md-and-down v-if="$options.filters.btnTree('/api/AttendanceRecord/Get' ,$route.meta.iFunID)">重置</el-button>
-            <el-button class="my-export" size="mini" @click="exportExcel" v-if="$options.filters.btnTree('export' ,$route.meta.iFunID)">导出</el-button>
+            <el-button class="my-add" size="mini" @click="GetData" v-if="$options.filters.btnTree('/api/AttendanceRecord/Get' ,$route.name)">查询</el-button>
+            <el-button class="my-reset" size="mini" @click="reset" hidden-md-and-down v-if="$options.filters.btnTree('/api/AttendanceRecord/Get' ,$route.name)">重置</el-button>
+            <el-button class="my-export" size="mini" @click="exportExcel" v-if="$options.filters.btnTree('export' ,$route.name)">导出</el-button>
             </el-row>
         </el-col>
       </el-row>
@@ -143,7 +144,7 @@ export default {
       this.GetData()
     },
     reset(){
-      this.dataValue = ["2001-01-01","2019-01-01"]
+      this.dataValue = ["2001-01-01",this.getDateTime(new Date())]
       this.attRListValue =  "" 
       this.GetData()
     },

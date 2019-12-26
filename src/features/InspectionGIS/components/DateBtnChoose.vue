@@ -134,7 +134,11 @@ export default {
   },
   mounted() {},
   created() {
-    this.onLoadData();
+    if(this.$route.query.date){
+      this.onLoadData(this.$route.query.date)
+    }else{
+      this.onLoadData();
+    }
     this.GetData();
   },
   watch: {
@@ -143,8 +147,9 @@ export default {
     }
   },
   methods: {
-    onLoadData() {
-      this.timeListValue = this.timeList[0].value;
+    onLoadData(num) {
+      num = num || 0;
+      this.timeListValue = this.timeList[num].value;
     },
     GetData() {
       let data, _startTime, _endTime;
