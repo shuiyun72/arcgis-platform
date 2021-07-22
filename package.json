@@ -33,7 +33,7 @@
     "vue-router": "^3.0.1",
     "vuex": "^3.1.1",
     "vx-easyui": "^1.1.5",
-    "xlsx": "^0.14.1"
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "@types/ol": "^4.6.5",
